@@ -1,4 +1,4 @@
-<article class="clearfix" role="article">
+<article class="clearfix post type-post" role="article">
   <header class="article-header">
     <span class="published">
       <time datetime="{{ post.date | datetime | date_to_xmlschema }}" pubdate>{{ post.date | date: "<span class='month'>%b</span> <span class='day'>%d</span> <span class='year'>%Y</span>"}}</time>
@@ -11,5 +11,7 @@
     {{ post.content | excerpt }}
   </section> <!-- end article section -->
   <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="{{ root_url }}{{ post.url }}">{{ site.excerpt_link }}</a>
   </footer>
 </article> <!-- end article -->
+
