@@ -1,0 +1,32 @@
+---
+layout: default
+---
+
+{% for post in paginator.posts %}
+<article class="post clearfix" role="article">
+  <section class="post-content clearfix">
+    <span class="published">{% include post/date.html %}{{ time }}</span>
+    <h1><a href="{{ root_url }}{{ post.url }}" rel="bookmark">{% if site.titlecase %}{{ post.title | titlecase }}{% else %}{{ post.title }}{% endif %}</a></h1>
+  </section> <!-- end article section -->
+
+  <div class="home-featured-wrap">
+    <img width="1600" height="1067" src="http://demo.creerthemes.com/journal/wp-content/uploads/2013/01/6934338114_0d9f7f37d6_h.jpg" scale="0" >
+  </div>
+</article> <!-- end article -->
+
+{% endfor %}
+
+<nav class="wp-prev-next">
+  <ul class="clearfix">
+    {% if paginator.next_page %}
+    <li class="prev-link">
+      <a href="{{paginator.next_page}}">&larr; Older</a>
+    </li>
+    {% endif %}
+    {% if paginator.previous_page %}
+    <li class="next-link">
+      <a href="{{paginator.previous_page}}">Newer &rarr;</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
