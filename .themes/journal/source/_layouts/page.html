@@ -2,12 +2,17 @@
 layout: default
 ---
 
-{{ include post/featured_image.html}}
+{% if page.featured_image %}
+<div id="featured-wrap">
+  <img src="{{ page.featured_image }}" class="attachment-creer-full wp-post-image" />
+  <div class="feature-credit">photo credit: {{ page.photo_credit }}</div>
+</div>
+{% endif %}
 
 <div id="content">
   <div id="inner-content" class="wrap clearfix">
       <div id="main" class="eightcol first clearfix" role="main">
-        <article class="clearfix post type-post" role="article" itemscope itemtype="http://schema.org/BlogPosting">
+        <article class="clearfix page type-page" role="article" itemscope itemtype="http://schema.org/BlogPosting">
           <header class="article-header">
             <h1 class="page-title" itemprop="headline">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</h1>
             {% if page.date %}<p class="meta">{% include post/date.html %}{{ time }}</p>{% endif %}

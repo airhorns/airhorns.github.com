@@ -3,12 +3,18 @@ layout: default
 single: true
 ---
 
-{{ include post/featured_image.html}}
+{% if page.featured_image %}
+<div id="featured-wrap">
+  <img src="{{ page.featured_image }}" class="attachment-creer-full wp-post-image" />
+  <div class="feature-credit">photo credit: {{ page.photo_credit }}</div>
+</div>
+{% endif %}
 
-<div id="content">
+
+<div id="content" class="single">
   <div id="inner-content" class="wrap clearfix">
     <div id="main" class="twelvecol clearfix" role="main">
-      <article class="clearfix" role="article" itemscope itemtype="http://schema.org/BlogPosting">
+      <article class="clearfix post" role="article" itemscope itemtype="http://schema.org/BlogPosting">
         <header class="article-header eightcol last">
           {% if page.date %}<span class="published">{% include post/date.html %}{{ time }}</span>{% endif %}
           <h1 class="entry-title single-title" itemprop="headline">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</h1>
