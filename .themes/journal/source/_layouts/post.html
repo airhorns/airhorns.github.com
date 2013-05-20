@@ -15,16 +15,12 @@ single: true
   <div id="inner-content" class="wrap clearfix">
     <div id="main" class="twelvecol clearfix" role="main">
       <article class="clearfix post" role="article" itemscope itemtype="http://schema.org/BlogPosting">
-        <header class="article-header eightcol last">
+        <header class="article-header pushfourcol">
           {% if page.date %}<span class="published">{% include post/date.html %}{{ time }}</span>{% endif %}
           <h1 class="entry-title single-title" itemprop="headline">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</h1>
         </header>
 
         <section class="entry-content clearfix" itemprop="articleBody">
-          <div id="post-content" class="eightcol last clearfix">
-            {{ content }}
-          </div>
-
           <div id="postmeta" class="fourcol first clearfix">
             <p class="byline vcard">
 
@@ -53,10 +49,14 @@ single: true
               {% include post/sharing.html %}
             {% endunless %}
           </div>
+
+          <div id="post-content">
+            {{ content }}
+          </div>
         </section>
 
         <footer class="article-footer clearfix">
-          <nav id="post-entries" class="eightcol last clearfix">
+          <nav id="post-entries" class="clearfix">
             {% if page.previous.url %}
             <div class="nav-prev fl">
               <a rel="prev" href="{{page.previous.url}}" title="Previous Post: {{page.previous.title}}">
@@ -66,7 +66,7 @@ single: true
             </div>
             {% endif %}
             {% if page.next.url %}
-            <div class="nav-next fl">
+            <div class="nav-next fr">
               <a rel="next" href="{{page.next.url}}" title="Next Post: {{page.next.title}}">
                 <span class="meta">Next</span>
                 <span class="link">{{page.next.title}}</span>
