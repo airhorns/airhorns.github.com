@@ -2475,7 +2475,6 @@ span.highlight {
     white-space: pre;
     overflow: auto;
     word-wrap: normal;
-    width: 100%;
   }
   table, tr, td {
     padding: 0px !important;
@@ -2484,4 +2483,8 @@ span.highlight {
   .line-numbers {
     border-right: 0px solid #FFF;
   }
+}
+
+#post-content {
+  ul li:before { content: "\f054"; }
 }

@@ -251,12 +251,8 @@ Also, thanks to [Mo](http://fustat.org/) for helping edit.
   var Harry = {};
 </script>
 
-<script src="/js/processing.js" type="text/javascript"></script>
-<script src="/js/flocking/vector.js" type="text/javascript"></script>
-<script src="/js/flocking/boid.js" type="text/javascript"></script>
-<script src="/js/flocking/flock.js" type="text/javascript"></script>
-<script src="/js/flocking/flocking.js" type="text/javascript"></script>
-<link href='/css/flocking.css' rel='stylesheet' type='text/css' />
+{% javascript flocking/flocking %}
+{% stylesheet flocking %}
 
 [1]: http://www.red3d.com/cwr/index.html "Craig Reynold's personal site"
 [2]: http://www.red3d.com/cwr/boids/ "Craig Reynold's site on Boids & Flocking"
