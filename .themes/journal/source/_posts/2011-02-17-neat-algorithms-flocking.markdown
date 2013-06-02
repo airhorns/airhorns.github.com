@@ -247,10 +247,6 @@ Thanks to Craig Reynolds for coming up with the algorithm and Daniel Shiffman fo
 
 Also, thanks to [Mo](http://fustat.org/) for helping edit.
 
-<script type="text/javascript">
-  var Harry = {};
-</script>
-
 {% javascript flocking/flocking %}
 {% stylesheet flocking %}
 

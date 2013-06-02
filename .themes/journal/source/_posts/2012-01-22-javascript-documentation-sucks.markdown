@@ -28,4 +28,4 @@ This situation may not be as dire as I make it out to be, because if it were bet
 
 So, I ask you, what is a JavaScript developer to do? How do I let people use my project, while developing unencumbered?
 
-I would like to know, but I also have my own storm a'brewin. Come back and check here in a couple weeks.
+I would like to know, but I also have my own storm a'brewin. The solution is underway but can be found here: https://github.com/hornairs/percolate.

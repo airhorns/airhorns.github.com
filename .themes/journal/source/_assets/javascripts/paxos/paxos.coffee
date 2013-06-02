@@ -1,7 +1,6 @@
-#= require d3.v2
-#= require batman.statemachine
-#= require async.min
-#= require paxos/namespace
+#= require vendor/d3.v2
+#= require vendor/batman.statemachine
+#= require vendor/async.min
 #= require_tree .
 
 mainVisualization = new Harry.NetworkVisualizer

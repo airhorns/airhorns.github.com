@@ -356,10 +356,6 @@ Hopefully this has been an exciting journey through the world of metaheuristic o
 
 Thanks for reading!
 
-<script type="text/javascript">
-  var Harry = {};
-</script>
-
 ### References
 
  1. Geem, Z.W.: Harmony Search Algorithm for Solving Sudoku. Knowledge-Based Intelligent Information and Engineering Systems. <http://dx.doi.org/10.1007/978-3-540-74819-9_46>
@@ -389,16 +385,5 @@ Thanks for reading!
 </script>
 
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/1.1-latest/MathJax.js"></script>
-<script src="/js/jquery.hive.js" type="text/javascript"></script>
-<script src="/js/underscore.js" type="text/javascript"></script>
-<script src="/js/protovis-d3.2.js" type="text/javascript"></script>
-<script src="/js/harmonics/harmony.js" type="text/javascript"></script>
-<script src="/js/harmonics/harmony_search.js" type="text/javascript"></script>
-<script src="/js/harmonics/sudoku_puzzle.js" type="text/javascript"></script>
-<script src="/js/harmonics/sudoku_harmony.js" type="text/javascript"></script>
-<script src="/js/harmonics/visualization.js" type="text/javascript"></script>
-<script src="/js/harmonics/sudoku_visualization.js" type="text/javascript"></script>
-<script src="/js/harmonics/exam_visualization.js" type="text/javascript"></script>
-<script src="/js/harmonics/sudoku.js" type="text/javascript"></script>
-<link href='/css/harmonics.css' rel='stylesheet' type='text/css' />
-
+{% javascript harmonics/sudoku %}
+<link href='/stylesheets/harmonics.css' rel='stylesheet' type='text/css' />

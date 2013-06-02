@@ -67,8 +67,5 @@ Paxos solves the problem of consensus over time by taking hold of time itself. E
 
 <div id="accept_demo"></div>
 
-
-<script src="/assets/paxos/paxos.js" type="text/javascript"></script>
-<link href='/assets/paxos.css' rel='stylesheet' type='text/css' />
-
-
+{% javascript paxos/paxos %}
+{% stylesheet paxos %}
