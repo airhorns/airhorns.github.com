@@ -26,6 +26,7 @@ class Harry.NetworkVisualizer
   labels: true
   nextValue: 0
   proposeEvery: 8500
+  replicaWidth: 30
 
   constructor: (options) ->
     Batman.extend(@, options)
@@ -64,16 +65,17 @@ class Harry.NetworkVisualizer
     propose()
 
   drawReplicas: ->
-    @replicaCircles = @svg.selectAll("circle.replica")
+    @replicaSquares = @svg.selectAll("rect.replica")
         .data(@network.replicas)
         .attr("fill", (replica) => @constructor.valueScale(replica.value))
 
-    @replicaCircles.enter()
-        .append("svg:circle")
+    @replicaSquares.enter()
+        .append("svg:rect")
         .attr("class", "replica")
-        .attr("r", 16)
-        .attr("cx", (replica) => @entityX(replica.id))
-        .attr("cy", (replica) => @entityY(replica.id))
+        .attr("width", @replicaWidth)
+        .attr("height", @replicaWidth)
+        .attr("x", (replica) => @entityX(replica.id) - (@replicaWidth/2))
+        .attr("y", (replica) => @entityY(replica.id) - (@replicaWidth/2))
 
   drawReplicaLabels: ->
     return unless @labels
@@ -159,7 +161,7 @@ class Harry.NetworkVisualizer
     orb = @svg.selectAll("circle.value-change.replica-#{replica.id}")
         .data([1])
         .enter()
-        .append("svg:circle")
+        .insert("svg:circle", ":first-child")
         .attr("fill", "#CC0000")
         .attr("class", "value-change replica-#{replica.id}")
         .attr("r", 17)
