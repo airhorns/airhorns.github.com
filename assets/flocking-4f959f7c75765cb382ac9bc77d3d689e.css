@@ -1,0 +1,20 @@
+.flock {
+  margin: 0 auto 1.5em auto; }
+  .flock canvas {
+    display: block;
+    margin-bottom: 0.5em; }
+
+#prettyDemo {
+  width: 90%;
+  height: 500px; }
+
+#cohesionDemo, #separationDemo {
+  float: right;
+  margin-left: 10px; }
+
+#alignmentDemo {
+  float: left;
+  margin-right: 10px; }
+
+.content h1, .content h2, .content h3, .content h4 {
+  clear: both; }

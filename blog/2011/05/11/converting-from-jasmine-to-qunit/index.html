@@ -1,0 +1,307 @@
+
+<!doctype html>
+<!--[if lt IE 7]><html <?php language_attributes(); ?> class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html <?php language_attributes(); ?> class="no-js lt-ie9 lt-ie8"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html <?php language_attributes(); ?> class="no-js lt-ie9"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+    <title>Converting from Jasmine to QUnit - Will You Harry Me</title>
+
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+		<meta name="HandheldFriendly" content="True">
+		<meta name="MobileOptimized" content="320">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  
+  <link rel="canonical" href="http://harry.me/blog/2011/05/11/converting-from-jasmine-to-qunit">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/style.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/assets/fonts/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=Crimson+Text|Ubuntu:400,700" rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]>
+  <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <![endif]-->
+
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72"   href="/images/apple-touch-icon-72x72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+
+  <script type="text/javascript" src="/javascripts/modernizr.custom.min.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery.imagesloaded.min.js"></script>
+
+  
+  <script type="text/javascript">
+    var Harry = {};
+  </script>
+	</head>
+
+
+<body class="blog ">
+  <div id="container">
+    <header class="header" role="banner">
+      <div id="inner-header" class="wrap clearfix">
+        <div class="logo">
+          <h1><a href="/" rel="nofollow">Will You Harry Me?</a></h1>
+        </div>
+
+        <div class="menu">
+          <nav role="navigation">
+            <a class="toggleMenu" href="#" style="display: inline-block;"><i class="icon-reorder"></i></a>
+            <ul id="menu-main" class="nav top-nav clearfix">
+              <li class="menu-item menu-item-home"><a href="/">Home</a></li>
+              <li class="menu-item"><a href="/about/">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    
+<div id="featured-wrap">
+  <img src="/images/headers/qunit.jpg" class="attachment-creer-full wp-post-image" />
+  <div class="feature-credit">photo credit: Carter Brundage</div>
+</div>
+
+
+
+<div id="content" class="single">
+  <div id="inner-content" class="wrap clearfix">
+    <div id="main" class="twelvecol clearfix" role="main">
+      <article class="clearfix post" role="article" itemscope itemtype="http://schema.org/BlogPosting">
+        <header class="article-header pushfourcol">
+          <span class="published">
+
+
+
+
+
+
+
+
+  
+
+
+
+
+<time datetime="2011-05-11T12:41:00-04:00" pubdate data-updated="true">May 11<span>th</span>, 2011</time></span>
+          <h1 class="entry-title single-title" itemprop="headline">Converting from Jasmine to QUnit</h1>
+        </header>
+
+        <section class="entry-content clearfix" itemprop="articleBody">
+          <div id="postmeta" class="fourcol first clearfix">
+            <p class="byline vcard">
+
+            <span class="byline author vcard">
+                
+                  
+                
+                By <a href="/about/" rel="author">Harry Brundage</a>
+              </span>
+
+              
+              
+              
+                
+
+<span class="categories">
+  Concerning: 
+  
+    <a class='category' href='/blog/categories/neat-algos/'>neat algos</a>
+  
+</span>
+
+
+              
+              <span class="count">Words: <strong>435</strong></span>
+              </p>
+
+            
+              <p class="share">
+  
+  <span class="facebook">
+    <span class="facebook"><a href="http://www.facebook.com/sharer.php?u=http://harry.me/blog/2011/05/11/converting-from-jasmine-to-qunit/&t=Converting from Jasmine to QUnit" target="blank"><i class="icon-facebook"></i></a>
+  </span>
+  
+  
+  <span class="twitter">
+    <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://harry.me/blog/2011/05/11/converting-from-jasmine-to-qunit/" data-via="harrybrundage" data-counturl="http://harry.me/blog/2011/05/11/converting-from-jasmine-to-qunit/" ><i class="icon-twitter"></i></a>
+  </span>
+  
+</p>
+
+            
+          </div>
+
+          <div id="post-content">
+            <p>I had to convert a sizeable test suite from <a href="https://github.com/pivotal/jasmine/wiki">Jasmine</a> to <a href="http://docs.jquery.com/QUnit">QUnit</a>. The former has a wide array of matchers and situation specific helpers for explicitly testing things, and the latter is about as barebones as it gets. This is all well and good, it just means converting is a pain.</p>
+
+<p>First, here are some regexes to help. These are vim substitution commands, but you should be able to adapt them for any editor with a regex find &amp; replace. Also, these were written for Coffeescript code which had some optional brackets here and there, so YMMV, but hopefully they are useful.</p>
+
+<pre><code>%s/\vdescribe "(.+)", \-\&gt;/module "\1"/
+%s/\vit "/test "/
+%s/\vexpect\((.+)\)\.toEqual\(?(.+)\)?/equals \1, \2/
+%s/\vexpect\((.+)\)\.toBeTruthy\(\)/ok \1/
+%s/\vjasmine\.createSpy/createSpy/
+%s/\vexpect\((.+)\).toHaveBeenCalledWith\((.+)\)/deepEqual \1.lastCallArguments, [\2]/
+%s\vbeforeEach \-\&gt;/setup: -&gt;/
+</code></pre>
+
+<p>We change <code>describe</code> calls to <code>module</code>, <code>it "..."</code> to <code>test "..."</code>, some basic expectations from Jasmine to the equivalents in QUnit, and then the <code>beforeEach</code> calls from Jasmine to <code>setup</code> options for the <code>module call</code>. This got me most of the way there, after running them I had to fix the indentation, ensure the <code>setup:</code> stuff was passed as an option to <code>module</code> (it was a function call before), and fix some brackets here and there. If you come up with more or better regexes please leave a comment and I&#8217;ll add them to the post!</p>
+
+<p>Next, I ripped out a very simple version of the <a href="https://github.com/pivotal/jasmine/wiki/Spies"><code>jasmine.Spy</code></a> object which I started to really miss in QUnit. This is my super basic copy of the Jasmine implementation, suitable for both command line execution through <a href="https://github.com/kof/node-qunit">node-qunit</a> or the in browser test runner.</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nv">exports = </span><span class="k">if</span> <span class="nb">window</span><span class="o">?</span> <span class="k">then</span> <span class="nb">window</span> <span class="k">else</span> <span class="nx">global</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nx">Spy</span>
+</span><span class='line'>  <span class="nv">constructor: </span><span class="nf">(original) -&gt;</span>
+</span><span class='line'>    <span class="vi">@called = </span><span class="kc">false</span>
+</span><span class='line'>    <span class="vi">@callCount = </span><span class="mi">0</span>
+</span><span class='line'>    <span class="vi">@calls = </span><span class="p">[]</span>
+</span><span class='line'>    <span class="vi">@original = </span><span class="nx">original</span>
+</span><span class='line'>    <span class="vi">@fixedReturn = </span><span class="kc">false</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">whichReturns: </span><span class="nf">(value) -&gt;</span>
+</span><span class='line'>    <span class="vi">@fixedReturn = </span><span class="kc">true</span>
+</span><span class='line'>    <span class="vi">@fixedReturnValue = </span><span class="nx">value</span>
+</span><span class='line'>    <span class="nx">@</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">createSpy = </span><span class="nf">(original) -&gt;</span>
+</span><span class='line'>  <span class="nv">spy = </span><span class="k">new</span> <span class="nx">Spy</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">f = </span><span class="nf">(args...) -&gt;</span>
+</span><span class='line'>    <span class="nv">f.called = </span><span class="kc">true</span>
+</span><span class='line'>    <span class="nx">f</span><span class="p">.</span><span class="nx">callCount</span><span class="o">++</span>
+</span><span class='line'>    <span class="nv">f.lastCall =</span>
+</span><span class='line'>      <span class="nv">object: </span><span class="k">this</span>
+</span><span class='line'>      <span class="nv">arguments: </span><span class="nx">args</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nv">f.lastCallArguments = </span><span class="nx">f</span><span class="p">.</span><span class="nx">lastCall</span><span class="p">.</span><span class="nx">arguments</span>
+</span><span class='line'>    <span class="nx">f</span><span class="p">.</span><span class="nx">calls</span><span class="p">.</span><span class="nx">push</span> <span class="nx">f</span><span class="p">.</span><span class="nx">lastCall</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">unless</span> <span class="nx">f</span><span class="p">.</span><span class="nx">fixedReturn</span>
+</span><span class='line'>      <span class="nx">f</span><span class="p">.</span><span class="nx">original</span><span class="o">?</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">args</span><span class="p">...)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="nx">f</span><span class="p">.</span><span class="nx">fixedReturnValue</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span> <span class="nx">spy</span>
+</span><span class='line'>    <span class="nx">f</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">=</span> <span class="nx">v</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">f</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">spyOn = </span><span class="nf">(obj, method) -&gt;</span>
+</span><span class='line'>  <span class="nx">obj</span><span class="p">[</span><span class="nx">method</span><span class="p">]</span> <span class="o">=</span> <span class="nx">createSpy</span><span class="p">(</span><span class="nx">obj</span><span class="p">[</span><span class="nx">method</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">exports.createSpy = </span><span class="nx">createSpy</span>
+</span><span class='line'><span class="nv">exports.spyOn = </span><span class="nx">spyOn</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Hopefully this will be of use to you if you end up doing anything similar! I have this here mostly for future reference but I hope it helps at least one of you tube surfers out there.</p>
+
+          </div>
+        </section>
+
+        <footer class="article-footer clearfix">
+          <nav id="post-entries" class="clearfix">
+            
+            <div class="nav-prev fl">
+              <a rel="prev" href="/blog/2011/02/17/neat-algorithms-flocking/" title="Previous Post: Neat Algorithms - Flocking">
+                <span class="meta">Previous</span>
+                <span class="link">Neat Algorithms - Flocking</span>
+              </a>
+            </div>
+            
+            
+            <div class="nav-next fr">
+              <a rel="next" href="/blog/2011/07/05/neat-algorithms-harmony-search/" title="Next Post: Neat Algorithms - Harmony Search">
+                <span class="meta">Next</span>
+                <span class="link">Neat Algorithms - Harmony Search</span>
+              </a>
+            </div>
+            
+          </nav>
+        </footer>
+
+        
+
+        <div class="eightcol last clearfix">
+          
+        </div>
+      </article> <!-- end article -->
+    </div>
+  </div> <!-- end #inner-content -->
+</div> <!-- end #content -->
+
+
+    <footer class="footer" role="contentinfo">
+    <div id="inner-footer" class="wrap clearfix">
+      <nav role="navigation">
+        <ul id="menu-footer" class="nav footer-nav clearfix">
+          <li class="menu-item"><a href="/">Home</a></li>
+          <li class="menu-item"><a href="/about/">About</a></li>
+          <li class="menu-item"><a href="/archives/">Archives</a></li>
+          <li class="menu-item"><a href="mailto:harry.brundage+site@gmail.com">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+</div>
+
+<a href="#" id="back-to-top"><i class="icon-angle-up"></i></a>
+<script type="text/javascript" src="/javascripts/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/javascripts/scripts.js"></script>
+<script type="text/javascript" src="/javascripts/nav.js"></script>
+<script type="text/javascript" src="/javascripts/jquery.infinitescroll.min.js"></script>
+
+
+
+</body>
+</html>
+

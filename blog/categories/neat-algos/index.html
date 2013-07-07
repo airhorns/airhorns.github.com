@@ -1,0 +1,1371 @@
+
+<!doctype html>
+<!--[if lt IE 7]><html <?php language_attributes(); ?> class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html <?php language_attributes(); ?> class="no-js lt-ie9 lt-ie8"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html <?php language_attributes(); ?> class="no-js lt-ie9"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+    <title>Blog Archive - Will You Harry Me</title>
+
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+		<meta name="HandheldFriendly" content="True">
+		<meta name="MobileOptimized" content="320">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  
+  <link rel="canonical" href="http://harry.meblog/categories/neat-algos">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/style.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/assets/fonts/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=Crimson+Text|Ubuntu:400,700" rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]>
+  <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <![endif]-->
+
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72"   href="/images/apple-touch-icon-72x72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+
+  <script type="text/javascript" src="/javascripts/modernizr.custom.min.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery.imagesloaded.min.js"></script>
+
+  
+  <script type="text/javascript">
+    var Harry = {};
+  </script>
+	</head>
+
+
+<body class="blog archive">
+  <div id="container">
+    <header class="header" role="banner">
+      <div id="inner-header" class="wrap clearfix">
+        <div class="logo">
+          <h1><a href="/" rel="nofollow">Will You Harry Me?</a></h1>
+        </div>
+
+        <div class="menu">
+          <nav role="navigation">
+            <a class="toggleMenu" href="#" style="display: inline-block;"><i class="icon-reorder"></i></a>
+            <ul id="menu-main" class="nav top-nav clearfix">
+              <li class="menu-item menu-item-home"><a href="/">Home</a></li>
+              <li class="menu-item"><a href="/about/">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <div id="featured-wrap">
+  <img src="/images/headers/archive.jpg" alt="Archives" />
+</div>
+<div id="content">
+  <div id="inner-content" class="wrap clearfix">
+      <div id="main" class="twelvecol clearfix" role="main">
+          <h1 class="archive-title h2">
+  <span>Category</span>: neat algos
+</h1>
+
+  <article class="clearfix post type-post" role="article">
+  <header class="article-header">
+    <span class="published">
+      <time datetime="2011-09-19T12:41:00-04:00" pubdate><span class='month'>Sep</span> <span class='day'>19</span> <span class='year'>2011</span></time>
+    </span>
+    <h1 class="search-title">
+      <a href="/blog/2011/09/19/why-batman/" rel="bookmark">Why Batman?</a>
+    </h1>
+  </header> <!-- end article header -->
+  <section class="entry-content clearfix">
+    [Batman.js](http://batmanjs.org/) is [Shopify](http://shopify.com)'s new open source CoffeeScript framework, and I'm absolutely elated to introduce it to the world after spending so much time on it. Find Batman on GitHub [here](https://github.com/Shopify/batman).
+
+Batman emerges into a world populated with extraordinary frameworks being used to great effect. With the incredible stuff being pushed out in projects like [Sproutcore 2.0](http://www.sproutcore.com/about/) and [Backbone.js](http://documentcloud.github.com/backbone/), how is a developer to know what to use when? There's only so much time to play with cool new stuff, so I'd like to give a quick tour of what makes Batman different and why you might want to use it instead of the other amazing frameworks available today.
+
+## Batman makes building apps easy
+
+Batman is a framework for building single page applications. It's not a progressive enhancement or a single purpose DOM or AJAX library. It's built from the ground up to make building awesome single page apps by implementing all the lame parts of development like cross browser compatibility, data transport, validation, custom events, and a whole lot more. We provide handy helpers for development to generate and serve code, a recommended app structure for helping you organize code and call it when necessary, a full MVC stack, and a bunch of extras, all while remaining less than 18k when gzipped. Batman doesn't provide the basics, or the whole kitchen sink, but a fluid API that allows you to write the important code for your app and none of the boilerplate.
+
+## A super duper runtime
+
+At the heart of Batman is a runtime layer used for manipulating data from objects and subscribing to events objects may emit. Batman's runtime is used similarly to SproutCore's or Backbone's in that all property access and assignment on Batman objects must be done through `someObject.get` and `someObject.set`, instead of using standard dot notation like you might in vanilla JavaScript. Adhering to this property system allows you to:
+
+ * transparently access "deep" properties which may be simple data or computed by a function,
+ * inherit said computed properties from objects in the prototype chain,
+ * subscribe to events like `change` or `ready` on other objects at "deep" keypaths,
+ * and most importantly, dependencies can be tracked between said properties, so chained observers can be fired and computations can be cached while guaranteed to be up-to-date.
+
+All this comes free with every Batman object, and they still play nice with vanilla JavaScript objects. Let's explore some of the things you can do with the runtime. Properties on objects can be observed using `Batman.Object::observe`:
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nv">crimeReport = </span><span class="k">new</span> <span class="nx">Batman</span><span class="p">.</span><span class="nb">Object</span>
+</span><span class='line'><span class="nx">crimeReport</span><span class="p">.</span><span class="nx">observe</span> <span class="s">&#39;address&#39;</span><span class="p">,</span> <span class="nf">(newValue) -&gt;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="nx">DangerTracker</span><span class="p">.</span><span class="nx">isDangerous</span><span class="p">(</span><span class="nx">newValue</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">crimeReport</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&#39;currentTeam&#39;</span><span class="p">).</span><span class="nx">warnOfDanger</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+This kind of stuff is available in Backbone and SproutCore both, however we've tried to bring something we missed in those frameworks to Batman: "deep" keypaths. In Batman, any keypath you supply can traverse a chain of objects by separating the keys by a `.` (dot). For example:
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nv">batWatch = </span><span class="nx">Batman</span>
+</span><span class='line'>  <span class="nv">currentCrimeReport: </span><span class="nx">Batman</span>
+</span><span class='line'>    <span class="nv">address: </span><span class="nx">Batman</span>
+</span><span class='line'>      <span class="nv">number: </span><span class="s">&quot;123&quot;</span>
+</span><span class='line'>      <span class="nv">street: </span><span class="s">&quot;Easy St&quot;</span>
+</span><span class='line'>      <span class="nv">city: </span><span class="s">&quot;Gotham&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">batWatch</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;currentCrimeReport.address.number&#39;</span> <span class="c1">#=&gt; &quot;123&quot;</span>
+</span><span class='line'><span class="nx">batWatch</span><span class="p">.</span><span class="nx">set</span> <span class="s">&#39;currentCrimeReport.address.number&#39;</span><span class="p">,</span> <span class="s">&quot;461A&quot;</span>
+</span><span class='line'><span class="nx">batWatch</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;currentCrimeReport.address.number&#39;</span> <span class="c1">#=&gt; &quot;461A&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+This works for observation too:
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nx">batWatch</span><span class="p">.</span><span class="nx">observe</span> <span class="s">&#39;currentCrimeReport.address.street&#39;</span><span class="p">,</span> <span class="nf">(newStreet, oldStreet) -&gt;</span>
+</span><span class='line'>  <span class="k">if</span> <span class="nx">DistanceCalculator</span><span class="p">.</span><span class="nx">travelTime</span><span class="p">(</span><span class="nx">newStreet</span><span class="p">,</span> <span class="nx">oldStreet</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100000</span>
+</span><span class='line'>    <span class="nx">BatMobile</span><span class="p">.</span><span class="nx">bringTo</span><span class="p">(</span><span class="nx">batWatch</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&#39;currentLocation&#39;</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+The craziest part of the whole thing is that these observers will always fire with the value of whatever is at that keypath, even if intermediate parts of the keypath change.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nv">crimeReportA = </span><span class="nx">Batman</span>
+</span><span class='line'>  <span class="nv">address: </span><span class="nx">Batman</span>
+</span><span class='line'>    <span class="nv">number: </span><span class="s">&quot;123&quot;</span>
+</span><span class='line'>    <span class="nv">street: </span><span class="s">&quot;Easy St&quot;</span>
+</span><span class='line'>    <span class="nv">city: </span><span class="s">&quot;Gotham&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">crimeReportB = </span><span class="nx">Batman</span>
+</span><span class='line'>  <span class="nv">address: </span><span class="nx">Batman</span>
+</span><span class='line'>    <span class="nv">number: </span><span class="s">&quot;72&quot;</span>
+</span><span class='line'>    <span class="nv">street: </span><span class="s">&quot;Jolly Ln&quot;</span>
+</span><span class='line'>    <span class="nv">city: </span><span class="s">&quot;Gotham&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">batWatch = </span><span class="k">new</span> <span class="nx">Batman</span><span class="p">.</span><span class="nb">Object</span><span class="p">({</span><span class="nv">currentCrimeReport: </span><span class="nx">crimeReportA</span><span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">batWatch</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&#39;currentCrimeReport.address.street&#39;</span><span class="p">)</span> <span class="c1">#=&gt; &quot;East St&quot;</span>
+</span><span class='line'><span class="nx">batWatch</span><span class="p">.</span><span class="nx">observe</span> <span class="s">&#39;currentCrimeReport.address.street&#39;</span><span class="p">,</span> <span class="nf">(newStreet) -&gt;</span>
+</span><span class='line'>  <span class="nx">MuggingWatcher</span><span class="p">.</span><span class="nx">checkStreet</span><span class="p">(</span><span class="nx">newStreet</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">batWatch</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s">&#39;currentCrimeReport&#39;</span><span class="p">,</span> <span class="nx">crimeReportB</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># the &quot;MuggingWatcher&quot; callback above will have been called with &quot;Jolly Ln&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+Notice what happened? Even though the middle segment of the keypath changed (a whole new `crimeReport` object was introduced), the observer fires with the new deep value. This works with arbitrary length keypaths as well as intermingled `undefined` values.
+
+The second neat part of the runtime is that because all access is done through `get` and `set`, we can track dependencies between object properties which need to be computed. Batman calls these functions `accessors`, and using the CoffeeScript executable class bodies they are really easy to define:
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="k">class</span> <span class="nx">BatWatch</span> <span class="k">extends</span> <span class="nx">Batman</span><span class="p">.</span><span class="nb">Object</span>
+</span><span class='line'>  <span class="c1"># Define an accessor for the `currentDestination` key on instances of the BatWatch class.</span>
+</span><span class='line'>  <span class="nx">@accessor</span> <span class="s">&#39;currentDestination&#39;</span><span class="p">,</span> <span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nv">address = </span><span class="nx">@get</span> <span class="s">&#39;currentCrimeReport.address&#39;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">address</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&#39;number&#39;</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">#{</span><span class="nx">address</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&#39;street&#39;</span><span class="p">)</span><span class="si">}</span><span class="s">, </span><span class="si">#{</span><span class="nx">address</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&#39;city&#39;</span><span class="p">)</span><span class="si">}</span><span class="s">&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">crimeReport = </span><span class="nx">Batman</span>
+</span><span class='line'>  <span class="nv">address: </span><span class="nx">Batman</span>
+</span><span class='line'>    <span class="nv">number: </span><span class="s">&quot;123&quot;</span>
+</span><span class='line'>    <span class="nx">street</span> <span class="s">&quot;Easy St&quot;</span>
+</span><span class='line'>    <span class="nv">city: </span><span class="s">&quot;Gotham&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">watch = </span><span class="k">new</span> <span class="nx">BatWatch</span><span class="p">(</span><span class="nv">currentCrimeReport: </span><span class="nx">crimeReport</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">watch</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&#39;currentDestination&#39;</span><span class="p">)</span> <span class="c1">#=&gt; &quot;123 Easy St, Gotham&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+Importantly, the observers you may attach to these computed properties will fire as soon as you update their dependencies:
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nx">watch</span><span class="p">.</span><span class="nx">observe</span> <span class="s">&#39;currentDestination&#39;</span><span class="p">,</span> <span class="nf">(newDestination) -&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">newDestination</span>
+</span><span class='line'><span class="nx">crimeReport</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span><span class="s">&#39;address.number&#39;</span><span class="p">,</span> <span class="s">&quot;124&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1"># &quot;124 Easy St, Gotham&quot; will have been logged to the console</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+You can also define the default accessors which the runtime will fall back on if an object doesn't already have an accessor defined for the key being `get`ted or `set`ted.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nv">jokerSimulator = </span><span class="k">new</span> <span class="nx">Batman</span><span class="p">.</span><span class="nb">Object</span>
+</span><span class='line'><span class="nx">jokerSimulator</span><span class="p">.</span><span class="nx">accessor</span> <span class="nf">(key) -&gt;</span> <span class="s">&quot;</span><span class="si">#{</span><span class="nx">key</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span><span class="si">}</span><span class="s">, HA HA HA!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">jokerSimulator</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&quot;why so serious&quot;</span><span class="p">)</span> <span class="c1">#=&gt; &quot;WHY SO SERIOUS, HA HA HA!&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+This feature is useful when you want to present a standard interface to an object, but work with the data in nontrivial ways underneath. For example, `Batman.Hash` uses this to present an API similar to a standard JavaScript object, while emitting events and allowing objects to be used as keys.
+
+## What's it useful for?
+
+The core of Batman as explained above makes it possible to know when data changes as soon as it happens. This is ideal for something like client side views. They're no longer static bundles of HTML that get cobbled together as a long string and sent to the client, they are long lived representations of data which need to change as the data does. Batman comes bundled with a view system which leverages the abilities of the property system.
+
+A simplified version of the view for [Alfred](http://batmanjs.org/examples/alfred.html), Batman's todo manager example application, lies below:
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='html'><span class='line'><span class="nt">&lt;h1&gt;</span>Alfred<span class="nt">&lt;/h1&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nt">&lt;ul</span> <span class="na">id=</span><span class="s">&quot;items&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;li</span> <span class="na">data-foreach-todo=</span><span class="s">&quot;Todo.all&quot;</span> <span class="na">data-mixin=</span><span class="s">&quot;animation&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;input</span> <span class="na">type=</span><span class="s">&quot;checkbox&quot;</span> <span class="na">data-bind=</span><span class="s">&quot;todo.isDone&quot;</span> <span class="na">data-event-change=</span><span class="s">&quot;todo.save&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;label</span> <span class="na">data-bind=</span><span class="s">&quot;todo.body&quot;</span> <span class="na">data-addclass-done=</span><span class="s">&quot;todo.isDone&quot;</span> <span class="na">data-mixin=</span><span class="s">&quot;editable&quot;</span><span class="nt">&gt;&lt;/label&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;a</span> <span class="na">data-event-click=</span><span class="s">&quot;todo.destroy&quot;</span><span class="nt">&gt;</span>delete<span class="nt">&lt;/a&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;/li&gt;</span>
+</span><span class='line'>    <span class="nt">&lt;li&gt;&lt;span</span> <span class="na">data-bind=</span><span class="s">&quot;Todo.all.length&quot;</span><span class="nt">&gt;&lt;/span&gt;</span> <span class="nt">&lt;span</span> <span class="na">data-bind=</span><span class="s">&quot;&#39;item&#39; | pluralize Todo.all.length&quot;</span><span class="nt">&gt;&lt;/span&gt;&lt;/li&gt;</span>
+</span><span class='line'><span class="nt">&lt;/ul&gt;</span>
+</span><span class='line'><span class="nt">&lt;form</span> <span class="na">data-formfor-todo=</span><span class="s">&quot;controllers.todos.emptyTodo&quot;</span> <span class="na">data-event-submit=</span><span class="s">&quot;controllers.todos.create&quot;</span><span class="nt">&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;input</span> <span class="na">class=</span><span class="s">&quot;new-item&quot;</span> <span class="na">placeholder=</span><span class="s">&quot;add a todo item&quot;</span> <span class="na">data-bind=</span><span class="s">&quot;todo.body&quot;</span> <span class="nt">/&gt;</span>
+</span><span class='line'><span class="nt">&lt;/form&gt;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+We sacrifice any sort of transpiler layer (no HAML), and any sort of template layer (no Eco, jade, or mustache). Our views are valid HTML5, rendered by the browser as soon as they have been downloaded. They aren't JavaScript strings, they are valid DOM trees which Batman traverses and populates with data without any compilation or string manipulation involved. The best part is that Batman "binds" a node's value by observing the value using the runtime as presented above. When the value changes in JavaScript land, the corresponding node attribute(s) bound to it update automatically, and the user sees the change. Vice versa remains true: when a user types into an input or checks a checkbox, the string or boolean is set on the bound object in JavaScript. The concept of bindings isn't new, as you may have seen it in things like Cocoa, or in [Knockout](http://knockoutjs.com/) or Sproutcore in JS land.
+
+We chose to use bindings because we a) don't want to have to manually check for changes to our data, and b) don't want to have to re-render a whole template every time one piece of data changes. With mustache or `jQuery.tmpl` and company, I end up doing both those things surprisingly often. It seems wasteful to re-render every element in a loop and pay the penalty for appending all those nodes, when only one key on one element changes, and we could just update that one node. SproutCore's 'SC.TemplateView' with Yehuda Katz' [Handlebars.js](http://www.handlebarsjs.com/) do a good job of mitigating this, but we still didn't want to do all the string ops in the browser, and so we opted for the surgical precision of binding all the data in the view to exactly the properties we want.
+
+What you end up with is a fast render with no initial loading screen, at the expense of the usual level of complex logic in your views. Batman's view engine provides conditional branching, looping, context, and simple transforms, but thats about it. It forces you to write any complex interaction code in a packaged and reusable `Batman.View` subclass, and leave the HTML rendering to the thing that does it the best: the browser.
+
+## More?
+
+Batman does more than this fancy deep keypath stuff and these weird HTML views-but-not-templates. We have a routing system for linking from quasi-page to quasi-page, complete with named segments and GET variables. We have a `Batman.Model` layer for retrieving and sending data to and from a server which works out of the box with storage backends like Rails and `localStorage`.  We have other handy mixins for use in your own objects like `Batman.StateMachine` and `Batman.EventEmitter`. And, we have a lot more on the ay. I strongly encourage you to check out the [project website](http://batmanjs.org/), the [source on GitHub](https://github.com/Shopify/batman), or visit us in [#batmanjs on freenode](irc://freenode.net/batmanjs). Any questions, feedback, or patches will be super welcome, and we're always open to suggestions on how we can make Batman better for you.
+
+Until next time....
+
+<iframe width="560" height="345" src="http://www.youtube.com/embed/X0UJaprpxrk" frameborder="0" allowfullscreen></iframe>
+
+<br/>
+_This article has been crossposted to the [Shopify](http://www.shopify.com/) Technology blog [here](http://www.shopify.com/technology/4080092-how-batman-can-help-you-build-app)._
+
+
+  </section> <!-- end article section -->
+  <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="/blog/2011/09/19/why-batman/">Read more ...</a>
+  </footer>
+</article> <!-- end article -->
+
+
+
+  <article class="clearfix post type-post" role="article">
+  <header class="article-header">
+    <span class="published">
+      <time datetime="2011-07-05T12:41:00-04:00" pubdate><span class='month'>Jul</span> <span class='day'>05</span> <span class='year'>2011</span></time>
+    </span>
+    <h1 class="search-title">
+      <a href="/blog/2011/07/05/neat-algorithms-harmony-search/" rel="bookmark">Neat Algorithms - Harmony Search</a>
+    </h1>
+  </header> <!-- end article header -->
+  <section class="entry-content clearfix">
+    Here I'll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles.
+
+Harmony Search (often abbreviated HS) is a [metaheuristic optimization](http://en.wikipedia.org/wiki/Metaheuristic) algorithm pioneered by [Dr Zong Woo Geem](https://sites.google.com/a/hydroteq.com/www/). Metaheuristic algorithms like harmony search attempt to find the optimal input to some objecting measure of quality, or in other words, find the "best" solution to a given problem. Harmony search has been successfully applied to a vast array of such problems, such as the Travelling Salesman problem, water network design, and actual algorithmic music generation.
+
+See the algorithm in action:
+
+<div id="searchVis"></div>
+
+# Table of Contents
+
+ 1. <a href="#searchVis">Demo</a>
+ 2. <a href="#heuristics">Intro to Metaheuristics</a>
+ 3. <a href="#harmony_search">Harmony Search</a>
+ 4. <a href="#exam_example">Exam Mark Demo</a>
+ 5. <a href="#sudoku_example">Sudoku Demo and Analysis</a>
+
+# About this page
+
+This page features interactive demos and code examples, all written in [Coffeescript](http://coffeescript.org/). It shouldn't be too hard to pick up if you haven't seen it before, but visit that page if you want a quick primer on the syntax. If thats too much to ask, know that variables prefixed with `@` symbols signify instance variables, and that the last value of a block is the implicit return value, and you should be good. The example code you see in the post is also a distilled, unoptimized, nuance-lacking version which gets rid of the boring stuff for your benefit, so don't make fun if it seems slow.
+
+Also, the computationally intense demo above has an intensity setting you can pick. Pick `poutine` mode only if you run Chrome or want to watch your browser get crushed. The first three settings defer to the UI thread often enough to stay responsive, but `poutine` mode uses web workers to destroy FF3, FF4, and Opera on my machine faster than you can say "higgitus figgitus". `Poutine` mode is called as such because the browser gobbles up CPU power like I gobble up the aforementioned artery clogger at 3 AM on a Saturday night. Very quickly.
+
+<h1 id="heuristics">Heuristics and Fitness</h1>
+
+Harmony search as well as the above mentioned algorithms are useful for solving a very wide class of problems. Below we'll apply it to one problem in particular, but first lets examine the role of a metaheuristic algorithm.
+
+The central idea is that when trying to solve some given optimization problem, you have some set of input variables that can be evaluated for their quality, and you want to know what inputs produce the best quality. Metaheuristic algorithms try to find this global optimum using some strategy which is better than brute force. For problems where it is hard to decipher why changing an input changes the quality (and thus the optimal solution isn't very obvious), these algorithms are extremely useful. Harmony search and its siblings in this category do not guarantee that the globally optimal solution will be found, but often they do find it, and they are often much more efficient than an exhaustive brute force search of all input combinations.
+
+## A Basic Example
+
+Say I have a killer exam tomorrow, and I have function which represents what mark I'll get depending on how much time I spend studying and how much time I spend sleeping. For the sake of the example, we'll say that I can spend a maximum of 10 hours doing either activity, and any time I don't spend doing either activity will be filled by normal day to day activities. The problem is I'll get burned out if I study too much, but I won't pass if I don't study enough. I could also be groggy during the exam I sleep too much, or be weary and slow if I don't sleep enough. How do I balance the time before the exam appropriately, given that I have this magical function which predicts the future?
+
+<figure class="big">
+  <figcaption>The problem space shown as a heat map.</figcaption>
+  <div id="sleepMap"></div>
+</figure>
+
+To the left is a heat map showing where the best marks are earned. You'll find the hours spent studying on the X axis and the hours spent sleeping on the Y axis, and the mark achieved encoded in the color at that point on the map. A white color represents 100%, and a black color represents a failing grade. You can see that around the edges of the map the colors are darker, indicating a poorer mark. There also appears to be a hotspot right in the middle at about 5 hours spent studying and 8 hours spent sleeping. This is easy for us to see because the data is laid out in such a way we can see the whole problem space at once, and see the exact range of marks earned just by looking at the colors. Us humans can identify a pattern of increasing marks by watching the colors get closer to white as the inputs approach that sweet spot.
+
+The task of an optimization algorithm is to do exactly what we do with our eyes on the heat map. It can also search non differentiable functions, or functions which few assumptions can be made. Also note that this exam example is a tad silly, because every input combination is represented in that heat map, so we could write a brute force program to just try them all and find the max pretty easily and quickly. To make it even worse, the source code for the relatively simple and continuous quality function is also in this page, so just applying some first year calculus we can find the global maximum. For computationally complex functions of many more variables, or non differentiable functions, these brute force and calculus approaches aren't feasible, and we are left to find a better strategy.
+
+<h1 id="harmony_search">Enter Harmony Search</h1>
+
+Harmony search is one such strategy for finding an optimal set of inputs to an often complicated quality function, among others like random search, simulated annealing, genetic algorithms, and tabu search. It works by imitating the activity of musicians while improvising. The choice of which note to play next while playing as part of a trio or quartet is something which takes years to learn to do effectively, because its hard to know what notes your accompaniment might play, and its hard to know what notes might sound good or great in tandem with the others. Musicians can be seen as trying to play some set of notes simultaneously to produce a _fantastic harmony_, although this is a somewhat naive take on the whole thing, so don't let me ruin the magic for you.
+
+Each musician in the ensemble is often faced with the problem of picking the next note. To do so they can reference their knowledge of the notes in the key they are playing in (what notes sound good in the context of the song), as well as the notes they've played previously (what notes sound good in the recent context). The notes they played recently most likely sounded alright, so often these are a good choice. Also, it can be wise to pick a particular note that the audience might expect and adjust the pitch of it away from the expected note to create an artistic effect and a new, potentially better, harmony.
+
+These decisions that said bland hypothetical musician makes correspond exactly to how harmony search works. Harmony search seeks an optimal combination of inputs, just as a musician seeks a fantastic harmony. Harmony search generates "harmonies" of inputs which it then evaluates for quality, and iterates this process until it finds the best one possible. The quality of a musical harmony is analogous to the quality of a particular solution, so you might say that harmony search is trying to achieve a _fantastic_ combination of inputs, or that musicians are trying to _optimize_ the note selection problem using their own heuristics.
+
+Each input to the problem is seen as a different instrument in an ensemble, each potential note one of those instruments could play corresponds to each potential value on of the inputs of the function might adopt. The musical harmony of notes is modeled as a programmatic harmony of values. We evaluate the former's quality using our ears, and the latter's using a quality function describing the problem.
+
+## Improvising New Solutions
+
+Harmony search continues to use the musician metaphor to iteratively improve its solution. Each search iteration of the algorithm generates a new harmony to evaluate for quality. Using the note selection strategies mentioned previously, notes for each instrument, or values for each input, are selected. These inputs are fed to the quality function to determine the harmony's quality. The notes are selected for each instrument by either randomly selecting a note from the range of playable notes, selecting a note from the set of recently played ones, and/or occasionally adjusting the pitch of a note up or down.
+
+## Getting better
+
+Each iteration a new harmony is generated, its quality is calculated, and if it makes the cut it's "included" in the musician's memory. This way, iteration by iteration, old, poor quality harmonies are kicked out and replaced by better ones. The average quality of the set of harmonies in this memory as a whole gradually increases as these new harmonies replace poor ones. The brilliance of the algorithm comes from this: the new harmonies that are generated, which you may recall often reference notes from the memory, start to use notes belonging to known high-quality harmonies. Thus, the newly generated harmonies use good notes, and often have higher qualities because of it. This process repeats, where the increasing the quality of individual harmonies generated increases the average quality of the memory, which increases the quality of the individual generated harmonies, and so on and so forth. At some point (it is hoped), the algorithm generates a harmony which meets the "fantastic" quality hoped for.
+
+Thats it! Harmony search isn't too complicated, but its a neat algorithm inspired by some everyday natural phenomena. Read on for the code and an example application.
+
+# The Code
+
+First, lets more formally define some terms.
+
+ + __Instrument__: One of the inputs to the quality function.
+ + __Note__: One of the possible values of an input.
+ + __Harmony__: A combination of each instrument playing a particular note, or in reality the set of chosen inputs for each argument to the quality function.
+ + __Quality__: A quantitative measure of a harmony's desirability, how close or far it is from the _fantastic_ harmony, or optimal solution.
+ + __Harmony Memory__: The collection of good harmonies, stored in memory for examination by the harmony generation algorithm.
+ + __Harmony Memory Consideration__: The process of generating a new harmony using random notes from the harmony memory.
+ + __Pitch Adjustment__: The process of moving a particular instrument's note up or down
+
+## Pseudo code for the actual algorithm
+
+ 1. Initialize the Parameters for Problem and Algorithm.
+ 2. Initialize the Harmony Memory (HM).
+ 3. Improvise a New Harmony.
+ 4. Update the Harmony Memory if the new harmony is better than the worst harmony in the memory.
+ 5. Check the stopping criterion, and if we can continue, go back to 3.
+
+## The Parts
+
+The algorithm, once applied to a problem, is composed of 3 main parts:
+
+ 1. __The harmony generator__, which spits out new, potentially good harmonies based on the contents of the harmony memory and the set of possible notes
+ 2. __The quality function__, which evaluates a particular harmony for its quality.
+ 3. __The search algorithm__, which moves harmonies in and out of the memory based on their quality.
+
+I chose to encapsulate the generator and the search algorithm into a `HarmonySearch` class, and to make the whole thing reusable by making a `Harmony` class which in a particular problem would be extended to implement the quality function.
+
+Next, we'll define the formal parameters for the algorithm:
+
+ + __Harmony Memory Consideration Rate__ or HMCR: the probability that when generating notes for a new harmony, a note from the harmony memory will be picked, instead of just picking a random one out of the possible notes
+ + __Pitch Adjustment Rate__ or PAR: the probability of randomly shifting a note up or down once it has been chosen
+
+## The skeleton
+
+Here's the skeleton for the `HarmonySearch` class:
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="k">class</span> <span class="nx">HarmonySearch</span>
+</span><span class='line'>  <span class="vi">@defaults:</span>
+</span><span class='line'>    <span class="nv">maxTries: </span><span class="mi">100</span>
+</span><span class='line'>    <span class="nv">targetQuality: </span><span class="kc">Infinity</span>
+</span><span class='line'>    <span class="nv">harmonyMemorySize: </span><span class="kc">false</span>
+</span><span class='line'>    <span class="nv">harmonyMemoryConsiderationRate: </span><span class="p">.</span><span class="mi">95</span>
+</span><span class='line'>    <span class="nv">pitchAdjustmentRate: </span><span class="p">.</span><span class="mi">1</span>
+</span><span class='line'>    <span class="nv">instruments: </span><span class="mi">10</span>
+</span><span class='line'>    <span class="nv">notes: </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span> <span class="p">]</span>
+</span><span class='line'>    <span class="nv">harmonyMemorySize: </span><span class="mi">10</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">constructor: </span><span class="nf">(options) -&gt;</span>
+</span><span class='line'>    <span class="vi">@options = </span><span class="nx">_</span><span class="p">.</span><span class="nx">extend</span> <span class="p">{},</span> <span class="nx">HarmonySearch</span><span class="p">.</span><span class="nx">defaults</span><span class="p">,</span> <span class="nx">options</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+All this does is define the defaults for the algorithm.
+
+Here's the basic, extendable `Harmony` class:
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="k">class</span> <span class="nx">Harmony</span>
+</span><span class='line'>  <span class="c1"># Pull out the note and index of the note from the chord, passed in</span>
+</span><span class='line'>  <span class="c1"># in the [[note_1, index_1], [note_2, index_2], ...] format</span>
+</span><span class='line'>  <span class="nv">constructor: </span><span class="nf">(chord) -&gt;</span>
+</span><span class='line'>    <span class="vi">@notes = </span><span class="p">[]</span>
+</span><span class='line'>    <span class="vi">@noteIndicies = </span><span class="p">[]</span>
+</span><span class='line'>    <span class="k">for</span> <span class="nx">i</span><span class="p">,</span> <span class="nx">info</span> <span class="k">of</span> <span class="nx">chord</span>
+</span><span class='line'>      <span class="nx">@notes</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class='line'>      <span class="nx">@noteIndicies</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="nx">info</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Cache the quality calculation</span>
+</span><span class='line'>  <span class="nv">quality: </span><span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nx">@_quality</span> <span class="o">?=</span> <span class="k">this</span><span class="p">.</span><span class="nx">calculateQuality</span><span class="p">()</span>
+</span><span class='line'>    <span class="nx">@_quality</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">calculateQuality: </span><span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="k">throw</span> <span class="s">&quot;Extend this class to define how a harmony&#39;s quality is evaluated&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+The above class manages the generic parts of the search. To apply it to a particular optimisation problem, we subclass `Harmony` and define a quality calculation which suits the problem at hand. Below we'll apply it to the exam mark problem mentioned above, and then after a less trivial sudoku problem.
+
+## The Harmony Generator
+
+This is the first component of the `HarmonySearch` class, responsible for spitting out new harmonies based upon those stored in the harmony memory, as well as the HMCR and the PAR.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="k">class</span> <span class="nx">HarmonySearch</span>
+</span><span class='line'>  <span class="c1"># Generate a totally random harmony</span>
+</span><span class='line'>  <span class="nv">getRandomHarmony: </span><span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nv">chord = </span><span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">..</span><span class="nx">@options</span><span class="p">.</span><span class="nx">instruments</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>        <span class="nv">index = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">notesLength</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">[</span><span class="nx">@options</span><span class="p">.</span><span class="nx">notes</span><span class="p">[</span><span class="nx">index</span><span class="p">],</span> <span class="nx">index</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">new</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">harmonyClass</span><span class="p">(</span><span class="nx">chord</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Generate a new harmony based on the HMCR and the PAR</span>
+</span><span class='line'>  <span class="nv">getNextHarmony: </span><span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nv">chord = </span><span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">..</span><span class="nx">@options</span><span class="p">.</span><span class="nx">instruments</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">harmonyMemoryConsiderationRate</span>
+</span><span class='line'>        <span class="c1"># Consider HM. Pick a random harmony, and sample the note at this position in the chord</span>
+</span><span class='line'>        <span class="nv">harmonyMemoryIndex = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span><span class="o">*</span><span class="nx">@options</span><span class="p">.</span><span class="nx">harmonyMemorySize</span><span class="p">)</span>
+</span><span class='line'>        <span class="nv">note = </span><span class="nx">@harmonyMemory</span><span class="p">[</span><span class="nx">harmonyMemoryIndex</span><span class="p">].</span><span class="nx">notes</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="c1"># Grab note for this instrument</span>
+</span><span class='line'>        <span class="nv">noteIndex = </span><span class="nx">@harmonyMemory</span><span class="p">[</span><span class="nx">harmonyMemoryIndex</span><span class="p">].</span><span class="nx">noteIndicies</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1"># Do pitch adjustment</span>
+</span><span class='line'>        <span class="k">if</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">&lt;</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">pitchAdjustmentRate</span>
+</span><span class='line'>          <span class="c1"># Adjust the pitch up or down one</span>
+</span><span class='line'>          <span class="nv">adjustment = </span><span class="k">if</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span> <span class="k">then</span> <span class="mi">1</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+</span><span class='line'>          <span class="nv">noteIndex = </span><span class="p">(</span><span class="nx">noteIndex</span> <span class="o">+</span> <span class="nx">adjustment</span> <span class="o">+</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">notesLength</span><span class="p">)</span> <span class="o">%</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">notesLength</span>
+</span><span class='line'>          <span class="nv">note = </span><span class="nx">@options</span><span class="p">.</span><span class="nx">notes</span><span class="p">[</span><span class="nx">noteIndex</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>        <span class="c1"># Don&#39;t consider the HM. Pick a random note from all possible values.</span>
+</span><span class='line'>        <span class="nv">noteIndex = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span> <span class="o">*</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">notesLength</span><span class="p">)</span>
+</span><span class='line'>        <span class="nv">note = </span><span class="nx">@options</span><span class="p">.</span><span class="nx">notes</span><span class="p">[</span><span class="nx">noteIndex</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Return chosen note for the chord</span>
+</span><span class='line'>      <span class="p">[</span><span class="nx">note</span><span class="p">,</span> <span class="nx">noteIndex</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">new</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">harmonyClass</span><span class="p">(</span><span class="nx">chord</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+Hopefully all this secondary stuff isn't too confusing, but if it is, the next section brings it all together and hopefully will make it all clear.
+
+Also note that each `Harmony` class stores both an array of notes and an array of note indices, which seems a tad odd. This is because in the above code the pitch adjustment portion needs access to the original index of the note in the array of possible notes, so it can find the next or previous index to adjust to. Thats why the `Harmony` class constructor accepts the `[[note, index], [note2, index2], ...]` style arguments, and the above accumulator returns `[note, noteIndex]`, instead of just doing arrays of notes.
+
+## The Core
+
+Below is the core of the search algorithm, which actually executes the whole search process by generating new harmonies and moving them into the harmony memory if they are better than the current worst.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="k">class</span> <span class="nx">HarmonySearch</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">search: </span><span class="nf">(callback) -&gt;</span>
+</span><span class='line'>    <span class="c1"># Initialize harmony memory</span>
+</span><span class='line'>    <span class="vi">@running = </span><span class="kc">true</span>
+</span><span class='line'>    <span class="vi">@harmonyMemory = </span><span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">..</span><span class="nx">@options</span><span class="p">.</span><span class="nx">harmonyMemorySize</span><span class="p">]</span>
+</span><span class='line'>      <span class="k">this</span><span class="p">.</span><span class="nx">getRandomHarmony</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Initialize tracker variables for the loop</span>
+</span><span class='line'>    <span class="vi">@tries = </span><span class="mi">0</span>
+</span><span class='line'>    <span class="p">[</span><span class="nx">worstQuality</span><span class="p">,</span> <span class="nx">worstIndex</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getWorst</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">[</span><span class="nx">bestQuality</span><span class="p">,</span> <span class="nx">bestIndex</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getBest</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># Iterate over the search until either the target quality is hit,</span>
+</span><span class='line'>    <span class="c1"># or the max iterations condition is passed.</span>
+</span><span class='line'>    <span class="k">while</span> <span class="kc">true</span>
+</span><span class='line'>      <span class="nx">@tries</span><span class="o">++</span> <span class="c1"># Increment tries counter each loop for end condition check</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Check end condition</span>
+</span><span class='line'>      <span class="k">if</span> <span class="nx">@tries</span> <span class="o">&gt;</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">maxTries</span> <span class="o">||</span> <span class="nx">bestQuality</span> <span class="o">&gt;=</span> <span class="nx">@options</span><span class="p">.</span><span class="nx">targetQuality</span>
+</span><span class='line'>        <span class="k">break</span> <span class="c1"># We either found it or exhausted the alloted time</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Otherwise, generate another harmony</span>
+</span><span class='line'>      <span class="nv">harmony = </span><span class="k">this</span><span class="p">.</span><span class="nx">getNextHarmony</span><span class="p">()</span>
+</span><span class='line'>      <span class="k">if</span> <span class="nx">harmony</span><span class="p">.</span><span class="nx">quality</span><span class="p">()</span> <span class="o">&gt;</span> <span class="nx">worstQuality</span>
+</span><span class='line'>        <span class="c1"># Better than worst harmony. Add this harmony to the memory and delete the worst.</span>
+</span><span class='line'>        <span class="nx">@harmonyMemory</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">harmony</span><span class="p">)</span>
+</span><span class='line'>        <span class="nx">@harmonyMemory</span><span class="p">.</span><span class="nx">splice</span><span class="p">(</span><span class="nx">worstIndex</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># Javascript for Array#delete</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1"># Update the worst quality for the next loop iteration</span>
+</span><span class='line'>        <span class="p">[</span><span class="nx">worstQuality</span><span class="p">,</span> <span class="nx">worstIndex</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getWorst</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1"># Track the best quality to see if we&#39;ve met the target quality</span>
+</span><span class='line'>        <span class="k">if</span> <span class="nx">harmony</span><span class="p">.</span><span class="nx">quality</span><span class="p">()</span> <span class="o">&gt;</span> <span class="nx">bestQuality</span>
+</span><span class='line'>          <span class="nv">bestQuality = </span><span class="nx">harmony</span><span class="p">.</span><span class="nx">quality</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">[</span><span class="nx">bestQuality</span><span class="p">,</span> <span class="nx">bestIndex</span><span class="p">]</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getBest</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">@harmonyMemory</span><span class="p">[</span><span class="nx">bestIndex</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+Thats about it! Feeling ok? Read on for a couple examples to gel all of this.
+
+<h1 id="exam_example">Exam Mark Example</h1>
+
+Consider the exam mark problem shown above. Suppose the mysterious exam mark equation has been implemented in a Javascript function called `Exam.mark(timeSleeping, timeStudying)`.
+
+    :::coffeescript
+    $ Exam.mark
+    # => function(timeSleeping, timeStudying) { ... }
+    $ Exam.mark(0, 0)
+    # => 30
+    $ Exam.mark(10,10)
+    # => 50
+
+We're trying to find the global optimum to this equation. To model this in harmony search, we ask how many instruments there are, what notes each of them can play, and how to determine the quality of the harmony produced.
+
+In this case, the `Exam.mark` equation is the one we are trying to optimize. We model its input arguments as notes, and use harmonies composed of different combinations of times. There are two instruments, one for each argument to the function, and each instrument can "play" any number between 0 and 10, which are the bounds as outlined in the problem. A harmony's quality is the mark achieved when the time is spent in it's particular allotment, which we model as the evaluation of the `Exam.mark` function for the two notes.
+
+The harmony class we'd use for this problem would look like this:
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'>    <span class="k">class</span> <span class="nx">ExamHarmony</span> <span class="k">extends</span> <span class="nx">Harmony</span>
+</span><span class='line'>      <span class="nv">quality: </span><span class="nf">-&gt;</span> <span class="nx">Exam</span><span class="p">.</span><span class="nx">mark</span><span class="p">(</span><span class="nx">@notes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">@notes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+That's not so bad right? We'd then run the search for some sufficiently large number of iterations and look at the output.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nv">search = </span><span class="k">new</span> <span class="nx">HarmonySearch</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nv">harmonyClass: </span><span class="nx">ExamHarmony</span>
+</span><span class='line'>  <span class="nv">notes: </span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">]</span>
+</span><span class='line'>  <span class="nv">instruments: </span><span class="mi">2</span>
+</span><span class='line'>  <span class="nv">targetQuality: </span><span class="mi">100</span>
+</span><span class='line'>  <span class="nv">maxIterations: </span><span class="mi">2000</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="nv">results = </span><span class="nx">search</span><span class="p">.</span><span class="nx">search</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+After this, results should hold the best quality `Harmony` found.
+
+## Demo
+
+<div id="examsearchVis"></div>
+
+Harmony Search is run live to power the visualization above, as well as the one at the top of the page. Each wedge in the purple circle represents a harmony in the memory, and so the circle is the whole HM. Each wedge is labeled by its quality, and as harmonies grow closer to the target quality, the color of their wedges grow more purple. The best and worst harmonies are are also highlighted using a green or red border. Feel free to click on a harmony to see it's location on the heat map, and judge how close it is to the optimal point. Also, notice how new harmonies are added at the top of the circle and progress clockwise as new ones are added and poor ones are removed. The best harmonies will travel all the way around the circle but not get bumped out, and end up at the back for a long period of time, contributing good quality notes to the new harmonies being generated.
+
+The grid of numbers to the right represents the selection of the notes in each new harmony. The harmony at the top of the list (with all the lines stemming from it) is the most recent addition to the harmony memory, and each line below is a progressively older harmony in the memory. Each note in the 1st row is generated either by picking a note from the set of those previously chosen in the memory, or by picking one randomly from the set of possible notes. Those chosen from the memory are signified by a grey line pointing towards the harmony from which the note was chosen. If pitch adjustment is applied, the line becomes blue. Otherwise, the note is chosen randomly, which is signified by a purple line pointing upwards into the set of notes possible for each note in the harmony. You'll only notice this in the Sudoku demo above, because there isn't enough room to show all the possibilities with the exam example.
+
+<h1 id="sudoku_example">Sudoku Example</h1>
+
+Harmony search can be applied to more complex problems than simple functions like the above. Sudoku is a specific case of the graph coloring problem, one of [Karp's 21 NP-complete problems](http://en.wikipedia.org/wiki/Karp%E2%80%99s_21_NP-complete_problems). In other words, its very time consuming to brute force the solution to a sudoku by just trying random numbers and seeing if they work. There are excellent algorithms that often run faster than harmony search or any of its metaheuristic brethren which solve the sudoku using intelligent, problem aware methods and guess when needed.
+
+These "smart" solvers are I'm sure the algorithms employed by true Sudoku software, but they rely on intimate knowledge of the Sudoku solving process and an understanding of the techniques used. We have to encode our knowledge of how to solve sudokus into a program, implementing the guessing feature, the backtracking, and all the methods for eliminating possibilities for a particular cell. Instead of developing an algorithm like this, we can use a search method to find us a solution as long as we have a heuristic to tell the quality of a given solution. By solving them in this way, we don't need to concern ourselves with finding a general method or exploring edge cases or algorithmic nuances, and we let the search algorithm figure these things out on its own. We are able to lift the burden of understanding the relationship between the input variables from our own shoulders, and instead allow the algorithm to explore these relationships itself.
+
+Hopefully you can see the advantage of using a search algorithm for problems where the smart, human written implementation is hard or impossible to create. If we have some measure of quality for a solution, and thus a way to tell when a solution is optimal, we can let the search algorithm, well, search.
+
+## The Sudoku Model
+
+Let's solve a particular Sudoku puzzle using harmony search. First, let us identify what the notes of a harmony are, and after, how to calculate the quality of one.
+
+First off, notice that for any solution to be considered as such, each cell must have a value. Some of the values are given by the puzzle, and some must be decided by us. We seek a choice for each cell such that there are no conflicts, or in other words, the optimal solution to a sudoku is one which has all the cells filled in and breaks no rules.
+
+We model the value of each one of the unknown cells as one note in a harmony, with the note's value being an integer between 1 and 9. The harmony is the chord struck when we insert each of these choices into the puzzle, and the quality of the solution is how close to a valid filled-in puzzle this solution is. The order the array of notes is entered into the puzzle doesn't really matter all that much, as long as it is consistent the algorithm will work just the same. The number of instruments is the count of unsolved cells.
+
+<figure><table class="sudoku_game"><tr><td class="violated">2</td><td class="fixed">5</td><td class="good">4</td><td class="fixed">3</td><td class="boring">1</td><td class="fixed">6</td><td class="good">8</td><td class="boring">9</td><td class="fixed">7</td></tr><tr><td class="good">7</td><td class="violated">6</td><td class="good">3</td><td class="good">9</td><td class="fixed">8</td><td class="fixed">5</td><td class="boring">1</td><td class="fixed">2</td><td class="fixed">4</td></tr><tr><td class="good">1</td><td class="fixed">9</td><td class="fixed">8</td><td class="fixed">4</td><td class="fixed">2</td><td class="good">7</td><td class="fixed">6</td><td class="boring">5</td><td class="fixed">3</td></tr><tr><td class="fixed">9</td><td class="good">8</td><td class="fixed">1</td><td class="violated">7</td><td class="violated">5</td><td class="fixed">3</td><td class="fixed">2</td><td class="violated">5</td><td class="fixed">6</td></tr><tr><td class="violated">2</td><td class="fixed">3</td><td class="violated">2</td><td class="violated">7</td><td class="good">4</td><td class="violated">8</td><td class="violated">7</td><td class="fixed">1</td><td class="boring">5</td></tr><tr><td class="fixed">5</td><td class="boring">4</td><td class="fixed">7</td><td class="fixed">2</td><td class="fixed">6</td><td class="boring">1</td><td class="fixed">9</td><td class="good">3</td><td class="fixed">8</td></tr><tr><td class="fixed">4</td><td class="violated">6</td><td class="fixed">5</td><td class="boring">6</td><td class="fixed">9</td><td class="boring">2</td><td class="fixed">3</td><td class="fixed">8</td><td class="boring">1</td></tr><tr><td class="good">3</td><td class="fixed">1</td><td class="violated">6</td><td class="fixed">5</td><td class="fixed">7</td><td class="boring">8</td><td class="boring">4</td><td class="violated">9</td><td class="fixed">2</td></tr><tr><td class="fixed">8</td><td class="good">2</td><td class="violated">6</td><td class="fixed">1</td><td class="boring">3</td><td class="fixed">4</td><td class="boring">5</td><td class="fixed">7</td><td class="violated">9</td></tr></table><figcaption>A sudoku puzzle in the process of being solved.</figcaption></figure>
+
+To the left is an example solution proposed in an early iteration of harmony search.
+
+ <ul class="sudoku_legend"><li><span class="good">Green</span> cells don't violate any rules</li><li><span class="violated">Red</span> cells violate either row, column, or block rules</li><li><span class="boring">Grey</span> cells have only one possible value based on the clues</li><li><span class="clue">White</span> cells are given in the puzzle (a "clue" cell)</li></ul>
+
+The green, grey, and red cells represent the choices for all of the unknown cells.
+
+Next, we decide how to evaluate the quality of a given solution. The most obvious algorithm is just a count of the violations in the puzzle, which is just a count of the red cells in the solution. In my tests this heuristic worked a tad less effectively than a slightly different heuristic proposed by Dr Zong Woo Geem in [1]. The optimal solution is the global minimum of \\( Q\\), where
+
+<div class="math">
+  $$
+  Q = \sum\limits_{i = 1}^9 \left| \sum\limits_{j = 1}^9  S_{i,j}  - 45 \right|
+  + \sum\limits_{j = 1}^9 \left| \sum\limits_{i = 1}^9  S_{i,j}  - 45 \right|
+  + \sum\limits_{k = 1}^9 \left| \sum_{ (i,j) \in B_k}  S_{i,j}  - 45 \right|
+  $$
+
+  where \( S_{i,j} \) is the cell \( i\) spaces over from the left and \( j\) spaces down from the top, and  \( B_k \) is all the cells in the k<sup>th</sup> box.
+</div>
+
+<br/>
+The above heuristic gives a more detailed measure of a solutions quality. It works by taking the sum of each row and subtracting 45, which is the sum of the numbers from 1 to 9. If a particular row has two 1s instead of a 1 and a 2, the sum of the numbers in the row won't be 45, and \\( Q \\) won't be minimal. A correct solution for a sudoku would have \\( Q = 0 \\). As noted in [1], its important to see that the sum of a row may be 45 even though the numbers in it are not exactly the set from 1 to 9. The numbers in a row might just happen to sum to 45, for example \\( sum\\ \\{ 1,2,2,5,5,6,7,8,9 \\} = 45 \\). However, if this case occurs in one row, then the sum for the columns passing through the row, or the sum for one of the boxes containing the row won't be 45, moving the final value of \\( Q \\) away from 0, and thus denoting a sub optimal quality as desired. The only way to get a row, column, and box sum of 45 is to have precisely the set from 1 - 9 in each container.
+
+In summary, the notes for a harmony are the set of values for the unknown cells, and the quality of the harmony is the evaluation of the function \\( Q \\) on the generated sudoku puzzle. With these two decisions made, we can now use harmony search to find a solution (if one exists) to a given sudoku puzzle.
+
+## Code
+
+The code for the sudoku example is boring and unfortunately long, but you can see it on Github if you'd like. The same `HarmonySearch` class as defined above would be used to search the problem space, and a harmony's quality would be calculated using the \\( Q \\) function above.
+
+Also, a quick side note: the `HarmonySearch` class tries to _maximize_ a given quality, whereas \\( Q \\) gets _smaller_ as the input approaches a valid solution. Because of this, I used \\( 135 - Q \\) instead of just \\( Q \\) to calculate the quality of a harmony. As \\( Q \\) gets smaller, the quality of a harmony approaches 135, which we then define as the target quality.
+
+## Discussion
+
+The demo at the very top of the page implements Harmony Search in an attempt to solve a sudoku. I tried quite hard to achieve similar results to those to Geem's [1], but I was downright stumped. Geem managed to solve the default sudoku (the one called 'geem' in my simulation) in "285 improvisations", which to me is just absurdly low. It takes my implementation anywhere from 5000 to 50000 improvisations to find a valid solution, which is an awful lot more than 285. So I think I either made a serious mistake when implementing, a serious mistake when interpreting Geem's results, or discovered some academic fraud. I trust the inventor of the algorithm to be better at implementing it than I am, so I am pretty sure I made a blunder at some point or another.
+
+The puzzle in question has 41 unsolved cells, giving a search space with 9^41 different solutions. That number has 40 digits. Its big. It's big enough that finding a solution after only 235 tries is really, really impressive. In an attempt to get my numbers down to at least the same order of magnitude, I tried precomputing the possible choices for each cell instead of letting each one be any number from 1 to 9. This is silly because it shows we don't need to use HS to solve this problem at all, because the algorithm to determine the possible choices for each cell is one that we could use to just solve the puzzle. If we can get the possible choices for a cell using some algorithm, we can just pick one choice, see if the solution works,and if not, pick the next choice, and repeat. We are implementing only the first step of the smart solving algorithm in order to make the dumb one just a tad smarter. If its possible for us to come up with an algorithm which can solve a sudoku deterministically instead of using a heuristic to search, we should most probably take the former approach.
+
+In any case, adding in this precomputation step got the numbers down as expected because it drastically reduces the size of the search space, but still no where close to Geems. I don't know why this is the case, and I've spent an obscene amount of time trying to figure it out, but alas, I have been unable. If you can figure it out by looking at the code or just based on my (perhaps incorrect) description of the algorithm, do tell me so I can put this to rest.
+
+Lastly, the above issues demonstrate that sudoku isn't really that good an example for a metaheuristic algorithms. We know that there are more efficient algorithms which solve them in itty bitty tiny amount of time, and unfortunately this solver algorithm isn't really that far from the quality heuristic we already have to write for HS. I also included no real strategy for dealing with unsolvable sudokus, which is a whole other class of [problem](http://en.wikipedia.org/wiki/Halting_problem). Shame on me for not dealing with these, but with this class of algorithm in particular its extraordinarily difficult. When using HS, there is no way to know if a solution exists or not until all possible harmonies have been tried. This brute force search is what we're trying to avoid by using a heuristic search. If our tries count reaches some user-defined ceiling, which is the stopping condition used in these demos, we wont know if a solution wasn't found because it doesn't exist, or because we just haven't waited long enough. Since it's so hard to know, we ask the algorithm to stop once its tried 10000000 harmonies, and assume that the solution doesn't exist, even though the optimal solution could be the 10000001st harmony tried.
+
+# Conclusion
+
+Hopefully this has been an exciting journey through the world of metaheuristic optimisation algorithms, and you learned a thing or two. I sure did. The takeaways are:
+
+ + Metaheuristic optimisation algorithms are useful for finding the optimal solution to some function which describes its arguments' "quality" or "fitness".
+ + Harmony search is a neat example of these algorithms which attempts to optimize a solution based on the principles of jazz musicians
+ + HS and company are applicable to a very wide range of problems, including solving puzzles like sudoku.
+ + Sudoku however isn't really a good testbed for these algorithms because its easy enough to write a solving algorithm, and you have to write most of that algorithm to apply HS to sudoku anyways.
+
+Thanks for reading!
+
+### References
+
+ 1. Geem, Z.W.: Harmony Search Algorithm for Solving Sudoku. Knowledge-Based Intelligent Information and Engineering Systems. <http://dx.doi.org/10.1007/978-3-540-74819-9_46>
+
+### Thanks
+
+  Thanks to [Mo](http://fustat.org/) and Tomas for helping edit. Thanks to Dr Geem for creating and publishing so much about the algorithm. Thanks to the authors of [Protovis](http://vis.stanford.edu/protovis/) and [Mathjax](http://www.mathjax.org/) for superb code which made the visualizations and formulas on this page look great.
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX", "output/HTML-CSS"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      displayMath: [ ['$$','$$'], ["\\[","\\]"] ],
+      processEscapes: true
+    },
+    "HTML-CSS": {
+      availableFonts: ["TeX"],
+      webFont: "TeX",
+      imageFont: null
+    },
+    TeX: {
+      extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+    }
+  });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/1.1-latest/MathJax.js"></script>
+<script type="text/javascript" src="/assets/harmonics/sudoku-506d625247e95f0326cd0464365c63a2.js"></script>
+<link href='/stylesheets/harmonics.css' rel='stylesheet' type='text/css' />
+
+  </section> <!-- end article section -->
+  <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="/blog/2011/07/05/neat-algorithms-harmony-search/">Read more ...</a>
+  </footer>
+</article> <!-- end article -->
+
+
+
+  <article class="clearfix post type-post" role="article">
+  <header class="article-header">
+    <span class="published">
+      <time datetime="2011-05-11T12:41:00-04:00" pubdate><span class='month'>May</span> <span class='day'>11</span> <span class='year'>2011</span></time>
+    </span>
+    <h1 class="search-title">
+      <a href="/blog/2011/05/11/converting-from-jasmine-to-qunit/" rel="bookmark">Converting from Jasmine to QUnit</a>
+    </h1>
+  </header> <!-- end article header -->
+  <section class="entry-content clearfix">
+    I had to convert a sizeable test suite from [Jasmine](https://github.com/pivotal/jasmine/wiki) to [QUnit](http://docs.jquery.com/QUnit). The former has a wide array of matchers and situation specific helpers for explicitly testing things, and the latter is about as barebones as it gets. This is all well and good, it just means converting is a pain.
+
+First, here are some regexes to help. These are vim substitution commands, but you should be able to adapt them for any editor with a regex find & replace. Also, these were written for Coffeescript code which had some optional brackets here and there, so YMMV, but hopefully they are useful.
+
+    %s/\vdescribe "(.+)", \-\>/module "\1"/
+    %s/\vit "/test "/
+    %s/\vexpect\((.+)\)\.toEqual\(?(.+)\)?/equals \1, \2/
+    %s/\vexpect\((.+)\)\.toBeTruthy\(\)/ok \1/
+    %s/\vjasmine\.createSpy/createSpy/
+    %s/\vexpect\((.+)\).toHaveBeenCalledWith\((.+)\)/deepEqual \1.lastCallArguments, [\2]/
+    %s\vbeforeEach \-\>/setup: ->/
+
+We change `describe` calls to `module`, `it "..."` to `test "..."`, some basic expectations from Jasmine to the equivalents in QUnit, and then the `beforeEach` calls from Jasmine to `setup` options for the `module call`. This got me most of the way there, after running them I had to fix the indentation, ensure the `setup: ` stuff was passed as an option to `module` (it was a function call before), and fix some brackets here and there. If you come up with more or better regexes please leave a comment and I'll add them to the post!
+
+Next, I ripped out a very simple version of the [`jasmine.Spy`](https://github.com/pivotal/jasmine/wiki/Spies) object which I started to really miss in QUnit. This is my super basic copy of the Jasmine implementation, suitable for both command line execution through [node-qunit](https://github.com/kof/node-qunit) or the in browser test runner.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="nv">exports = </span><span class="k">if</span> <span class="nb">window</span><span class="o">?</span> <span class="k">then</span> <span class="nb">window</span> <span class="k">else</span> <span class="nx">global</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nx">Spy</span>
+</span><span class='line'>  <span class="nv">constructor: </span><span class="nf">(original) -&gt;</span>
+</span><span class='line'>    <span class="vi">@called = </span><span class="kc">false</span>
+</span><span class='line'>    <span class="vi">@callCount = </span><span class="mi">0</span>
+</span><span class='line'>    <span class="vi">@calls = </span><span class="p">[]</span>
+</span><span class='line'>    <span class="vi">@original = </span><span class="nx">original</span>
+</span><span class='line'>    <span class="vi">@fixedReturn = </span><span class="kc">false</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">whichReturns: </span><span class="nf">(value) -&gt;</span>
+</span><span class='line'>    <span class="vi">@fixedReturn = </span><span class="kc">true</span>
+</span><span class='line'>    <span class="vi">@fixedReturnValue = </span><span class="nx">value</span>
+</span><span class='line'>    <span class="nx">@</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">createSpy = </span><span class="nf">(original) -&gt;</span>
+</span><span class='line'>  <span class="nv">spy = </span><span class="k">new</span> <span class="nx">Spy</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">f = </span><span class="nf">(args...) -&gt;</span>
+</span><span class='line'>    <span class="nv">f.called = </span><span class="kc">true</span>
+</span><span class='line'>    <span class="nx">f</span><span class="p">.</span><span class="nx">callCount</span><span class="o">++</span>
+</span><span class='line'>    <span class="nv">f.lastCall =</span>
+</span><span class='line'>      <span class="nv">object: </span><span class="k">this</span>
+</span><span class='line'>      <span class="nv">arguments: </span><span class="nx">args</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nv">f.lastCallArguments = </span><span class="nx">f</span><span class="p">.</span><span class="nx">lastCall</span><span class="p">.</span><span class="nx">arguments</span>
+</span><span class='line'>    <span class="nx">f</span><span class="p">.</span><span class="nx">calls</span><span class="p">.</span><span class="nx">push</span> <span class="nx">f</span><span class="p">.</span><span class="nx">lastCall</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">unless</span> <span class="nx">f</span><span class="p">.</span><span class="nx">fixedReturn</span>
+</span><span class='line'>      <span class="nx">f</span><span class="p">.</span><span class="nx">original</span><span class="o">?</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">args</span><span class="p">...)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="nx">f</span><span class="p">.</span><span class="nx">fixedReturnValue</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span> <span class="nx">spy</span>
+</span><span class='line'>    <span class="nx">f</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">=</span> <span class="nx">v</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nx">f</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">spyOn = </span><span class="nf">(obj, method) -&gt;</span>
+</span><span class='line'>  <span class="nx">obj</span><span class="p">[</span><span class="nx">method</span><span class="p">]</span> <span class="o">=</span> <span class="nx">createSpy</span><span class="p">(</span><span class="nx">obj</span><span class="p">[</span><span class="nx">method</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">exports.createSpy = </span><span class="nx">createSpy</span>
+</span><span class='line'><span class="nv">exports.spyOn = </span><span class="nx">spyOn</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+Hopefully this will be of use to you if you end up doing anything similar! I have this here mostly for future reference but I hope it helps at least one of you tube surfers out there.
+
+
+  </section> <!-- end article section -->
+  <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="/blog/2011/05/11/converting-from-jasmine-to-qunit/">Read more ...</a>
+  </footer>
+</article> <!-- end article -->
+
+
+
+  <article class="clearfix post type-post" role="article">
+  <header class="article-header">
+    <span class="published">
+      <time datetime="2011-02-17T12:41:00-05:00" pubdate><span class='month'>Feb</span> <span class='day'>17</span> <span class='year'>2011</span></time>
+    </span>
+    <h1 class="search-title">
+      <a href="/blog/2011/02/17/neat-algorithms-flocking/" rel="bookmark">Neat Algorithms - Flocking</a>
+    </h1>
+  </header> <!-- end article header -->
+  <section class="entry-content clearfix">
+    In this post I'll explain and demonstrate an algorithm that simulates a group of entities grouping together, illustrating something called "flocking". I think it's quite neat because the flock exhibits some complex collective intelligence when just a few simple governing rules are applied to each entity. The [original flocking algorithm](http://www.red3d.com/cwr/boids/) was developed by [Craig Reynolds](http://www.red3d.com/cwr/index.html) in 1986, and has some super cool real world applications:
+
+ * Computer animation. [Batman Returns (1992)][3] is widely quoted as having been nominated for an Oscar for its bat swarms which were procedurally generated using algorithms similar to these.
+ * Social network simulation and modeling opinion flow. After choosing humans as the entities in the flock, the overall direction of the flock can be estimated using the rules that apply to the simple flock model, and people's future opinions can be predicted. See [Gamasutra][4]'s stupendous article on the subject.
+ * Aerospace engineering. By sending [UAV](http://en.wikipedia.org/wiki/Unmanned_aerial_vehicle)s on missions in flocks they are able to more effectively complete their missions and react to enemy events. See [one paper][5] and [another][6] on the subject.
+ * Distributed systems analysis, search, and optimization. By modeling things like spacial data, network traffic, or solutions to an optimization problem as entities, the direction of the flock can be used to find [clusters][7], where to push traffic, or [optimal solutions][8].
+
+Here's the full algorithm in action:
+
+<div class="flock" id="prettyDemo"></div>
+
+You can also turn on a legend and a magnified view of one boid: <button class="awesome" id="decorateDemo">Decorate</button>
+
+## How it Works
+
+
+Each entity on the map, which we'll now refer to as a "boid", moves around while being governed by a few simple rules. Each boid starts out at the center of the map with a random velocity, and for each frame of the simulation, a new velocity is calculated using the flocking algorithm. For each boid, the algorithm uses the boid's current velocity, its neighbours' velocities, and its position relative to its neighbours to calculate this new velocity. There are three components to it: the _alignment_, the _cohesion_, and the _separation_, which when used in combination display the full blown flocking behaviour.
+
+## About this page
+
+At any time you can click on any of the demos to stop or start the boid's movement. The lower ones also have buttons allowing you to control the speed at which the boids move. When the movement is stopped you can hover your mouse over a boid to inspect the components of its velocity, as generated by the flocking algorithm. The boids also have an elephantine weakness: they are afraid of mice. Feel free to perturb the flock using your mouse while the boids are moving, and watch them try and regroup.
+
+All the demos are running the same algorithm, just with random start positions and random start velocities. The code running the demos as well as the example code on the page is done in [Coffeescript](http://coffeescript.org/). If you haven't seen it before, it shouldn't be too hard to pick up, but visit that page if you want a quick primer on the syntax. Also, the example code on this page is the distilled version of the running code, algorithmically complete but missing a lot of the boring nuances arising from actual implementation, such as a lot of the code to render the boids, wrap them around the edges of the map, and display the indicators. The code running the actual demos can be found [here](https://github.com/hornairs/blog/tree/master/assets/coffeescripts/flocking), and isn't really all that interesting.
+
+### The code & components
+
+Heres the essence of the Coffeescript class modeling the boid. Each boid has a `location` and a `velocity`, which are represented as `Vector` objects ([source](https://github.com/hornairs/blog/blob/master/assets/coffeescripts/flocking/vector.coffee)). Each frame calls the `step` method on each boid, which calculates an acceleration based on the 3 components. This acceleration is added to the velocity, which is then limited to a maxmium magnitude so the boid can't go too fast. The new velocity is added to the location to translate the boid on the map.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="c1"># Ported almost directly from http://processingjs.org/learning/topic/flocking</span>
+</span><span class='line'><span class="c1"># thanks a whole lot to Craig Reynolds and Daniel Shiffman</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nx">Boid</span>
+</span><span class='line'>  <span class="nv">location: </span><span class="kc">false</span>
+</span><span class='line'>  <span class="nv">velocity: </span><span class="kc">false</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">constructor: </span><span class="nf">(loc, processing) -&gt;</span>
+</span><span class='line'>    <span class="vi">@velocity = </span><span class="k">new</span> <span class="nx">Vector</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span><span class="o">*</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span><span class="o">*</span><span class="mi">2</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@location = </span><span class="nx">loc</span><span class="p">.</span><span class="nx">copy</span><span class="p">()</span>
+</span><span class='line'>    <span class="vi">@p = </span><span class="nx">processing</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Called every frame. Calculates the acceleration using the flock method,</span>
+</span><span class='line'>  <span class="c1"># and moves the boid based on it.</span>
+</span><span class='line'>  <span class="nv">step: </span><span class="nf">(neighbours) -&gt;</span>
+</span><span class='line'>    <span class="nv">acceleration = </span><span class="k">this</span><span class="p">.</span><span class="nx">flock</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># Limit the maximum speed at which a boid can go</span>
+</span><span class='line'>    <span class="nx">@velocity</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">acceleration</span><span class="p">).</span><span class="nx">limit</span><span class="p">(</span><span class="nx">MAX_SPEED</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@location</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">@velocity</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">this</span><span class="p">.</span><span class="nx">_wrapIfNeeded</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Implements the flocking algorthim by collecting the three components</span>
+</span><span class='line'>  <span class="c1"># and returning a weighted sum.</span>
+</span><span class='line'>  <span class="nv">flock: </span><span class="nf">(neighbours) -&gt;</span>
+</span><span class='line'>    <span class="nv">separation = </span><span class="k">this</span><span class="p">.</span><span class="nx">separate</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">).</span><span class="nx">multiply</span><span class="p">(</span><span class="nx">SEPARATION_WEIGHT</span><span class="p">)</span>
+</span><span class='line'>    <span class="nv">alignment = </span><span class="k">this</span><span class="p">.</span><span class="nx">align</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">).</span><span class="nx">multiply</span><span class="p">(</span><span class="nx">ALIGNMENT_WEIGHT</span><span class="p">)</span>
+</span><span class='line'>    <span class="nv">cohesion = </span><span class="k">this</span><span class="p">.</span><span class="nx">cohere</span><span class="p">(</span><span class="nx">neighbours</span><span class="p">).</span><span class="nx">multiply</span><span class="p">(</span><span class="nx">COHESION_WEIGHT</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">separation</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">alignment</span><span class="p">).</span><span class="nx">add</span><span class="p">(</span><span class="nx">cohesion</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+Next up is the three components which generate the acceleration.
+
+### Cohesion
+
+<div class="flock" id="cohesionDemo"></div>
+
+A flock is defined as a group of boids all staying close to each together, and the _cohesion_ component of the algorithm is mainly responsible for the togetherness aspect of this. Every frame, each boid looks at the position of each other boid to see if it is within a specified `NEIGHBOUR_RADIUS`, that is, it checks to see which other boids are close enough to be considered flockmates. The positions of the qualifying neighbours are averaged and the boid steers to towards that position. This way, each boid is trying to steer towards the center of the flock, resulting in them all staying close together.
+
+The example on the right shows how the cohesion component of the algorithm works. The pink boid's `NEIGHBOUR_RADIUS` is drawn as the green circle around it, and boids inside it (neighbours) are drawn as green instead of blue when they are inside it. Their locations (the dark purple vectors) are summed up to find the center of the flock. The light pink vector points to this center point which the pink boid is trying to reach. The blue vector shows the path by which the boid steers towards this center point. This steering vector looks a tad odd, but have a look at the code to see why it is necessary.
+
+Also note that if a boid has only one neighbour, the center of its neighbouring flock is exactly its neighbour's location. In this case the dark purple vector has a zero magnitude (it starts and ends at the same point), and the light purple vector points to the position of that neighbour.
+
+#### Code
+
+The cohesion component is calculated by averaging the location of all the neighbours within the `NEIGHBOUR_RADIUS`. Note that the returned value is the result of calling `steer_to` on the average position. The `steer_to` method implements some basic easing towards a target so the boids turn towards fellow flock members at reasonable speeds instead of instantly switching direction. You can also see this as an implementation of friction and reaction speeds.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="k">class</span> <span class="nx">Boid</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Called to get the cohesion component of the acceleration</span>
+</span><span class='line'>  <span class="nv">cohere: </span><span class="nf">(neighbours) -&gt;</span>
+</span><span class='line'>    <span class="nv">sum = </span><span class="k">new</span> <span class="nx">Vector</span>
+</span><span class='line'>    <span class="nv">count = </span><span class="mi">0</span>
+</span><span class='line'>    <span class="k">for</span> <span class="nx">boid</span> <span class="k">in</span> <span class="nx">neighbours</span>
+</span><span class='line'>      <span class="nv">d = </span><span class="nx">@location</span><span class="p">.</span><span class="nx">distance</span><span class="p">(</span><span class="nx">boid</span><span class="p">.</span><span class="nx">location</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="nx">d</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">d</span> <span class="o">&lt;</span> <span class="nx">NEIGHBOUR_RADIUS</span>
+</span><span class='line'>        <span class="nx">sum</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">boid</span><span class="p">.</span><span class="nx">location</span><span class="p">)</span>
+</span><span class='line'>        <span class="nx">count</span><span class="o">++</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="nx">count</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">steer_to</span> <span class="nx">sum</span><span class="p">.</span><span class="nx">divide</span><span class="p">(</span><span class="nx">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nx">sum</span> <span class="c1"># Empty vector contributes nothing</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">steer_to: </span><span class="nf">(target) -&gt;</span>
+</span><span class='line'>    <span class="c1"># A vector pointing from the location to the target</span>
+</span><span class='line'>    <span class="nv">desired = </span><span class="nx">Vector</span><span class="p">.</span><span class="nx">subtract</span><span class="p">(</span><span class="nx">target</span><span class="p">,</span> <span class="nx">@location</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># Distance from the target is the magnitude of the vector</span>
+</span><span class='line'>    <span class="nv">d = </span><span class="nx">desired</span><span class="p">.</span><span class="nx">magnitude</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># If the distance is greater than 0, calc steering</span>
+</span><span class='line'>    <span class="c1"># (otherwise return zero vector)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="nx">d</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>      <span class="nx">desired</span><span class="p">.</span><span class="nx">normalize</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Two options for desired vector magnitude</span>
+</span><span class='line'>      <span class="c1"># (1 -- based on distance, 2 -- maxspeed)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="nx">d</span> <span class="o">&lt;</span> <span class="mf">100.0</span>
+</span><span class='line'>        <span class="c1"># This damping is arbitrary</span>
+</span><span class='line'>        <span class="nx">desired</span><span class="p">.</span><span class="nx">multiply</span><span class="p">(</span><span class="nx">MAX_SPEED</span><span class="o">*</span><span class="p">(</span><span class="nx">d</span><span class="o">/</span><span class="mf">100.0</span><span class="p">))</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>        <span class="nx">desired</span><span class="p">.</span><span class="nx">multiply</span><span class="p">(</span><span class="nx">MAX_SPEED</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1"># Steering = Desired minus Velocity</span>
+</span><span class='line'>      <span class="nv">steer = </span><span class="nx">desired</span><span class="p">.</span><span class="nx">subtract</span><span class="p">(</span><span class="nx">@velocity</span><span class="p">)</span>
+</span><span class='line'>      <span class="c1"># Limit to maximum steering force</span>
+</span><span class='line'>      <span class="nx">steer</span><span class="p">.</span><span class="nx">limit</span><span class="p">(</span><span class="nx">MAX_FORCE</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'>      <span class="nv">steer = </span><span class="k">new</span> <span class="nx">Vector</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">steer</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+### Alignment
+
+<div class="flock" id="alignmentDemo"></div>
+
+Each boid in a flock tries to head in the same direction as the rest of the flock, which is the responsibility of the _alignment_ portion of the algorithm. Each frame, each boid looks at the heading in which it is travelling in comparison to the headings of all its neighbours, and realigns itself to match their heading. The velocity vectors of each boid within the `NEIGHBOUR_RADIUS` are averaged and the resulting vector points in the average direction of the flock, which the boid then tried to head in.
+
+In the example on the left, the neighbouring boids are highlighted in green, and their velocities are shown in light green. Each of those velocities is averaged to find the average heading the pink boid should head in. This new heading is shown as the bright green vector coming from the pink boid. You can also see the pink boid's velocity as the black vector, and notice how if the angle between the current velocity in black and the average alignment of the neighbours in bright green is large, it gradually decreases as the boid adopts the new heading.
+
+#### Code
+
+The alignment is calculated by averaging the velocities of the neighbours within the `NEIGHBOUR_RADIUS`. The return value is also `limited` to exert no more than the maximum force. This is so that the alignment component can't overpower the others, which can happen if there is a big difference between the current boid and its neighbours' velocities.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="k">class</span> <span class="nx">Boid</span>
+</span><span class='line'>  <span class="c1"># Alignment component for the frame&#39;s acceleration</span>
+</span><span class='line'>  <span class="nv">align: </span><span class="nf">(neighbours) -&gt;</span>
+</span><span class='line'>    <span class="nv">mean = </span><span class="k">new</span> <span class="nx">Vector</span>
+</span><span class='line'>    <span class="nv">count = </span><span class="mi">0</span>
+</span><span class='line'>    <span class="k">for</span> <span class="nx">boid</span> <span class="k">in</span> <span class="nx">neighbours</span>
+</span><span class='line'>      <span class="nv">d = </span><span class="nx">@location</span><span class="p">.</span><span class="nx">distance</span><span class="p">(</span><span class="nx">boid</span><span class="p">.</span><span class="nx">location</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="nx">d</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">d</span> <span class="o">&lt;</span> <span class="nx">NEIGHBOUR_RADIUS</span>
+</span><span class='line'>        <span class="nx">mean</span><span class="p">.</span><span class="nx">add</span><span class="p">(</span><span class="nx">boid</span><span class="p">.</span><span class="nx">velocity</span><span class="p">)</span>
+</span><span class='line'>        <span class="nx">count</span><span class="o">++</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">mean</span><span class="p">.</span><span class="nx">divide</span><span class="p">(</span><span class="nx">count</span><span class="p">)</span> <span class="k">if</span> <span class="nx">count</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="nx">mean</span><span class="p">.</span><span class="nx">limit</span><span class="p">(</span><span class="nx">MAX_FORCE</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nx">mean</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+### Separation
+
+<div class="flock" id="separationDemo"></div>
+
+While in a flock, each boid tries not to run into each other one in the flock. They try to remain _separate_ by keeping a specified amount of space in between themselves. Each boid checks all the other boids on the map to see if the distance between them is too small, and if so, adds an inversely proportional amount to its velocity in the opposite direction.
+
+In the example on the right you can see the red circle which indicates the desired separation around the pink boid. If a boid enters this radius, the pink boid tries to navigate away. Boids which violate the pink boid's desired separation are also highlighted in red. The red arrow pointing out of the pink boid is the separation component of the algorithm, pointing away from any boids that are too close. Note that right at the start, all the boids are too close to the pink one, so they are all highlighted in red.
+
+#### Code
+
+The code loops through the neighbours as the other methods do while checking each neighbour to see if the distance to it is less than the `DESIRED_SEPARATION`. If it is, the vector going between the two boids is found such that it is pointing away from the uncomfortably close boid. This vector is normalized, and then scaled up proportionally to how close the boid is. If the foreign boid is closer, the vector is larger, and the current boid will move away faster.
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="k">class</span> <span class="nx">Boid</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Separation component for the frame&#39;s acceleration</span>
+</span><span class='line'>  <span class="nv">separate: </span><span class="nf">(neighbours) -&gt;</span>
+</span><span class='line'>    <span class="nv">mean = </span><span class="k">new</span> <span class="nx">Vector</span>
+</span><span class='line'>    <span class="nv">count = </span><span class="mi">0</span>
+</span><span class='line'>    <span class="k">for</span> <span class="nx">boid</span> <span class="k">in</span> <span class="nx">neighbours</span>
+</span><span class='line'>      <span class="nv">d = </span><span class="nx">@location</span><span class="p">.</span><span class="nx">distance</span><span class="p">(</span><span class="nx">boid</span><span class="p">.</span><span class="nx">location</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="nx">d</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">and</span> <span class="nx">d</span> <span class="o">&lt;</span> <span class="nx">DESIRED_SEPARATION</span>
+</span><span class='line'>        <span class="c1"># Normalized, weighted by distance vector pointing away from the neighbour</span>
+</span><span class='line'>        <span class="nx">mean</span><span class="p">.</span><span class="nx">add</span> <span class="nx">Vector</span><span class="p">.</span><span class="nx">subtract</span><span class="p">(</span><span class="nx">@location</span><span class="p">,</span><span class="nx">boid</span><span class="p">.</span><span class="nx">location</span><span class="p">).</span><span class="nx">normalize</span><span class="p">().</span><span class="nx">divide</span><span class="p">(</span><span class="nx">d</span><span class="p">)</span>
+</span><span class='line'>        <span class="nx">count</span><span class="o">++</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="nx">mean</span><span class="p">.</span><span class="nx">divide</span><span class="p">(</span><span class="nx">count</span><span class="p">)</span> <span class="k">if</span> <span class="nx">count</span> <span class="o">&gt;</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="nx">mean</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+
+## Bringing it all together
+
+Once the component accelerations have been calculated, the weighted sum can be taken, and the final acceleration can be applied to the boid's velocity, as is shown at the beginning of the post. A small script like the one below is needed to manage each boid and `step` each one in sequence. To render this whole thing, I used [Processing.js](http://processingjs.org/), which was an absolute joy. The code (which has nothing to do with the flocking algorithm) to render the boid is below. For more on the Processing part of this page, I encourage you to check out the source for this page on [Github](https://github.com/hornairs/blog/blob/master/assets/coffeescripts/flocking/flock.coffee).
+
+<div class='bogus-wrapper'><notextile><figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='coffeescript'><span class='line'><span class="k">class</span> <span class="nx">Boid</span>
+</span><span class='line'>  <span class="nv">r: </span><span class="mi">2</span> <span class="c1"># &quot;radius&quot; of the triangle</span>
+</span><span class='line'>  <span class="nv">render: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="c1"># Draw a triangle rotated in the direction of velocity</span>
+</span><span class='line'>    <span class="nv">theta = </span><span class="nx">@velocity</span><span class="p">.</span><span class="nx">heading</span><span class="p">()</span> <span class="o">+</span> <span class="nx">@p</span><span class="p">.</span><span class="nx">radians</span><span class="p">(</span><span class="mi">90</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">fill</span><span class="p">(</span><span class="mi">70</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">stroke</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">pushMatrix</span><span class="p">()</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">translate</span><span class="p">(</span><span class="nx">@location</span><span class="p">.</span><span class="nx">x</span><span class="p">,</span><span class="nx">@location</span><span class="p">.</span><span class="nx">y</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">rotate</span><span class="p">(</span><span class="nx">theta</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">beginShape</span><span class="p">(</span><span class="nx">@p</span><span class="p">.</span><span class="nx">TRIANGLES</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">vertex</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">@r</span> <span class="o">*</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">vertex</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="nx">@r</span><span class="p">,</span> <span class="nx">@r</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">vertex</span><span class="p">(</span><span class="nx">@r</span><span class="p">,</span> <span class="nx">@r</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">endShape</span><span class="p">()</span>
+</span><span class='line'>    <span class="nx">@p</span><span class="p">.</span><span class="nx">popMatrix</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1"># flock function, passed the Processing instance by Processing itself</span>
+</span><span class='line'><span class="nv">flock = </span><span class="nf">(processing) -&gt;</span>
+</span><span class='line'>  <span class="nv">start = </span><span class="k">new</span> <span class="nx">Vector</span><span class="p">(</span><span class="nx">processing</span><span class="p">.</span><span class="nx">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span><span class="nx">processing</span><span class="p">.</span><span class="nx">height</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1"># Instantiate 100 boids who start in the middle of the map, have a maxmimum</span>
+</span><span class='line'>  <span class="c1"># speed of 2, maximum force of 0.05, and give them a reference to the</span>
+</span><span class='line'>  <span class="c1"># processing instance so they can render themselves.</span>
+</span><span class='line'>  <span class="nv">boids = </span><span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">..</span><span class="mi">100</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">new</span> <span class="nx">Boid</span><span class="p">(</span><span class="nx">start</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="nx">processing</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nv">processing.draw = </span><span class="nf">-&gt;</span>
+</span><span class='line'>    <span class="nx">processing</span><span class="p">.</span><span class="nx">background</span><span class="p">(</span><span class="mi">255</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">for</span> <span class="nx">boid</span> <span class="k">in</span> <span class="nx">boids</span>
+</span><span class='line'>      <span class="nx">boid</span><span class="p">.</span><span class="nx">step</span><span class="p">(</span><span class="nx">boids</span><span class="p">)</span>
+</span><span class='line'>      <span class="nx">boid</span><span class="p">.</span><span class="nx">render</span><span class="p">()</span>
+</span><span class='line'>    <span class="kc">true</span>
+</span><span class='line'>
+</span><span class='line'><span class="nv">canvas = </span><span class="nx">$</span><span class="p">(</span><span class="s">&#39;&lt;canvas width=&quot;550&quot; height=&quot;550&quot;&gt;&lt;/canvas&gt;&#39;</span><span class="p">).</span><span class="nx">appendTo</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s">&#39;#flockingDemo&#39;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+</span><span class='line'><span class="nv">processingInstance = </span><span class="k">new</span> <span class="nx">Processing</span><span class="p">(</span><span class="nx">canvas</span><span class="p">,</span> <span class="nx">flock</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+That's it! You can now stir up your own flocks of tiny little dudes to watch and herd about.
+
+## Wrap Up
+
+I hope you found this informative! If you have any questions, comments, corrections, or know of any neat uses of flocking algorithms in the wild (baha!), please leave them below. Also, thanks again to Craig Reynolds for publishing his code in the first place and Daniel Shiffman for creating a basic Processing version of it.
+
+
+### Thanks
+
+Thanks to Craig Reynolds for coming up with the algorithm and Daniel Shiffman for the initial port to Processing. Daniel is working on a new, free book called "The Nature of Code", exploring what properties of nature we can find and use while coding. He's publishing the draft chapters for anyone who helps fund the project on Kickstarter, so if you like this kind of thing you could help contribute to it on [Kickstarter](https://www.kickstarter.com/projects/shiffman/the-nature-of-code-book-project).
+
+Also, thanks to [Mo](http://fustat.org/) for helping edit.
+
+<script type="text/javascript" src="/assets/flocking/flocking-1453ca1613dd5510c745fde22713fd8d.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/flocking-4f959f7c75765cb382ac9bc77d3d689e.css">
+
+[1]: http://www.red3d.com/cwr/index.html "Craig Reynold's personal site"
+[2]: http://www.red3d.com/cwr/boids/ "Craig Reynold's site on Boids & Flocking"
+[3]: http://www.imdb.com/title/tt0103776/awards "Batman Returns (1992) Awards list"
+[4]: http://www.gamasutra.com/view/feature/1815/modeling_opinion_flow_in_humans_.php "Modeling opinion flow using Boid algorithms at Gamasutra"
+[5]: http://ieeexplore.ieee.org/xpl/freeabs_all.jsp?arnumber=1470734 "Paper from the ACC in 2005 describing the performance of UAV flock missions"
+[6]: http://ieeexplore.ieee.org/Xplore/login.jsp?url=http://ieeexplore.ieee.org/iel5/5351161/5356514/05356552.pdf%3Farnumber%3D5356552&authDecision=-203 "Paper from the ACC in 2005 describing the performance of UAV flock missions"
+[7]: http://www.springerlink.com/content/c7t0fb6a54flkrw8/ "Paper on performant parallel spacial clustering from 2002"
+[8]: http://www.engr.iupui.edu/~shi/pso.html "Page on particle swarm optimization with references."
+
+  </section> <!-- end article section -->
+  <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="/blog/2011/02/17/neat-algorithms-flocking/">Read more ...</a>
+  </footer>
+</article> <!-- end article -->
+
+
+
+
+      </div> <!-- end #main -->
+  </div> <!-- end #inner-content -->
+</div> <!-- end #content -->
+
+
+    <footer class="footer" role="contentinfo">
+    <div id="inner-footer" class="wrap clearfix">
+      <nav role="navigation">
+        <ul id="menu-footer" class="nav footer-nav clearfix">
+          <li class="menu-item"><a href="/">Home</a></li>
+          <li class="menu-item"><a href="/about/">About</a></li>
+          <li class="menu-item"><a href="/archives/">Archives</a></li>
+          <li class="menu-item"><a href="mailto:harry.brundage+site@gmail.com">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+</div>
+
+<a href="#" id="back-to-top"><i class="icon-angle-up"></i></a>
+<script type="text/javascript" src="/javascripts/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/javascripts/scripts.js"></script>
+<script type="text/javascript" src="/javascripts/nav.js"></script>
+<script type="text/javascript" src="/javascripts/jquery.infinitescroll.min.js"></script>
+
+
+
+</body>
+</html>
+

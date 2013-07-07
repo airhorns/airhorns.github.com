@@ -1,0 +1,15 @@
+#first {
+  width: 960px;
+  margin: 0 auto; }
+
+circle.replica, circle.client {
+  stroke: #333333;
+  stroke-width: 2; }
+
+text.replica-label {
+  font-size: 10px;
+  color: fuchsia; }
+
+circle.message {
+  stroke: #333333;
+  stroke-width: 1; }

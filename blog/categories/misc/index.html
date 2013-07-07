@@ -1,0 +1,246 @@
+
+<!doctype html>
+<!--[if lt IE 7]><html <?php language_attributes(); ?> class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if (IE 7)&!(IEMobile)]><html <?php language_attributes(); ?> class="no-js lt-ie9 lt-ie8"><![endif]-->
+<!--[if (IE 8)&!(IEMobile)]><html <?php language_attributes(); ?> class="no-js lt-ie9"><![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"><!--<![endif]-->
+	<head>
+		<meta charset="utf-8">
+    <title>Blog Archive - Will You Harry Me</title>
+
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+		<meta name="HandheldFriendly" content="True">
+		<meta name="MobileOptimized" content="320">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  
+  <link rel="canonical" href="http://harry.meblog/categories/misc">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/style.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/assets/fonts/font-awesome.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="http://fonts.googleapis.com/css?family=Crimson+Text|Ubuntu:400,700" rel="stylesheet" type="text/css">
+  <!--[if lt IE 9]>
+  <link href="/stylesheets/ie.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <![endif]-->
+
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/images/apple-touch-icon-144x144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/images/apple-touch-icon-114x114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72"   href="/images/apple-touch-icon-72x72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="/images/apple-touch-icon-precomposed.png">
+
+  <script type="text/javascript" src="/javascripts/modernizr.custom.min.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/javascripts/jquery.imagesloaded.min.js"></script>
+
+  
+  <script type="text/javascript">
+    var Harry = {};
+  </script>
+	</head>
+
+
+<body class="blog archive">
+  <div id="container">
+    <header class="header" role="banner">
+      <div id="inner-header" class="wrap clearfix">
+        <div class="logo">
+          <h1><a href="/" rel="nofollow">Will You Harry Me?</a></h1>
+        </div>
+
+        <div class="menu">
+          <nav role="navigation">
+            <a class="toggleMenu" href="#" style="display: inline-block;"><i class="icon-reorder"></i></a>
+            <ul id="menu-main" class="nav top-nav clearfix">
+              <li class="menu-item menu-item-home"><a href="/">Home</a></li>
+              <li class="menu-item"><a href="/about/">About</a></li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <div id="featured-wrap">
+  <img src="/images/headers/archive.jpg" alt="Archives" />
+</div>
+<div id="content">
+  <div id="inner-content" class="wrap clearfix">
+      <div id="main" class="twelvecol clearfix" role="main">
+          <h1 class="archive-title h2">
+  <span>Category</span>: misc
+</h1>
+
+  <article class="clearfix post type-post" role="article">
+  <header class="article-header">
+    <span class="published">
+      <time datetime="2013-07-10T12:41:00-04:00" pubdate><span class='month'>Jul</span> <span class='day'>10</span> <span class='year'>2013</span></time>
+    </span>
+    <h1 class="search-title">
+      <a href="/blog/2013/07/10/neat-algorithms-paxos/" rel="bookmark">Neat Algorithms - Paxos</a>
+    </h1>
+  </header> <!-- end article header -->
+  <section class="entry-content clearfix">
+    This is an article on and demonstration of an extraordinarily neat algorithm called Paxos. Paxos is a strategy for teaching a whole bunch of decidedly unreliable processes to reliably decide on stuff. More formally: it allows a group of potentially faulty processors to deterministically and safely reach consensus if Paxos' conditions are met while ensuring processors remain consistent if consensus can't be reached.
+
+<div id="main_demo"></div>
+
+# Paxos: something we can agree on.
+
+Paxos is an algorithm to solve the consensus problem. Honest-to-goodness real-life implementations of Paxos can be found at the heart of world class software like Apache Zookeeper, Google's magnificent Spanner database, and also their distributed locking service Chubby.
+
+The algorithm satisfies the following conditions:
+
+ - Only values which are sent to the system can become a new, agreed upon value for the system (duh?)
+
+This property albeit obvious is important: you don't want your system somehow reporting a value that was never set in the first place.
+
+ - Values can only become the new value for the system if consensus can be reached
+
+This is the "safety" property of the whole system: unless a majority of members of the system can agree that a potential value is actually the real value, the potential value won't ever become the real value.
+
+Lets get some definitions out of the way so that if you explore the literature on the topic you can know what people are talking about:
+
+ - `process`: one of the computers in the system. Also known as a replica.
+ - `client`: a computer not in the system who is asking the system what the value is or to take on a new value.
+ - `proposal`: the thing generated by a client asking the system to take on a new value. Note that proposals may succeed or fail.
+ - `acceptance`: the act of one of the processes in the system deciding to take on a new value, or "accept" it as true.
+
+# The guts
+
+Let's examine what Paxos makes our cluster of processes do when a client asks that a new value be written:
+
+ - A client of the Paxos governed system asks that a new value be set. The client here shows up as the pink circle, and the processes show up as the squares. Paxos makes a guarantee that the client can send their write request to any member of the Paxos cluster, so it picks one at random in this case.
+
+<div id="client_demo"></div>
+
+ - The Paxos process that recieves the write request "proposes" this new value to the system by sending a `prepare` message to all the other processes it knows of.
+
+<div id="prepare_demo"></div>
+
+This `prepare` message holds what's called a _sequence number_ inside it. The sequence number declares that the receiving process should prepare to accept a proposal with that sequence number. Each process which receives the `prepare` message can either reply with a `promise` message or nothing at all.
+
+ - These receiving processes make the critical check in the system: that they've never seen a sequence number higher than the one held in the incoming `prepare` message. If they haven't, then they can be sure that this is the newest proposal, and promise that they'll accept it. If they have seen something higher, they know there is a newer proposal out on the loose, and can reply telling the out-of-date proposer that they are as such.
+
+<div id="promise_demo"></div>
+
+Paxos solves the problem of consensus over time by taking hold of time itself. Every time a process submits a value the system they associate with it a strictly increasing sequence number and associate the `prepare` (and as we'll see later, `accept`) messages with it. Using this number, a process in the system can identify in what order the messages it received were created, and apply temporal precedence.
+
+ - The proposing process waits for the other processes to promise to accept only its proposal or a higher numbered one. Upon receiving promises from a majority of processes, the proposing process issues an `accept` message decreeing that they now store the proposed value associated with the sequence number in the proposal.
+
+<div id="accept_demo"></div>
+
+<script type="text/javascript" src="/assets/paxos/paxos-9a2408ac3246fe5d4a9484f02c811349.js"></script>
+<link rel="stylesheet" type="text/css" href="/assets/paxos-1626bbae8d93c1ee47f06661a44136bb.css">
+
+  </section> <!-- end article section -->
+  <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="/blog/2013/07/10/neat-algorithms-paxos/">Read more ...</a>
+  </footer>
+</article> <!-- end article -->
+
+
+
+  <article class="clearfix post type-post" role="article">
+  <header class="article-header">
+    <span class="published">
+      <time datetime="2013-07-07T14:32:00-04:00" pubdate><span class='month'>Jul</span> <span class='day'>07</span> <span class='year'>2013</span></time>
+    </span>
+    <h1 class="search-title">
+      <a href="/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/" rel="bookmark">I'd like to have an argument: A primer on consensus</a>
+    </h1>
+  </header> <!-- end article header -->
+  <section class="entry-content clearfix">
+    If you are, say, a piece of e-commerce software, and, say, you want a record of when your customers buy stuff, how might you ensure that how can you get a record of each transaction every single time one happens? Money is changing hands, and people aren't very fond of loosing money without any gain in return, so having a correct ledger for transactions sure is important.
+
+You certainly can't just leave this record on one computer, since that computer's disk might die and leave you with none of your data. You could put it on two computers so that if one died you'd still have the record on the other computer, but you'd have to make sure that you write the information to both computers every time. Worse is that you must make sure that your cherished record gets written to both computers before you move on and accept more transactions, because if it doesn't assuredly make it to both places, there's a small chance you might only have one copy, and thus again risk loosing that data.
+
+If, say, your data set grew to be so important that simple dual redundancy was inadequate, you could network some computers who would all be responsible for storing the data. Now that this is happened you are beginning to have an interesting problem: how does your system behave when one of these computers fails? Ideally, if only one of ten of the machines gets its power cord tripped over, you should still be able to add more stuff to the other computers. After all, the more computers we add to increase redundancy, the more likely any failure at all is to occur, since we now have ten things that can fail instead of just one. We still want to make sure that when we write some data to this cluster, it is assuredly written to some bunch of boxes, but ideally it doesn't need to be all ten so that the system can sustain inevitable failures.
+
+### This isn't an argument, its just contradiction!
+
+A possible strategy would be to designate one computer as the "master", who's responsibilities would be to manage all the incoming write requests from clients of the system by doling them out to the other computers which it knows are online. Designating a master sounds good since we now have one computer who can decide if the system is ready to accept writes. This is to say that if enough computers fail, our beloved transaction log should enter an "unwritable" state, where no transactions can occur because we can't safely store them. For the transaction log, we'd rather go down than loose data, again because people sure do love their money.
+
+So, going with this strategy for a moment longer, we could program our master node to watch for node deaths, and decide if there is still enough online to continue accepting writes. There is one major glaring problem however: the master its self might fail. We'd need a new master, and lickity split. Then you might think, well, I'll just have some other computer detect that the master computer has failed, and designate another one as the master! Easy peasy.
+
+As simple as that you have stumbled upon a tough computer science problem: reaching something called consensus. Whoever the remaining computers are after a master failure need to agree on who is going to be the next master. If all the computers lept up and declared themselves the master, we'd could start having two different data sets where depending on who you ask the same person has different amounts of money! If no computers declare themselves the master, the system stops working, and no one can buy stuff, which is also less than ideal.
+
+The process these computers should follow is called reaching consensus: they need a provably correct way to agree on who the next master might be. Generalizing for a moment, the problem can be framed as such: in the presence of real life computers, that is to say ones which can fail unpredictably, how can we make them behave such that when failures inevitably occur, they continue to do useful work?
+
+The consensus problem is one of the quintessential building blocks of distributed systems, and seems to be regarded as one of the tougher ones from both a conceptional and software engineering point of view. Depending on what sub set of the problem you look at, the aim is to define a rigorous process for submitting a value to a cluster of machines who will try reach consensus in the face of the expected failures, or unexpected ones like buggy software, or even  goodness gracious holy macaroni _malicious agents_ participating in the cluster. The cluster can agree to not accept a new value when one is submitted, or it can take a significant amount of time to accept it, but the key is that by the end of the process, the cluster "agrees" on what the "true" value is, be it the one it was before anything happened, or the newly submitted value. The "true" value here is a convenient yet misleading metaphor, since again, depending on who or how many people you ask, the answer is different. That said, the role of a consensus algorithm is to define both how to submit a new value to the system, and also how to retrieve the "true" value the system has adopted. A handy definition of the "true" value read algorithm is just to ask everyone and see what value the majority of the cluster thinks the value is.
+
+The reasons this problem is challenging arise from the simple fact that both processes and humans are unreliable. Disks fail, cords get unplugged, engineers write bugs, and yet all the while we still want to buy stuff. It wouldn't be too tough to write a goofy consensus algorithm I shall enjoy titling "lol dunno" which just rejects any new incoming values in the event of any of these failures. Due to these failures' inevitability "lol dunno", despite being simple, is relatively useless. The consensus problem holds us engineers to a higher standard of coming up with a way for a cluster of processes with some errors to remain resilient and still accept new values for data.
+
+### Argument is an intellectual process
+
+Consensus problem solvers enjoy a number of horrid subproblems stemming from the fact that they must admit that there is such a thing as time. Many clients might try to propose a new value to the system around the same time, so problem solvers have to decide if they are going to impose an ordering on the operations the system takes. Messages between processes might arrive slowly, or even out of order as well, which means state has to be very carefully tracked by all actors in the show. A correct implementation of a solution to the problem must guarantee that one and only one value is agreed upon as the true value by the system at one instant. This means it must be completely resilient to conflicting clients proposing conflicting values, and bake in some sort of prevention of different factions of the system trying to pick one of the clients as the correct one.
+
+All this boils ~~down~~ over into a few decades of research. As best I can tell, the state of the art consensus algorithm is one called [Paxos](http://en.wikipedia.org/wiki/Paxos_(computer_science)), so if you are looking to see how things relying on consensus are actually built, I'd say start there. Interestingly very recently a new consensus algorithm has risen to prominence in the zeitgeist: [Raft](https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf). Raft interests me because it's been designed for understandability as well as correctness, so it may be worth investigating as well. There's also a number of resources describing concrete implementations of Paxos and the myriad of challenges associated with it which are simultaneously horrifying and interesting.
+
+### More resources:
+
+ - Paxos author's list of papers: http://research.microsoft.com/en-us/um/people/lamport/pubs/pubs.html
+ - Paxos author's simplest explanation of Paxos: http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf
+ - Seminal paper on Raft: https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf
+ - Google's report on implementing Paxos: http://www.read.seas.harvard.edu/~kohler/class/08w-dsi/chandra07paxos.pdf
+ - Microsoft's Will Portnoy's blog on implementing Paxos: http://blog.willportnoy.com/2012/06/lessons-learned-from-paxos.html
+ - Monty Python's "Argument Clinic": http://www.youtube.com/watch?v=kQFKtI6gn9Y
+
+  </section> <!-- end article section -->
+  <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/">Read more ...</a>
+  </footer>
+</article> <!-- end article -->
+
+
+
+  <article class="clearfix post type-post" role="article">
+  <header class="article-header">
+    <span class="published">
+      <time datetime="2013-05-12T12:41:00-04:00" pubdate><span class='month'>May</span> <span class='day'>12</span> <span class='year'>2013</span></time>
+    </span>
+    <h1 class="search-title">
+      <a href="/blog/2013/05/12/reinvigoration-really-just-a-new-theme/" rel="bookmark">Reinvigoration: Really just a new theme</a>
+    </h1>
+  </header> <!-- end article header -->
+  <section class="entry-content clearfix">
+    Yep. That's all. This is a test post, and secretly an attempt at making this blog look a bit more loved, whoopee!
+
+  </section> <!-- end article section -->
+  <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="/blog/2013/05/12/reinvigoration-really-just-a-new-theme/">Read more ...</a>
+  </footer>
+</article> <!-- end article -->
+
+
+
+
+      </div> <!-- end #main -->
+  </div> <!-- end #inner-content -->
+</div> <!-- end #content -->
+
+
+    <footer class="footer" role="contentinfo">
+    <div id="inner-footer" class="wrap clearfix">
+      <nav role="navigation">
+        <ul id="menu-footer" class="nav footer-nav clearfix">
+          <li class="menu-item"><a href="/">Home</a></li>
+          <li class="menu-item"><a href="/about/">About</a></li>
+          <li class="menu-item"><a href="/archives/">Archives</a></li>
+          <li class="menu-item"><a href="mailto:harry.brundage+site@gmail.com">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+</div>
+
+<a href="#" id="back-to-top"><i class="icon-angle-up"></i></a>
+<script type="text/javascript" src="/javascripts/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/javascripts/scripts.js"></script>
+<script type="text/javascript" src="/javascripts/nav.js"></script>
+<script type="text/javascript" src="/javascripts/jquery.infinitescroll.min.js"></script>
+
+
+
+</body>
+</html>
+

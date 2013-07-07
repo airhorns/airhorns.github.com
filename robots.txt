@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://harry.me/sitemap.xml 
