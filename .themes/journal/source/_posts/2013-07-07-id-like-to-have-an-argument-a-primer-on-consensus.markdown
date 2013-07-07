@@ -39,6 +39,7 @@ All this boils ~~down~~ over into a few decades of research. As best I can tell,
  - Paxos author's list of papers: http://research.microsoft.com/en-us/um/people/lamport/pubs/pubs.html
  - Paxos author's simplest explanation of Paxos: http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf
  - Seminal paper on Raft: https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf
+ - Raft's parent project, RAMCloud: https://ramcloud.stanford.edu/wiki/display/ramcloud/RAMCloud
  - Google's report on implementing Paxos: http://www.read.seas.harvard.edu/~kohler/class/08w-dsi/chandra07paxos.pdf
  - Microsoft's Will Portnoy's blog on implementing Paxos: http://blog.willportnoy.com/2012/06/lessons-learned-from-paxos.html
  - Monty Python's "Argument Clinic": http://www.youtube.com/watch?v=kQFKtI6gn9Y
