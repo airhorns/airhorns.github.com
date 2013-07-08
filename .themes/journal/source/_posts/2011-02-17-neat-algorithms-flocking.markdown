@@ -8,7 +8,11 @@ photo_credit: "Carter Brundage"
 categories: ['neat algos']
 ---
 
-In this post I'll explain and demonstrate an algorithm that simulates a group of entities grouping together, illustrating something called "flocking". I think it's quite neat because the flock exhibits some complex collective intelligence when just a few simple governing rules are applied to each entity. The [original flocking algorithm](http://www.red3d.com/cwr/boids/) was developed by [Craig Reynolds](http://www.red3d.com/cwr/index.html) in 1986, and has some super cool real world applications:
+In this post I'll explain and demonstrate an algorithm that simulates a group of entities grouping together, illustrating something called "flocking". I think it's quite neat because the flock exhibits some complex collective intelligence when just a few simple governing rules are applied to each entity. 
+
+<!--more-->
+
+The [original flocking algorithm](http://www.red3d.com/cwr/boids/) was developed by [Craig Reynolds](http://www.red3d.com/cwr/index.html) in 1986, and has some super cool real world applications:
 
  * Computer animation. [Batman Returns (1992)][3] is widely quoted as having been nominated for an Oscar for its bat swarms which were procedurally generated using algorithms similar to these.
  * Social network simulation and modeling opinion flow. After choosing humans as the entities in the flock, the overall direction of the flock can be estimated using the rules that apply to the simple flock model, and people's future opinions can be predicted. See [Gamasutra][4]'s stupendous article on the subject.

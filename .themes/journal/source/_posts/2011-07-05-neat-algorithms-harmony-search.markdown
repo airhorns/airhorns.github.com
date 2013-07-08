@@ -11,6 +11,8 @@ Here I'll try and demonstrate a neat optimization algorithm based on the princip
 
 Harmony Search (often abbreviated HS) is a [metaheuristic optimization](http://en.wikipedia.org/wiki/Metaheuristic) algorithm pioneered by [Dr Zong Woo Geem](https://sites.google.com/a/hydroteq.com/www/). Metaheuristic algorithms like harmony search attempt to find the optimal input to some objecting measure of quality, or in other words, find the "best" solution to a given problem. Harmony search has been successfully applied to a vast array of such problems, such as the Travelling Salesman problem, water network design, and actual algorithmic music generation.
 
+<!--more-->
+
 See the algorithm in action:
 
 <div id="searchVis"></div>

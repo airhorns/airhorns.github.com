@@ -14,6 +14,8 @@ It's hairy, scary, maybe even downright abominable. Here I'll try and explain wh
 
 The core of the problem revolves around the most exciting domain in web application development today: Javascript. The explosion of Javascript has given rise to amazing applications of stellar quality for quite some time now, but I see them coming only from teams with gobs of time and expertise.
 
+<!--more-->
+
 ## A quick recap
 
 Ruby developers write all their business logic and database interaction in Rails or Sinatra or on their own and feel right at home. They can use all the wonderful facilities local to Ruby, just like the Pythonistas or PHP or Scala writers can with their language of choice, and everyone ends up with an application stack that does the job. These apps can spit out great looking HTML, accept nothing but exactly valid data from users, present it back to the them in the most effective and beautiful way possible, all while keeping memory consumption at 10% and CPU usage negligible. We've come so far since the days of cobbling together strings in PHP with inline database calls. Using these abstractions and frameworks has made us faster and our products better and allows us to leverage the collective intelligence of the open source world.

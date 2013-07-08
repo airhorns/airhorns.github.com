@@ -10,6 +10,8 @@ categories: ['neat algos']
 
 I had to convert a sizeable test suite from [Jasmine](https://github.com/pivotal/jasmine/wiki) to [QUnit](http://docs.jquery.com/QUnit). The former has a wide array of matchers and situation specific helpers for explicitly testing things, and the latter is about as barebones as it gets. This is all well and good, it just means converting is a pain.
 
+<!--more-->
+
 First, here are some regexes to help. These are vim substitution commands, but you should be able to adapt them for any editor with a regex find & replace. Also, these were written for Coffeescript code which had some optional brackets here and there, so YMMV, but hopefully they are useful.
 
     %s/\vdescribe "(.+)", \-\>/module "\1"/
