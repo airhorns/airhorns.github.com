@@ -4,7 +4,7 @@
   <title><![CDATA[Category: neat algos | Will You Harry Me]]></title>
   <link href="http://harry.me/blog/categories/neat-algos/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2013-07-07T15:42:18-04:00</updated>
+  <updated>2013-07-08T19:43:46-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -21,6 +21,9 @@
     <content type="html"><![CDATA[<p><a href="http://batmanjs.org/">Batman.js</a> is <a href="http://shopify.com">Shopify</a>'s new open source CoffeeScript framework, and I'm absolutely elated to introduce it to the world after spending so much time on it. Find Batman on GitHub <a href="https://github.com/Shopify/batman">here</a>.</p>
 
 <p>Batman emerges into a world populated with extraordinary frameworks being used to great effect. With the incredible stuff being pushed out in projects like <a href="http://www.sproutcore.com/about/">Sproutcore 2.0</a> and <a href="http://documentcloud.github.com/backbone/">Backbone.js</a>, how is a developer to know what to use when? There's only so much time to play with cool new stuff, so I'd like to give a quick tour of what makes Batman different and why you might want to use it instead of the other amazing frameworks available today.</p>
+
+<!--more-->
+
 
 <h2>Batman makes building apps easy</h2>
 
@@ -316,6 +319,9 @@
     <content type="html"><![CDATA[<p>Here I'll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles.</p>
 
 <p>Harmony Search (often abbreviated HS) is a <a href="http://en.wikipedia.org/wiki/Metaheuristic">metaheuristic optimization</a> algorithm pioneered by <a href="https://sites.google.com/a/hydroteq.com/www/">Dr Zong Woo Geem</a>. Metaheuristic algorithms like harmony search attempt to find the optimal input to some objecting measure of quality, or in other words, find the "best" solution to a given problem. Harmony search has been successfully applied to a vast array of such problems, such as the Travelling Salesman problem, water network design, and actual algorithmic music generation.</p>
+
+<!--more-->
+
 
 <p>See the algorithm in action:</p>
 
@@ -906,6 +912,9 @@ $ Exam.mark(10,10)
     <id>http://harry.me/blog/2011/05/11/converting-from-jasmine-to-qunit</id>
     <content type="html"><![CDATA[<p>I had to convert a sizeable test suite from <a href="https://github.com/pivotal/jasmine/wiki">Jasmine</a> to <a href="http://docs.jquery.com/QUnit">QUnit</a>. The former has a wide array of matchers and situation specific helpers for explicitly testing things, and the latter is about as barebones as it gets. This is all well and good, it just means converting is a pain.</p>
 
+<!--more-->
+
+
 <p>First, here are some regexes to help. These are vim substitution commands, but you should be able to adapt them for any editor with a regex find &amp; replace. Also, these were written for Coffeescript code which had some optional brackets here and there, so YMMV, but hopefully they are useful.</p>
 
 <pre><code>%s/\vdescribe "(.+)", \-\&gt;/module "\1"/
@@ -1034,7 +1043,12 @@ $ Exam.mark(10,10)
     <link href="http://harry.me/blog/2011/02/17/neat-algorithms-flocking/"/>
     <updated>2011-02-17T12:41:00-05:00</updated>
     <id>http://harry.me/blog/2011/02/17/neat-algorithms-flocking</id>
-    <content type="html"><![CDATA[<p>In this post I'll explain and demonstrate an algorithm that simulates a group of entities grouping together, illustrating something called "flocking". I think it's quite neat because the flock exhibits some complex collective intelligence when just a few simple governing rules are applied to each entity. The <a href="http://www.red3d.com/cwr/boids/">original flocking algorithm</a> was developed by <a href="http://www.red3d.com/cwr/index.html">Craig Reynolds</a> in 1986, and has some super cool real world applications:</p>
+    <content type="html"><![CDATA[<p>In this post I'll explain and demonstrate an algorithm that simulates a group of entities grouping together, illustrating something called "flocking". I think it's quite neat because the flock exhibits some complex collective intelligence when just a few simple governing rules are applied to each entity.</p>
+
+<!--more-->
+
+
+<p>The <a href="http://www.red3d.com/cwr/boids/">original flocking algorithm</a> was developed by <a href="http://www.red3d.com/cwr/index.html">Craig Reynolds</a> in 1986, and has some super cool real world applications:</p>
 
 <ul>
 <li>Computer animation. <a href="http://www.imdb.com/title/tt0103776/awards" title="Batman Returns (1992) Awards list">Batman Returns (1992)</a> is widely quoted as having been nominated for an Oscar for its bat swarms which were procedurally generated using algorithms similar to these.</li>

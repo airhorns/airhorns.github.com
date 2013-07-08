@@ -139,6 +139,9 @@
           <div id="post-content">
             <p>I had to convert a sizeable test suite from <a href="https://github.com/pivotal/jasmine/wiki">Jasmine</a> to <a href="http://docs.jquery.com/QUnit">QUnit</a>. The former has a wide array of matchers and situation specific helpers for explicitly testing things, and the latter is about as barebones as it gets. This is all well and good, it just means converting is a pain.</p>
 
+<!--more-->
+
+
 <p>First, here are some regexes to help. These are vim substitution commands, but you should be able to adapt them for any editor with a regex find &amp; replace. Also, these were written for Coffeescript code which had some optional brackets here and there, so YMMV, but hopefully they are useful.</p>
 
 <pre><code>%s/\vdescribe "(.+)", \-\&gt;/module "\1"/
@@ -286,8 +289,8 @@
         <ul id="menu-footer" class="nav footer-nav clearfix">
           <li class="menu-item"><a href="/">Home</a></li>
           <li class="menu-item"><a href="/about/">About</a></li>
-          <li class="menu-item"><a href="/archives/">Archives</a></li>
-          <li class="menu-item"><a href="mailto:harry.brundage+site@gmail.com">Contact</a></li>
+          <li class="menu-item"><a href="/archives">Archives</a></li>
+          <li class="menu-item"><a href="mailto:harry@harry.me">Contact</a></li>
         </ul>
       </nav>
     </div>

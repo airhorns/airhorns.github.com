@@ -4,7 +4,7 @@
   <title><![CDATA[Category: complaining | Will You Harry Me]]></title>
   <link href="http://harry.me/blog/categories/complaining/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2013-07-07T15:42:18-04:00</updated>
+  <updated>2013-07-08T19:43:46-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -21,6 +21,9 @@
     <content type="html"><![CDATA[<p>I want to use your JavaScript library. I really do.</p>
 
 <p>Unfortunately, a lot of you are bad at documenting it, so I can't figure out how to use it before I give up and find something easier to learn.</p>
+
+<!--more-->
+
 
 <p>If you use <a href="http://jashkenas.github.com/docco/">docco</a>, this is because you write your documentation in the same way you write your code. Like a good team hacker you write your code with the principal design goal of making it easy for the next person working on the project, and only after satisfying that do you write for the other decidedly more mechanical audience. You strive to structure your code so that new functionality can be bolted on, or bits and bobs twiddled with to make the whole thing faster, and only serving the goal of getting the computer to do work in as elegant a manner as possible. This is awesome. Maintainable and readable code is awesome. In an effort to make it even more awesome, you start leaving some comments around. You say to yourself, well golly gee shucks, it would be nice if I had a reminder that this function's boolean argument indicates this or that; or maybe it would be nice to remember what all these <code>RegExp</code> back-references which I've rarely used before actually mean.</p>
 
@@ -52,6 +55,9 @@
 <p>It's hairy, scary, maybe even downright abominable. Here I'll try and explain why I think our current tool chains are inadequate, and where I think we should be going to fix it.</p>
 
 <p>The core of the problem revolves around the most exciting domain in web application development today: Javascript. The explosion of Javascript has given rise to amazing applications of stellar quality for quite some time now, but I see them coming only from teams with gobs of time and expertise.</p>
+
+<!--more-->
+
 
 <h2>A quick recap</h2>
 

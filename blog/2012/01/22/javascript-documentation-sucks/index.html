@@ -141,6 +141,9 @@
 
 <p>Unfortunately, a lot of you are bad at documenting it, so I can&#8217;t figure out how to use it before I give up and find something easier to learn.</p>
 
+<!--more-->
+
+
 <p>If you use <a href="http://jashkenas.github.com/docco/">docco</a>, this is because you write your documentation in the same way you write your code. Like a good team hacker you write your code with the principal design goal of making it easy for the next person working on the project, and only after satisfying that do you write for the other decidedly more mechanical audience. You strive to structure your code so that new functionality can be bolted on, or bits and bobs twiddled with to make the whole thing faster, and only serving the goal of getting the computer to do work in as elegant a manner as possible. This is awesome. Maintainable and readable code is awesome. In an effort to make it even more awesome, you start leaving some comments around. You say to yourself, well golly gee shucks, it would be nice if I had a reminder that this function&#8217;s boolean argument indicates this or that; or maybe it would be nice to remember what all these <code>RegExp</code> back-references which I&#8217;ve rarely used before actually mean.</p>
 
 <p>The problem is this: these comments are oriented at someone trying to understand the code, not just use it, so when you pull them out, they document how the code works, not how to use it. Someone looking to know how to use a function cares not that it calls out to something which takes a boolean parameter. Someone looking to instantiate a class to get work done cares not that some part of it uses a <code>RegExp</code> to accomplish its tasks. What someone does care about is the API that class or function exposes, and what work it does that is helpful. The whole point of abstracting something useful into a library is that I don&#8217;t have to write that code myself when I use it, instead I can understand only the surface of it, and rely on you to have done a good job implementing the thing. I don&#8217;t want to have to read through the whole piece of code to understand how to call into it. You&#8217;ve structured it for a developer looking to change it, not to use it, so I get lost, and your explanatory comments usually don&#8217;t tell me function signatures or typical ways I might call them. It doesn&#8217;t make sense to make someone who wants to consume your library have to traverse your one monolithic HTML page to find the one stupid function signature they are looking for.</p>
@@ -200,8 +203,8 @@
         <ul id="menu-footer" class="nav footer-nav clearfix">
           <li class="menu-item"><a href="/">Home</a></li>
           <li class="menu-item"><a href="/about/">About</a></li>
-          <li class="menu-item"><a href="/archives/">Archives</a></li>
-          <li class="menu-item"><a href="mailto:harry.brundage+site@gmail.com">Contact</a></li>
+          <li class="menu-item"><a href="/archives">Archives</a></li>
+          <li class="menu-item"><a href="mailto:harry@harry.me">Contact</a></li>
         </ul>
       </nav>
     </div>
