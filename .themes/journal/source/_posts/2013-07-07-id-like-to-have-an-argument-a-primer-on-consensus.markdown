@@ -43,3 +43,5 @@ All this boils ~~down~~ over into a few decades of research. As best I can tell,
  - Google's report on implementing Paxos: <http://www.read.seas.harvard.edu/~kohler/class/08w-dsi/chandra07paxos.pdf>
  - Microsoft's Will Portnoy's blog on implementing Paxos: <http://blog.willportnoy.com/2012/06/lessons-learned-from-paxos.html>
  - Monty Python's "Argument Clinic": <http://www.youtube.com/watch?v=kQFKtI6gn9Y>
+
+ Thanks to [@camilo](https://twitter.com/camilolopez) and [@dellsystem](https://twitter.com/dellsystem) for helping edit.
