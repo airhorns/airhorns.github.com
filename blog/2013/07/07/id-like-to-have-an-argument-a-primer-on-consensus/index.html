@@ -116,7 +116,7 @@
 
 
               
-              <span class="count">Words: <strong>1318</strong></span>
+              <span class="count">Words: <strong>1326</strong></span>
               </p>
 
             
@@ -162,7 +162,7 @@
 
 <p>Consensus problem solvers enjoy a number of horrid subproblems stemming from the fact that they must admit that there is such a thing as time. Many clients might try to propose a new value to the system around the same time, so problem solvers have to decide if they are going to impose an ordering on the operations the system takes. Messages between processes might arrive slowly, or even out of order as well, which means state has to be very carefully tracked by all actors in the show. A correct implementation of a solution to the problem must guarantee that one and only one value is agreed upon as the true value by the system at one instant. This means it must be completely resilient to conflicting clients proposing conflicting values, and bake in some sort of prevention of different factions of the system trying to pick one of the clients as the correct one.</p>
 
-<p>All this boils <del>down</del> over into a few decades of research. As best I can tell, the state of the art consensus algorithm is one called <a href="http://en.wikipedia.org/wiki/Paxos_(computer_science">Paxos</a>), so if you are looking to see how things relying on consensus are actually built, I&#8217;d say start there. Interestingly very recently a new consensus algorithm has risen to prominence in the zeitgeist: <a href="https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf">Raft</a>. Raft interests me because it&#8217;s been designed for understandability as well as correctness, so it may be worth investigating as well. There&#8217;s also a number of resources describing concrete implementations of Paxos and the myriad of challenges associated with it which are simultaneously horrifying and interesting.</p>
+<p>All this boils <del>down</del> over into a few decades of research. As best I can tell, the state of the art consensus algorithm is one called <a href="http://en.wikipedia.org/wiki/Paxos_(computer_science">Paxos</a>, so if you are looking to see how things relying on consensus are actually built, I&#8217;d say start there. Interestingly very recently a new consensus algorithm has risen to prominence in the zeitgeist: <a href="https://ramcloud.stanford.edu/wiki/download/attachments/11370504/raft.pdf">Raft</a>. Raft interests me because it&#8217;s been designed for understandability as well as correctness, so it may be worth investigating as well. There&#8217;s also a number of resources describing concrete implementations of Paxos and the myriad of challenges associated with it which are simultaneously horrifying and interesting.</p>
 
 <h3>More resources:</h3>
 
@@ -176,6 +176,8 @@
 <li>Monty Python&#8217;s &#8220;Argument Clinic&#8221;: <a href="http://www.youtube.com/watch?v=kQFKtI6gn9Y">http://www.youtube.com/watch?v=kQFKtI6gn9Y</a></li>
 </ul>
 
+
+<p> Thanks to <a href="https://twitter.com/camilolopez">@camilo</a> and <a href="https://twitter.com/dellsystem">@dellsystem</a> for helping edit.</p>
 
           </div>
         </section>
