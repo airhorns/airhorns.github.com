@@ -4,7 +4,7 @@
   <title><![CDATA[Will You Harry Me]]></title>
   <link href="http://harry.me/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2013-07-08T19:43:46-04:00</updated>
+  <updated>2013-07-08T20:15:04-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -18,12 +18,12 @@
     <link href="http://harry.me/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/"/>
     <updated>2013-07-07T14:32:00-04:00</updated>
     <id>http://harry.me/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus</id>
-    <content type="html"><![CDATA[<p>If you are, say, a piece of e-commerce software, and, say, you want a record of when your customers buy stuff, how might you ensure that how can you get a record of each transaction every single time one happens? Money is changing hands, and people aren&#8217;t very fond of loosing money without any gain in return, so having a correct ledger for transactions sure is important.</p>
+    <content type="html"><![CDATA[<p>If you are, say, a piece of e-commerce software, and, say, you want a record of when your customers buy stuff, how might you ensure that how can you get a record of each transaction every single time one happens? Money is changing hands, and people aren&#8217;t very fond of losing money without any gain in return, so having a correct ledger for transactions sure is important.</p>
 
 <!--more-->
 
 
-<p>You certainly can&#8217;t just leave this record on one computer, since that computer&#8217;s disk might die and leave you with none of your data. You could put it on two computers so that if one died you&#8217;d still have the record on the other computer, but you&#8217;d have to make sure that you write the information to both computers every time. Worse is that you must make sure that your cherished record gets written to both computers before you move on and accept more transactions, because if it doesn&#8217;t assuredly make it to both places, there&#8217;s a small chance you might only have one copy, and thus again risk loosing that data.</p>
+<p>You certainly can&#8217;t just leave this record on one computer, since that computer&#8217;s disk might die and leave you with none of your data. You could put it on two computers so that if one died you&#8217;d still have the record on the other computer, but you&#8217;d have to make sure that you write the information to both computers every time. Worse is that you must make sure that your cherished record gets written to both computers before you move on and accept more transactions, because if it doesn&#8217;t assuredly make it to both places, there&#8217;s a small chance you might only have one copy, and thus again risk losing that data.</p>
 
 <p>If, say, your data set grew to be so important that simple dual redundancy was inadequate, you could network some computers who would all be responsible for storing the data. Now that this is happened you are beginning to have an interesting problem: how does your system behave when one of these computers fails? Ideally, if only one of ten of the machines gets its power cord tripped over, you should still be able to add more stuff to the other computers. After all, the more computers we add to increase redundancy, the more likely any failure at all is to occur, since we now have ten things that can fail instead of just one. We still want to make sure that when we write some data to this cluster, it is assuredly written to some bunch of boxes, but ideally it doesn&#8217;t need to be all ten so that the system can sustain inevitable failures.</p>
 
