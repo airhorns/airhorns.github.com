@@ -4,7 +4,7 @@
   <title><![CDATA[Will You Harry Me]]></title>
   <link href="http://harry.me/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2013-07-09T15:46:58-04:00</updated>
+  <updated>2013-07-11T13:58:25-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -18,7 +18,7 @@
     <link href="http://harry.me/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/"/>
     <updated>2013-07-07T14:32:00-04:00</updated>
     <id>http://harry.me/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus</id>
-    <content type="html"><![CDATA[<p>If you are, say, a piece of e-commerce software, and, say, you want a record of when your customers buy stuff, how might you ensure that how can you get a record of each transaction every single time one happens? Money is changing hands, and people aren&#8217;t very fond of losing money without any gain in return, so having a correct ledger for transactions sure is important.</p>
+    <content type="html"><![CDATA[<p>If you are, say, a piece of e-commerce software, and, say, you want a record of when your customers buy stuff, how might you ensure that you get a record of each transaction every single time one happens? Money is changing hands, and people aren&#8217;t very fond of losing money without any gain in return, so having a correct ledger for transactions sure is important.</p>
 
 <!--more-->
 
