@@ -4,7 +4,7 @@
   <title><![CDATA[Category: misc | Will You Harry Me]]></title>
   <link href="http://harry.me/blog/categories/misc/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2013-07-11T14:03:47-04:00</updated>
+  <updated>2013-07-11T14:05:40-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -29,7 +29,7 @@
 
 <h3>This isn't an argument, it's just contradiction!</h3>
 
-<p>A possible strategy would be to designate one computer as the "master", whose responsibilities would be to manage all the incoming write requests from clients of the system by doling them out to the other computers which it knows are online. Designating a master sounds good since we now have one computer who can decide if the system is ready to accept writes. This is to say that if enough computers fail, our beloved transaction ledger thing should enter an "unwritable" state, where no transactions can occur because we can't safely store them. For this transaction log, we'd rather go down than loose data, again because people sure do love their money.</p>
+<p>A possible strategy would be to designate one computer as the "master", whose responsibilities would be to manage all the incoming write requests from clients of the system by doling them out to the other computers which it knows are online. Designating a master sounds good since we now have one computer who can decide if the system is ready to accept writes. This is to say that if enough computers fail, our beloved transaction ledger thing should enter an "unwritable" state, where no transactions can occur because we can't safely store them. For this transaction log, we'd rather go down than lose data, again because people sure do love their money.</p>
 
 <p>So, going with this strategy for a moment longer, we could program our master node to watch for node deaths, and decide if there is still enough online to continue accepting writes. There is one major glaring problem however: the master itself might fail. We'd need a new master, and lickity split. Then you might think, well, I'll just have some other computer detect that the master computer has failed, and designate another one as the master! Easy peasy.</p>
 
