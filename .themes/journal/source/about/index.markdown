@@ -12,4 +12,4 @@ Hi there! I'm Harry! This is a pretty shameless display of stuff my brother and 
 
 The things I enjoy most in life are good music, learning something I didn't think I could before, the feeling of flying, and poutine. Really mostly the last one there.
 
-You could find me on Twitter as [@hornairs](https://twitter.com/hornairs) if you like.
+You could find me on Twitter as [@harrybrundage](https://twitter.com/harrybrundage) if you like.
