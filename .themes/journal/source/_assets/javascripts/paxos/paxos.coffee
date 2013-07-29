@@ -5,7 +5,10 @@
 
 mainVisualization = new Harry.NetworkVisualizer
   selector: "#main_demo"
-  network: new Harry.Network(20)
+  network: new Harry.Network(15)
+  width: 720
+  height: 540
+  clientMargin: 50
 
 clientOnlyVisualization = new Harry.NetworkVisualizer
   selector: "#client_demo"
