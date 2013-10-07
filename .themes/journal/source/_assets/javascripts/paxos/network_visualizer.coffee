@@ -17,9 +17,6 @@ glower = (goBrighter) ->
         selection.call glower(!goBrighter)
 
 class Harry.NetworkVisualizer
-  @messageTypeColor: d3.scale.category10()
-  @valueScale: d3.scale.category10()
-
   width: 720
   height: 620
   clientMargin: 10
@@ -32,6 +29,7 @@ class Harry.NetworkVisualizer
     Batman.extend(@, options)
     @count = @network.length
     @inFlightMessages = []
+    @inFlightValues = []
 
     @svg = d3.select(@selector)
       .append("svg:svg")
@@ -54,6 +52,7 @@ class Harry.NetworkVisualizer
     @drawClients()
     @attachMessageHandlers()
     @attachValueHandlers()
+    @setupForceLayout()
 
     @onStart?(@, @network)
 
@@ -65,17 +64,16 @@ class Harry.NetworkVisualizer
     propose()
 
   drawReplicas: ->
-    @replicaSquares = @svg.selectAll("rect.replica")
+    @replicaCircles = @svg.selectAll("circle.replica")
         .data(@network.replicas)
-        .attr("fill", (replica) => @constructor.valueScale(replica.value))
 
-    @replicaSquares.enter()
-        .append("svg:rect")
+    @replicaCircles.enter()
+        .append("svg:circle")
+        .attr("fill", "#00ADA7")
         .attr("class", "replica")
-        .attr("width", @replicaWidth)
-        .attr("height", @replicaWidth)
-        .attr("x", (replica) => @entityX(replica.id) - (@replicaWidth/2))
-        .attr("y", (replica) => @entityY(replica.id) - (@replicaWidth/2))
+        .attr("r", @replicaWidth / 2)
+        .attr("cx", (replica) => @entityX(replica.id))
+        .attr("cy", (replica) => @entityY(replica.id))
 
   drawReplicaLabels: ->
     return unless @labels
@@ -116,7 +114,7 @@ class Harry.NetworkVisualizer
     @clientCircles
       .enter()
         .append("svg:circle")
-        .attr("fill", "#FF00F0")
+        .attr("fill", "#DE3961")
         .attr("class", "client")
         .attr("r", 20)
         .attr("cx", (client) => @entityX(client.id))
@@ -124,24 +122,42 @@ class Harry.NetworkVisualizer
 
   attachMessageHandlers: ->
     @network.on 'messageSent', (message, flightTime) =>
-      @inFlightMessages.push(message)
+      @messageSending(message)
       @svg.selectAll("circle.message")
         .data(@inFlightMessages, (message) -> message.id)
         .enter()
           .append("svg:circle")
           .attr("class", "message")
-          .attr("r", 8)
+          .attr("r", 4)
           .attr("cx", (message) => @entityX(message.sender))
           .attr("cy", (message) => @entityY(message.sender))
-          .attr("fill", (message) => @constructor.messageTypeColor(message.type))
+          .attr("fill", "#A4E670")
           .transition()
             .duration(flightTime)
             .attr("cx", (message) => @entityX(message.destination))
             .attr("cy", (message) => @entityY(message.destination))
             .remove()
-            .each("end", (message) =>
-              @inFlightMessages.splice(@inFlightMessages.indexOf(message), 1)
-            ).ease()
+            .each("end", @messageSent)
+            .ease()
+
+  messageSending: (message) =>
+    @inFlightMessages.push(message)
+    @nodes.push(message)
+
+    switch message.constructor
+      when Harry.SetValueMessage # new message to broadcast
+        value = {}
+      when Harry.PrepareMessage # new message with a new value to hold in temporary storage
+        true
+      when Harry.AcceptMessage # time to accept the given value
+        true
+
+    @updateForceItems()
+
+  messageSent: (message) =>
+    @inFlightMessages.splice(@inFlightMessages.indexOf(message), 1)
+    @nodes.splice(@nodes.indexOf(message), 1)
+    @updateForceItems()
 
   attachValueHandlers: ->
     redraw = =>
@@ -162,7 +178,7 @@ class Harry.NetworkVisualizer
         .data([1])
         .enter()
         .insert("svg:circle", ":first-child")
-        .attr("fill", "#CC0000")
+        .attr("fill", "#DE3961")
         .attr("class", "value-change replica-#{replica.id}")
         .attr("r", 17)
         .attr("opacity", 0.6)
@@ -174,6 +190,32 @@ class Harry.NetworkVisualizer
           .attr("opacity", 0)
           .remove()
           .ease()
+
+  setupForceLayout: ->
+    @nodes = @network.replicas.slice(0)
+    @links = []
+
+    @valueCircles = @svg.selectAll("circle.value")
+      .data(@inFlightValues)
+      .enter()
+        .append("svg:circle")
+        .attr("class", "value")
+        .attr("r", 4)
+        .attr("fill", "#B3EECC")
+
+    @force = d3.layout.force()
+      .size([@width, @height])
+      .charge(-400)
+      .linkDistance(10)
+      .nodes(@nodes)
+      .links(@links)
+      .on 'tick', ->
+        @valueCircles
+
+    @updateForceItems()
+
+  updateForceItems: ->
+    @force.start()
 
   entityX: (id) =>
     if id < 0

@@ -1,4 +1,5 @@
 class Harry.AbstractMessage
+  fixed: true
   clone: ->
     clone = new @constructor
     for own k,v of @
