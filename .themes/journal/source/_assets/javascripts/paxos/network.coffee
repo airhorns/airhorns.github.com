@@ -27,9 +27,7 @@ class Harry.Network extends Batman.Object
       message.id = ++@nextMessageID
       message.sender = originID
       message.destination = destinationID
-      flightTime = @baseNetworkDelay + Math.floor(Math.random() * @maxAdditionalNetworkDelay)
-      debugger unless @entitiesById[originID] && @entitiesById[destinationID]
-      @_deliverMessageIn(flightTime, message)
+      @_deliverMessage(message)
 
   broadcastMessage: (originID, message) ->
     for replica in @replicas when replica.id != originID
@@ -37,8 +35,9 @@ class Harry.Network extends Batman.Object
 
   canSend: (originID, destinationID) -> true
 
-  _deliverMessageIn: (time, message) ->
-    @fire 'messageSent', message, time
-    setTimeout =>
-      @entitiesById[message.destination].processMessage(message)
-    , time
+  _deliverMessage: (message) ->
+    flightTime = @baseNetworkDelay + Math.floor(Math.random() * @maxAdditionalNetworkDelay)
+    @fire 'messageSent', message, flightTime
+    setTimeout @_processArrival.bind(@, message), flightTime
+
+  _processArrival: (message) -> @entitiesById[message.destination].processMessage(message)
