@@ -1,38 +1,20 @@
-glower = (goBrighter) ->
-  destination = if goBrighter
-    "rgb(158, 0, 250)"
-  else
-    "rgb(98, 0, 156)"
-
-  return (selection) ->
-    started = false
-
-    selection.transition()
-      .duration(1000)
-      .ease('qubic')
-      .attr('fill', destination)
-      .each "end", ->
-        return false if started
-        started = true
-        selection.call glower(!goBrighter)
-
 class Harry.NetworkVisualizer
   width: 720
   height: 620
   clientMargin: 10
   labels: true
   nextValue: 0
-  proposeEvery: 500
+  proposeEvery: 8500
   replicaWidth: 30
   messageWidth: 6
   valueWidth: 20
+  maxVelocity: 1
 
   constructor: (options) ->
     Batman.extend(@, options)
     @count = @network.length
-    @inFlightMessages = []
-    @inFlightValues = []
     @messageReceivedCallbacks = []
+    @easer = d3.ease("cubic-in-out")
 
     @svg = d3.select(@selector)
       .append("svg:svg")
@@ -62,14 +44,15 @@ class Harry.NetworkVisualizer
       clientID = Math.floor(Math.random() * -1 * @network.clients.length) + 1
       @network.clients[clientID].propose()
 
-    setInterval propose, @proposeEvery
+    #setInterval propose, @proposeEvery
     propose()
 
   drawReplicas: ->
     for replica in @network.replicas
       replica.x = @entityX(replica.id)
       replica.y = @entityY(replica.id)
-      replica.radius = @replicaWidth / 2
+      replica.radius = (@replicaWidth / 2)
+      replica.fixed = true
 
     @replicaCircles = @svg.selectAll("circle.replica")
       .data(@network.replicas)
@@ -118,6 +101,7 @@ class Harry.NetworkVisualizer
       client.x = @entityX(client.id)
       client.y = @entityY(client.id)
       client.radius = @replicaWidth / 2
+      client.fixed = true
 
     @clientCircles = @svg.selectAll("circle.client")
       .data(@network.clients)
@@ -125,13 +109,13 @@ class Harry.NetworkVisualizer
         .append("svg:circle")
         .attr("fill", "#DE3961")
         .attr("class", "client")
-        .attr("r",  (client) => client.radius)
-        .attr("cx", (client) => client.x)
-        .attr("cy", (client) => client.y)
+        .attr("r",  (client) -> client.radius)
+        .attr("cx", (client) -> client.x)
+        .attr("cy", (client) -> client.y)
 
   drawValues: ->
     @valueCircles = @svg.selectAll("circle.value")
-      .data(@inFlightValues)
+      .data(@nodes.filter (n) -> n instanceof Harry.Value)
       .attr("cx", (d) -> d.x)
       .attr("cy", (d) -> d.y)
       .enter()
@@ -144,13 +128,15 @@ class Harry.NetworkVisualizer
 
   drawMessages: ->
     messages = @svg.selectAll("circle.message")
-      .data(@inFlightMessages, (message) -> message.id)
+      .data(@nodes.filter((n) -> n instanceof Harry.AbstractMessage))
+      .attr("cx", (message) -> message.x)
+      .attr("cy", (message) -> message.y)
     messages.enter()
         .append("svg:circle")
         .attr("class", "message")
         .attr("r", @messageWidth / 2)
-        .attr("cx", (message) => message.x)
-        .attr("cy", (message) => message.y)
+        .attr("cx", (message) -> message.x)
+        .attr("cy", (message) -> message.y)
         .attr("fill", "#A4E670")
     messages.exit()
         .remove()
@@ -162,46 +148,65 @@ class Harry.NetworkVisualizer
     message.radius = @messageWidth / 2
     message.x = @network.entitiesById[message.sender].x
     message.y = @network.entitiesById[message.sender].y
-    debugger unless message.x && message.y
 
-    @inFlightMessages.push(message)
-    @nodes.push(message)
-    @links.push {source: message, target: @network.entitiesById[message.destination]}
+    message.link = {source: message, target: @network.entitiesById[message.destination]}
+    @links.push message.link
+    @nodes.push message
     @messageReceivedCallbacks[message.id] = => @network._processArrival(message)
 
     switch message.constructor
-      when Harry.SetValueMessage # new message to broadcast
-        value = {value: message.value, radius: @valueWidth / 2}
-        @inFlightValues.push value
-        @nodes.push value
-        @links.push {source: value, target: message}
-        message.valuePresenter = value
-      when Harry.PrepareMessage # new message with a new value to hold in temporary storage
-        true
-      when Harry.AcceptMessage # time to accept the given value
+       # new message to broadcast
+      when Harry.SetValueMessage then @animateSendValue(message)
+      # new message with a new value to hold in temporary storage
+      when Harry.PrepareMessage then @animateSendValue(message)
+      # telling others its time to accept the given value
+      when Harry.AcceptMessage
         true
 
     @updateForceItems()
 
   messageSent: (message) =>
-    @inFlightMessages.splice(@inFlightMessages.indexOf(message), 1)
     @nodes.splice(@nodes.indexOf(message), 1)
-    @updateForceItems()
-
+    @links.splice(@links.indexOf(message.link), 1)
+    destination = @network.entitiesById[message.destination]
     switch message.constructor
-      when Harry.SetValueMessage # new message to broadcast
-        @inFlightValues.splice(@inFlightValues.indexOf(message.valuePresenter), 1)
-      when Harry.PrepareMessage # new message with a new value to hold in temporary storage
-        true
-      when Harry.AcceptMessage # time to accept the given value
-        true
+      # new message to broadcast
+      when Harry.SetValueMessage then @animateStageValue(message, destination)
+      # new message with a new value to hold in temporary storage
+      when Harry.PrepareMessage then @animateStageValue(message, destination)
+      # time to accept the given value
+      when Harry.AcceptMessage then true
 
+    @updateForceItems()
     @messageReceivedCallbacks[message.id]()
+
+  animateSendValue: (message) ->
+    value = new Harry.Value(message.value)
+    value.radius = @valueWidth / 2
+    message.valueLink = {source: value, target: message}
+    message.valuePresenter = value
+    @links.push message.valueLink
+    @nodes.push value
+
+  animateStageValue: (message, replica) ->
+    value = message.valueLink.source
+    @links.splice(@links.indexOf(message.valueLink), 1)
+
+    # remove an existing value if present
+    if replica.valueLink && ~(index = @links.indexOf(replica.valueLink))
+      @links.splice(index, 1)
+      # TODO: animate destroy value
+
+    replica.valueLink = {source: value, target: replica, holding: true}
+    @links.push replica.valueLink
+
+  animateAcceptValue: (replica) -> replica.valueLink.holding = false
 
   attachValueHandlers: ->
     redraw = =>
       @drawReplicas()
       @drawReplicaLabels()
+      @updateForceItems()
 
     @network.replicas.forEach (replica) =>
       for key in ['state', 'highestSeenSequenceNumber']
@@ -210,6 +215,7 @@ class Harry.NetworkVisualizer
       replica.observe 'value', =>
         redraw()
         @emitValueChange(replica)
+        @animateAcceptValue(replica)
 
   emitValueChange: (replica) ->
     orb = @svg.selectAll("circle.value-change.replica-#{replica.id}")
@@ -230,26 +236,51 @@ class Harry.NetworkVisualizer
           .ease()
 
   drawLinks: ->
-    link = @svg.selectAll(".link")
-      .data(@links)
-      .attr("x1", (d) -> debugger unless d.source.x; d.source.x)
-      .attr("y1", (d) -> debugger unless d.source.y; d.source.y)
-      .attr("x2", (d) -> debugger unless d.target.x; d.target.x)
-      .attr("y2", (d) -> debugger unless d.target.y; d.target.y)
-      .enter()
-        .append("line")
-        .attr("class", "link");
+    @link = @svg.selectAll("line.link")
+      .data(@links.filter((link) -> link.holding != false))
+      .attr("x1", (d) -> d.source.x)
+      .attr("y1", (d) -> d.source.y)
+      .attr("x2", (d) -> d.target.x)
+      .attr("y2", (d) -> d.target.y)
+
+    @link.enter()
+        .append("svg:line")
+        .attr("x1", (d) -> d.source.x)
+        .attr("y1", (d) -> d.source.y)
+        .attr("x2", (d) -> d.target.x)
+        .attr("y2", (d) -> d.target.y)
+        .attr "class", (d) ->
+          if d.source instanceof Harry.Value
+            "link value"
+          else if d.source instanceof Harry.AbstractMessage
+            "link message"
+          else
+            debugger
+            "link unknown"
+
+    @link.exit()
+      .remove()
 
   setupForceLayout: ->
-    @nodes = @network.replicas.slice(0)
+    @nodes = @network.replicas.concat(@network.clients)
     @links = []
 
     @force = d3.layout.force()
       .size([@width, @height])
-      .nodes(@nodes)
+      .gravity(0)
+      .charge((d, i) -> if d instanceof Harry.Replica then 0 else -10)
+      .friction(0.89)
+      .linkDistance((d, i) ->
+        if (d.target instanceof Harry.Replica || d.target instanceof Harry.Client) && d.source instanceof Harry.AbstractMessage
+          0
+        else if d.source instanceof Harry.Value && d.target instanceof Harry.Replica
+          if d.holding then 20 else 0
+        else
+          20
+      ).nodes(@nodes)
       .links(@links)
-      .on 'tick', =>
-        @collideMessages()
+      .on 'tick', (e) =>
+        @collideMessages(e.alpha)
         @drawMessages()
         @drawValues()
         @drawLinks()
@@ -259,31 +290,23 @@ class Harry.NetworkVisualizer
   updateForceItems: ->
     @force.start()
 
-  collideMessages: =>
-    tree = d3.geom.quadtree(@nodes)
-    for node in @nodes
-      r = node.radius + 16
-      nx1 = node.x - r
-      nx2 = node.x + r
-      ny1 = node.y - r
-      ny2 = node.y + r
+  collideMessages: (alpha) =>
+    for node in @nodes.slice() when node instanceof Harry.AbstractMessage
+      destination = @network.entitiesById[node.destination]
+      y = node.y - destination.y
+      x = node.x - destination.x
+      distance = Math.sqrt(x * x + y * y)
+      y = node.y - node.py
+      x = node.x - node.px
+      velocity = Math.sqrt(x * x + y * y)
+      maxVelocity = @maxVelocity
+      if velocity > maxVelocity
+        angle = Math.atan2(y, x)
+        node.x = node.px + Math.cos(angle) * maxVelocity
+        node.y = node.py + Math.sin(angle) * maxVelocity
 
-      tree.visit (quad, x1, y1, x2, y2) ->
-        if (quad.point && (quad.point != node))
-          x = node.x - quad.point.x
-          y = node.y - quad.point.y
-          l = Math.sqrt(x * x + y * y)
-          r = node.radius + quad.point.radius
-          debugger if isNaN(x) || isNaN(y) || isNaN(r)
-
-          if (l < r)
-            l = (l - r) / l * .5
-            node.x -= x *= l
-            node.y -= y *= l
-            quad.point.x += x
-            quad.point.y += y
-
-        return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1
+      if distance < 10 && velocity < 2
+        @messageSent(node)
 
   entityX: (id) =>
     if id < 0
