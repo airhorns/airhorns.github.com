@@ -36,12 +36,14 @@ class Harry.NetworkVisualizer
     @drawClients()
     @attachMessageHandlers()
     @attachValueHandlers()
-    @setupForceLayout()
 
     @onStart?(@, @network)
 
     propose = =>
       @network.startNewRound()
+      @setupForceLayout()
+      @drawFlyingStuff()
+
       clientID = Math.floor(Math.random() * -1 * @network.clients.length) + 1
       @network.clients[clientID].propose()
 
@@ -119,13 +121,17 @@ class Harry.NetworkVisualizer
       .data(@nodes.filter (n) -> n instanceof Harry.Value)
       .attr("cx", (d) -> d.x)
       .attr("cy", (d) -> d.y)
-      .enter()
-        .append("svg:circle")
-        .attr("class", "value")
-        .attr("r", @valueWidth / 2)
-        .attr("fill", "#B3EECC")
-        .attr("cx", (d) -> d.x)
-        .attr("cy", (d) -> d.y)
+
+    @valueCircles.enter()
+      .append("svg:circle")
+      .attr("class", "value")
+      .attr("r", @valueWidth / 2)
+      .attr("fill", "#B3EECC")
+      .attr("cx", (d) -> d.x)
+      .attr("cy", (d) -> d.y)
+
+    @valueCircles.exit()
+      .remove()
 
   drawMessages: ->
     messages = @svg.selectAll("circle.message")
@@ -218,16 +224,14 @@ class Harry.NetworkVisualizer
         if newValue != null
           @emitValueChange(replica)
           @animateAcceptValue(replica)
-        else
-          @emitValueReset(replica)
 
-  emitValueChange: (replica) ->
-    orb = @svg.selectAll("circle.value-change.replica-#{replica.id}")
+  emitReplicaOrb: (replica, klass, fill) ->
+    orb = @svg.selectAll("circle.#{klass}.replica-#{replica.id}")
         .data([1])
         .enter()
         .insert("svg:circle", ":first-child")
-        .attr("fill", "#DE3961")
-        .attr("class", "value-change replica-#{replica.id}")
+        .attr("fill", fill)
+        .attr("class", "#{klass} replica-#{replica.id}")
         .attr("r", 17)
         .attr("opacity", 0.6)
         .attr("cx", @entityX(replica.id))
@@ -238,6 +242,9 @@ class Harry.NetworkVisualizer
           .attr("opacity", 0)
           .remove()
           .ease()
+
+  emitValueChange: (replica) ->
+    @emitReplicaOrb(replica, 'value-change', "#DE3961")
 
   drawLinks: ->
     @link = @svg.selectAll("line.link")
@@ -265,9 +272,18 @@ class Harry.NetworkVisualizer
     @link.exit()
       .remove()
 
+  drawFlyingStuff: ->
+    @drawMessages()
+    @drawValues()
+    @drawLinks()
+
   setupForceLayout: ->
     @nodes = @network.replicas.concat(@network.clients)
     @links = []
+
+    if @force?
+      @force.stop()
+      delete @force
 
     @force = d3.layout.force()
       .size([@width, @height])
@@ -285,9 +301,7 @@ class Harry.NetworkVisualizer
       .links(@links)
       .on 'tick', (e) =>
         @collideMessages(e.alpha)
-        @drawMessages()
-        @drawValues()
-        @drawLinks()
+        @drawFlyingStuff()
 
     @updateForceItems()
 

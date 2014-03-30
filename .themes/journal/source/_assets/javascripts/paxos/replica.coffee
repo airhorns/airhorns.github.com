@@ -50,7 +50,6 @@ class Harry.Replica extends Batman.StateMachine
       callback: callback
       value: value
       promisesReceived: 0
-      roundNumber: (ROUND_NUMBER += 1)
 
     @startTransition 'startSet'
 
