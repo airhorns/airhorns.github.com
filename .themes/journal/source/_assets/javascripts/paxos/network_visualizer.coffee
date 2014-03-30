@@ -41,10 +41,11 @@ class Harry.NetworkVisualizer
     @onStart?(@, @network)
 
     propose = =>
+      @network.startNewRound()
       clientID = Math.floor(Math.random() * -1 * @network.clients.length) + 1
       @network.clients[clientID].propose()
 
-    #setInterval propose, @proposeEvery
+    setInterval propose, @proposeEvery
     propose()
 
   drawReplicas: ->
@@ -212,10 +213,13 @@ class Harry.NetworkVisualizer
       for key in ['state', 'highestSeenSequenceNumber']
         replica.observe key, redraw
 
-      replica.observe 'value', =>
+      replica.observe 'value', (newValue) =>
         redraw()
-        @emitValueChange(replica)
-        @animateAcceptValue(replica)
+        if newValue != null
+          @emitValueChange(replica)
+          @animateAcceptValue(replica)
+        else
+          @emitValueReset(replica)
 
   emitValueChange: (replica) ->
     orb = @svg.selectAll("circle.value-change.replica-#{replica.id}")

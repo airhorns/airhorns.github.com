@@ -3,6 +3,7 @@ class Harry.Network extends Batman.Object
   networkDelayVariability: 2
   clientCount: 1
   replicaCount: 10
+  roundNumber: 0
 
   constructor: (optionsOrReplicaCount) ->
     if Batman.typeOf(optionsOrReplicaCount) is 'Number'
@@ -21,6 +22,18 @@ class Harry.Network extends Batman.Object
       acc[entity.id] = entity
       acc
     , {}
+
+    @startNewRound()
+
+  startNewRound: ->
+    @roundNumber += 1
+    for client in @clients
+      client.startNewRound(@roundNumber)
+
+    for replica in @replicas
+      replica.startNewRound(@roundNumber)
+
+    return
 
   sendMessage: (originID, destinationID, message) ->
     if @canSend(originID, destinationID)

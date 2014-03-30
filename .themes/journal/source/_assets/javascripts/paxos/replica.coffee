@@ -14,22 +14,16 @@ class Harry.Replica extends Batman.StateMachine
 
   constructor: (@id, @quorum, @network) ->
     super('idle')
+
+  startNewRound: (roundNumber) ->
+    @roundNumber = roundNumber
     @set 'value', null
     @set 'highestSeenSequenceNumber', 0
-
-  setValue: (value, callback) ->
-    @set('highestSeenSequenceNumber', @get('highestSeenSequenceNumber') + 1)
-    @round = new Harry.Round
-      sequenceNumber: @get('highestSeenSequenceNumber')
-      callback: callback
-      value: value
-      promisesReceived: 0
-
-    @startTransition 'startSet'
-
-  getValue: ->
+    delete @roundAttempt
 
   processMessage: (message) ->
+    return unless message.roundNumber == @roundNumber
+
     switch @get('state')
       when 'awaiting-promises'
         switch message.constructor
@@ -42,42 +36,58 @@ class Harry.Replica extends Batman.StateMachine
           when Harry.AcceptMessage          then @acceptReceived(message)
           when Harry.SetValueMessage        then @setRequestReceived(message)
 
+  # Messages triggered by clients which cause round leadership
+  setRequestReceived: (message) ->
+    @setValue message.value, (error) =>
+      @sendMessage message.sender, new Harry.SetValueResultMessage(error)
+
+  queryReceived: (message) -> @sendMessage(message.sender, new Harry.QueryResponseMessage(@value))
+
+  setValue: (value, callback) ->
+    @set('highestSeenSequenceNumber', @get('highestSeenSequenceNumber') + 1)
+    @roundAttempt =
+      sequenceNumber: @get('highestSeenSequenceNumber')
+      callback: callback
+      value: value
+      promisesReceived: 0
+      roundNumber: (ROUND_NUMBER += 1)
+
+    @startTransition 'startSet'
+
+  getValue: ->
+
+  promiseReceived: ->
+    @roundAttempt.promisesReceived += 1
+    if @roundAttempt.promisesReceived >= @quorum
+      @startTransition 'proposalSucceeded'
+
+  promiseRejectionReceived: ->
+    @startTransition 'proposalFailed'
+
+  # State transitions caused by round leadership
   @::on 'startSet', ->
-    @broadcastMessage new Harry.PrepareMessage(@round.sequenceNumber)
+    @broadcastMessage new Harry.PrepareMessage(@roundAttempt.sequenceNumber)
 
     @timeout = setTimeout =>
       @startTransition('proposalFailed') if @get('isAwaiting-promises')
     , @replyTimeout
 
   @::on 'proposalSucceeded', ->
-    @broadcastMessage new Harry.AcceptMessage(@round.sequenceNumber, @round.value)
-    @set 'value', @round.value
-    round = @round
-    delete @round
-    round.callback?()
+    @broadcastMessage new Harry.AcceptMessage(@roundAttempt.sequenceNumber, @roundAttempt.value)
+    @set 'value', @roundAttempt.value
+    roundAttempt = @roundAttempt
+    delete @roundAttempt
+    roundAttempt.callback?()
 
   @::on 'proposalFailed', ->
-    round = @round
-    delete @round
-    round.callback? new Error("value not written")
+    roundAttempt = @roundAttempt
+    delete @roundAttempt
+    roundAttempt.callback? new Error("value not written")
 
   @::on 'proposalSucceeded', 'mute', ->
     clearTimeout(@timeout)
 
-  setRequestReceived: (message) ->
-    @setValue message.value, (error) =>
-      @sendMessage message.sender, new Harry.SetValueResultMessage(error)
-
-  promiseReceived: ->
-    @round.promisesReceived += 1
-    if @round.promisesReceived >= @quorum
-      @startTransition 'proposalSucceeded'
-
-  promiseRejectionReceived: ->
-    @startTransition 'proposalFailed'
-
-  queryReceived: (message) -> @sendMessage(message.sender, new Harry.QueryResponseMessage(@value))
-
+  # Actions caused by roundAttempt membership
   prepareReceived: (message) ->
     response = if message.sequenceNumber > @get('highestSeenSequenceNumber')
       @set('highestSeenSequenceNumber', message.sequenceNumber)
