@@ -8,7 +8,7 @@ class Harry.Client extends Batman.Object
     super()
 
   propose: ->
-    @nextValue += 10
+    @nextValue += 1
     @sendMessage @replicaIDForMessages(), new Harry.SetValueMessage(@nextValue)
 
   replicaIDForMessages: ->

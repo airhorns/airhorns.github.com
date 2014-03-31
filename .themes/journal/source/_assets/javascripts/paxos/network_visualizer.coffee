@@ -22,8 +22,9 @@ class Harry.NetworkVisualizer
       .attr("height", @height)
 
     @replicaRadiusStep = (Math.PI * 2) / @network.replicas.length
-    @replicaXScale = d3.scale.linear().domain([-1, 1]).range([20 + (16*2) + 30 + (@clientMargin * 2), @width - 60])
-    @replicaYScale = d3.scale.linear().domain([-1, 1]).range([20, @height - 20])
+    @replicaMargin = @replicaWidth  + 10
+    @replicaXScale = d3.scale.linear().domain([-1, 1]).range([@replicaMargin + (@clientMargin * 2 + 20), @width - @replicaMargin])
+    @replicaYScale = d3.scale.linear().domain([-1, 1]).range([@replicaMargin, @height - @replicaMargin])
 
     @clientXScale  = => 20 + @clientMargin
     if @network.clients.length > 1
@@ -31,17 +32,20 @@ class Harry.NetworkVisualizer
     else
       @clientYScale  = => @height / 2 - 10
 
+    @valueColorScale ?= d3.scale.ordinal().range(["#B3EECC", "#ecb3ee", "#eecbb3"])
+
     @drawReplicas()
     @drawReplicaLabels()
     @drawClients()
     @attachMessageHandlers()
     @attachValueHandlers()
+    @setupForceLayout()
+    @startVisualGC()
 
     @onStart?(@, @network)
 
     propose = =>
       @network.startNewRound()
-      @setupForceLayout()
       @drawFlyingStuff()
 
       clientID = Math.floor(Math.random() * -1 * @network.clients.length) + 1
@@ -126,7 +130,7 @@ class Harry.NetworkVisualizer
       .append("svg:circle")
       .attr("class", "value")
       .attr("r", @valueWidth / 2)
-      .attr("fill", "#B3EECC")
+      .attr("fill", (d) => @valueColorScale(d.value))
       .attr("cx", (d) -> d.x)
       .attr("cy", (d) -> d.y)
 
@@ -325,6 +329,23 @@ class Harry.NetworkVisualizer
 
       if distance < 10 && velocity < 2
         @messageSent(node)
+
+  startVisualGC: () ->
+    maxEntitySize = Math.max(@valueWidth, @messageWidth, @replicaWidth)
+
+    xBound = [-1 * maxEntitySize, @width + maxEntitySize]
+    yBound = [-1 * maxEntitySize, @height + maxEntitySize]
+
+    setInterval =>
+      @svg.selectAll("circle.value")
+          .filter((value) ->
+            x = parseFloat(@getAttribute('cx'))
+            y = parseFloat(@getAttribute('cy'))
+            x < xBound[0] || x > xBound[1] || y < yBound[0] || y > yBound[1]
+          ).each((value) =>
+            @nodes.splice(@nodes.indexOf(value), 1)
+          ).remove()
+    , 1000
 
   entityX: (id) =>
     if id < 0

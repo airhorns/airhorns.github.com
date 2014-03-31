@@ -38,11 +38,13 @@ Lets get some definitions out of the way for upcoming explanation:
 
 Let's examine what Paxos makes our cluster of processes do when a client asks that a new value be written. Note that the following procedure is all to get one value written, not many one after another. Eventually we can use this process as a primitive to allow many values to be set, but the basic Paxos algorithm governs the flow for just one acceptance of one value, in what is probably a series of executions of the whole algorithm to get more than just one unit of work done.
 
- - The process starts with a client of the Paxos governed system asks that a new value be set. The client here shows up as the pink circle, and the processes show up as the squares. Paxos makes a guarantee that the client can send their write request to any member of the Paxos cluster, so for the demos here the client picks one of the processes at random.
-
 <div id="client_demo"></div>
 
- - The Paxos process that recieves the write request "proposes" this new value to the system by sending a `prepare` message to all the other processes it knows of.
+The process starts with a client of the Paxos governed system asks that a new value be set. The client here shows up as the pink circle, and the processes show up as the squares. Paxos makes a guarantee that the client can send their write request to any member of the Paxos cluster, so for the demos here the client picks one of the processes at random.
+
+<br class="break"/>
+
+The Paxos process that receives the write request "proposes" this new value to the system by sending a `prepare` message to all the other processes it knows of.
 
 <div id="prepare_demo"></div>
 
@@ -50,13 +52,16 @@ This `prepare` message holds what's called a _sequence number_ inside it. The se
 
 Each process which receives the `prepare` message can thus either reply with a `promise` message or nothing at all.
 
- - These receiving processes make the critical check in the system: that they've never seen a sequence number higher than the one held in the incoming `prepare` message. If they haven't, then they can be sure that this is the newest proposal, and promise that they'll accept it if asked to. If they have seen a propsal with a higher sequence number, they know there is a newer proposal out on the loose, and can reply to tell the out-of-date proposer that something is funky and they missed the newer propsal.
+These receiving processes make the critical check in the system: that they've never seen a sequence number higher than the one held in the incoming `prepare` message. If they haven't, then they can be sure that this is the newest proposal, and promise that they'll accept it if asked to. If they have seen a proposal with a higher sequence number, they know there is a newer proposal out on the loose, and can reply to tell the out-of-date proposer that something is funky and they missed the newer propsal.
 
-<div id="promise_demo"></div>
+In the demo above, you can see a client asking that new values be set every so often. The replica which receives this request issues proposals to all the other replicas with increasingly higher sequence numbers each time. The replicas receive these new proposals, notice they each have a higher proposal number than the last, and thus let go of the old promise.
+
 
 We could imagine a different consensus algorithm which didn't do this step of sending a first message to ask the other processes to make sure the value trying to be set is the most recent one. Although being way simpler, this wouldn't satisfy our safety requirements any more. If two processes started proposing different values right around the same time, they could conceivably each convince half the processes of their own value. If the system had an even number of processes (by design or because of failures), the system could end up in a stalemate where there exist two evenly sized groups having picked different values, and therefore no majority and therefore no value picked. With Paxos' sequence numbers, one of the dueling proposals would have a lower number than the other, and thus processes will either reject that one for having a lower number, or if they get it first, accept the higher numbered one later. By asking processes to agree to only accept a proposal with a particular number or higher, the algorithm guarantees that this stalemate won't happen. Paxos solves the problem of consensus over time by taking hold of time itself with sequence numbers to apply temporal precedence.
 
- - The proposing process waits for the other processes to promise to accept only its proposal or a higher numbered one. Upon receiving promises from a majority of processes, the proposing process issues an `accept` message decreeing that they now actually store the proposed value associated with the sequence number in the proposal.
+<div id="promise_demo"></div>
+
+Next, the proposing process waits for the other processes to promise to accept only its proposal or a higher numbered one. This promise is actually a message that gets sent from the other replicas to the one that is proposing a new value. This gives the proposing process the information it needs to count how many replicas have sent their promises, and thus the basis to establish if it's reached a majority or not. Upon receiving promises from a majority of processes, the proposing process issues an `accept` message decreeing that they now actually store the proposed value associated with the sequence number in the proposal.
 
 <div id="accept_demo"></div>
 

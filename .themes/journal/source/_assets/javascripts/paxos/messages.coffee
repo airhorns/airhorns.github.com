@@ -6,7 +6,7 @@ class Harry.AbstractMessage
     clone
 
 class Harry.PrepareMessage extends Harry.AbstractMessage
-  constructor: (@sequenceNumber) -> super
+  constructor: (@sequenceNumber, @value) -> super
   type: 1
 
 class Harry.PromiseMessage extends Harry.AbstractMessage

@@ -65,7 +65,7 @@ class Harry.Replica extends Batman.StateMachine
 
   # State transitions caused by round leadership
   @::on 'startSet', ->
-    @broadcastMessage new Harry.PrepareMessage(@roundAttempt.sequenceNumber)
+    @broadcastMessage new Harry.PrepareMessage(@roundAttempt.sequenceNumber, @roundAttempt.value)
 
     @timeout = setTimeout =>
       @startTransition('proposalFailed') if @get('isAwaiting-promises')
@@ -81,7 +81,7 @@ class Harry.Replica extends Batman.StateMachine
   @::on 'proposalFailed', ->
     roundAttempt = @roundAttempt
     delete @roundAttempt
-    roundAttempt.callback? new Error("value not written")
+    roundAttempt?.callback? new Error("value not written")
 
   @::on 'proposalSucceeded', 'mute', ->
     clearTimeout(@timeout)
