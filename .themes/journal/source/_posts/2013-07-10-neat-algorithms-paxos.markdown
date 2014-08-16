@@ -8,10 +8,9 @@ photo_credit: "<a href=\"http://analogromance.tumblr.com/\">Carter Brundage</a>"
 categories: ['misc']
 ---
 
-This is an article on and demonstration of an extraordinarily neat algorithm called Paxos. Paxos is a strategy for teaching a whole bunch of decidedly unreliable processes to reliably decide on stuff. More formally: it allows a group of unreliable processors to deterministically and safely reach consensus if some certain conditions can be met, while ensuring the network remains consistent if the conditions can't be met.
+This is an explanation and demonstration of an extraordinarily neat algorithm called Paxos. Paxos is a family of algorithms for teaching a whole bunch of decidedly unreliable processes to reliably decide on stuff. More formally: it allows a group of unreliable processors to deterministically and safely reach consensus if some certain conditions can be met, while ensuring the network remains consistent if the conditions can't be met.
 
 <div id="main_demo"></div>
-
 
 # Paxos: something we can agree on.
 
@@ -52,18 +51,29 @@ This `prepare` message holds what's called a _sequence number_ inside it. The se
 
 Each process which receives the `prepare` message can thus either reply with a `promise` message or nothing at all.
 
-These receiving processes make the critical check in the system: that they've never seen a sequence number higher than the one held in the incoming `prepare` message. If they haven't, then they can be sure that this is the newest proposal, and promise that they'll accept it if asked to. If they have seen a proposal with a higher sequence number, they know there is a newer proposal out on the loose, and can reply to tell the out-of-date proposer that something is funky and they missed the newer propsal.
+These receiving processes make the critical check in the system: that they've never seen a sequence number higher than the one held in the incoming `prepare` message. If they haven't, then they can be sure that this is the newest proposal, and promise that they'll accept it if asked to. If they have seen a proposal with a higher sequence number, they know there is a newer proposal out on the loose, and can reply to tell the out-of-date proposer that something is funky and they missed the newer proposal.
 
 In the demo above, you can see a client asking that new values be set every so often. The replica which receives this request issues proposals to all the other replicas with increasingly higher sequence numbers each time. The replicas receive these new proposals, notice they each have a higher proposal number than the last, and thus let go of the old promise.
 
-
 We could imagine a different consensus algorithm which didn't do this step of sending a first message to ask the other processes to make sure the value trying to be set is the most recent one. Although being way simpler, this wouldn't satisfy our safety requirements any more. If two processes started proposing different values right around the same time, they could conceivably each convince half the processes of their own value. If the system had an even number of processes (by design or because of failures), the system could end up in a stalemate where there exist two evenly sized groups having picked different values, and therefore no majority and therefore no value picked. With Paxos' sequence numbers, one of the dueling proposals would have a lower number than the other, and thus processes will either reject that one for having a lower number, or if they get it first, accept the higher numbered one later. By asking processes to agree to only accept a proposal with a particular number or higher, the algorithm guarantees that this stalemate won't happen. Paxos solves the problem of consensus over time by taking hold of time itself with sequence numbers to apply temporal precedence.
+
+<div id="prepare_wrong_demo"></div>
+
+<div id="prepare_right_demo"></div>
+
+Side note: it's important that no two proposers ever use the same sequence number, and that they are sortable, so that they truly reference only one proposal, and precedence between proposals can be decided using the sort precedence. These globally unique and sortable sequence numbers are usually derivatives of precise system time and node number in the cluster so they grow over time and are never the same.
 
 <div id="promise_demo"></div>
 
-Next, the proposing process waits for the other processes to promise to accept only its proposal or a higher numbered one. This promise is actually a message that gets sent from the other replicas to the one that is proposing a new value. This gives the proposing process the information it needs to count how many replicas have sent their promises, and thus the basis to establish if it's reached a majority or not. Upon receiving promises from a majority of processes, the proposing process issues an `accept` message decreeing that they now actually store the proposed value associated with the sequence number in the proposal.
+Next, the proposing process waits for the other processes to promise to accept only its proposal or a higher numbered one. This promise is actually a message that gets sent from the other replicas to the one that is proposing a new value. This gives the proposing process the information it needs to count how many replicas have sent their promises, and thus the basis to establish if it has reached a majority or not. If a majority of processes have agreed to only accept this proposal or a higher one, the proposing process can know for certain it "has the floor", so to speak. There can only be one majority, so if a proposing process finds it has one, it knows it can maintain the safety property, and that consensus can be reached.
 
 <div id="accept_demo"></div>
+
+With this knowledge that this majority holding proposing process is in fact the only one that could possibly be in that state, it can safely ask its promising processes to go ahead and accept the value that it has proposed. In other words, progress is made, and the goal of the algorithm is accomplished. This takes the form of an `accept` message decreeing that the promisers should now actually store the proposed value, and this Paxos execution is now complete.
+
+All this process accomplishes one thing: durable writes. If some of the nodes which promised to accept a proposal fail, or if some nodes send back the promise but fail before they receive an accept message, that's completely ok! The proposing process only requires that a majority of nodes reply with a promise to accept, in fact quite purposefully it does not require that every node reply.
+
+
 
 If I got any of this stuff wrong, please send [me](mailto:harry@harry.me) an email and I will try to get it right!
 

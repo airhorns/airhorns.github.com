@@ -4,6 +4,7 @@ class Harry.Network extends Batman.Object
   clientCount: 1
   replicaCount: 10
   roundNumber: 0
+  nextValue: 0
 
   constructor: (optionsOrReplicaCount) ->
     if Batman.typeOf(optionsOrReplicaCount) is 'Number'

@@ -3,13 +3,12 @@
 class Harry.Client extends Batman.Object
   @::mixin Harry.NetworkMember
 
-  nextValue: 0
   constructor: (@id, @network) ->
     super()
 
   propose: ->
-    @nextValue += 1
-    @sendMessage @replicaIDForMessages(), new Harry.SetValueMessage(@nextValue)
+    @network.nextValue += 1
+    @sendMessage @replicaIDForMessages(), new Harry.SetValueMessage(@network.nextValue)
 
   replicaIDForMessages: ->
-    Math.floor(Math.random() * (@network.replicas.length)) + 1
+    Math.floor(Math.random() * @network.replicas.length) + 1

@@ -5,6 +5,8 @@ class Harry.NetworkVisualizer
   labels: true
   nextValue: 0
   proposeEvery: 8500
+  newRoundsOnPropose: true
+  autoPropose: true
   replicaWidth: 30
   messageWidth: 6
   valueWidth: 20
@@ -34,6 +36,8 @@ class Harry.NetworkVisualizer
 
     @valueColorScale ?= d3.scale.ordinal().range(["#B3EECC", "#ecb3ee", "#eecbb3"])
 
+    @holdingLinkLength = (@valueWidth / 2) + (@replicaWidth / 2) * 1.07
+    @messageLinkLength = (@valueWidth / 2) + (@messageWidth / 2) * 1.07
     @drawReplicas()
     @drawReplicaLabels()
     @drawClients()
@@ -45,11 +49,11 @@ class Harry.NetworkVisualizer
     @onStart?(@, @network)
 
     propose = =>
-      @network.startNewRound()
+      @network.startNewRound() if @newRoundsOnPropose
       @drawFlyingStuff()
 
-      clientID = Math.floor(Math.random() * -1 * @network.clients.length) + 1
-      @network.clients[clientID].propose()
+      @onPropose?(@, @network)
+      @network.clients[Math.floor(Math.random() * @network.clients.length)].propose() if @autoPropose
 
     setInterval propose, @proposeEvery
     propose()
@@ -161,6 +165,7 @@ class Harry.NetworkVisualizer
     message.y = @network.entitiesById[message.sender].y
 
     message.link = {source: message, target: @network.entitiesById[message.destination]}
+    debugger unless message.link.target
     @links.push message.link
     @nodes.push message
     @messageReceivedCallbacks[message.id] = => @network._processArrival(message)
@@ -205,13 +210,16 @@ class Harry.NetworkVisualizer
 
     # remove an existing value if present
     if replica.valueLink && ~(index = @links.indexOf(replica.valueLink))
+      @animateReleaseValue(value)
       @links.splice(index, 1)
-      # TODO: animate destroy value
 
     replica.valueLink = {source: value, target: replica, holding: true}
     @links.push replica.valueLink
 
   animateAcceptValue: (replica) -> replica.valueLink.holding = false
+
+  animateReleaseValue: (value) ->
+      value.obsolete = true
 
   attachValueHandlers: ->
     redraw = =>
@@ -294,13 +302,13 @@ class Harry.NetworkVisualizer
       .gravity(0)
       .charge((d, i) -> if d instanceof Harry.Replica then 0 else -10)
       .friction(0.89)
-      .linkDistance((d, i) ->
+      .linkDistance((d, i) =>
         if (d.target instanceof Harry.Replica || d.target instanceof Harry.Client) && d.source instanceof Harry.AbstractMessage
           0
         else if d.source instanceof Harry.Value && d.target instanceof Harry.Replica
-          if d.holding then 20 else 0
+          if d.holding then @holdingLinkLength else 0
         else
-          20
+          @messageLinkLength # message in tow
       ).nodes(@nodes)
       .links(@links)
       .on 'tick', (e) =>
@@ -351,10 +359,10 @@ class Harry.NetworkVisualizer
     if id < 0
       @clientXScale(id)
     else
-      @replicaXScale(Math.sin(id * @replicaRadiusStep))
+      @replicaXScale(Math.sin(id * @replicaRadiusStep + Math.PI))
 
   entityY: (id) =>
     if id < 0
       @clientYScale(id)
     else
-      @replicaYScale(Math.cos(id * @replicaRadiusStep + Math.PI))
+      @replicaYScale(Math.cos(id * @replicaRadiusStep))
