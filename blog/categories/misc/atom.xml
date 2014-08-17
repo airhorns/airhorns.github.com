@@ -4,7 +4,7 @@
   <title><![CDATA[Category: misc | Will You Harry Me]]></title>
   <link href="http://harry.me/blog/categories/misc/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2014-08-17T17:26:04-04:00</updated>
+  <updated>2014-08-17T17:31:16-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -45,12 +45,12 @@
 
 <p>In summary, don't let the fear of imperfect metrics for performance management stop you from gathering data, and doing some analysis on the software development process. Data driven organizations are more successful, and software development should be no exception.</p>
 
-<p>Further reading:</p>
+<h3>Further reading:</h3>
 
 <ul>
-<li>Measuring Performance Management in Organizations book by Robert D. Austin: http://www.amazon.com/gp/product/0932633366</li>
-<li>A Stack Overflow discussion on measuring developer performance using data: http://pm.stackexchange.com/questions/5289/how-do-i-measure-employee-software-developer-performance-based-on-bugs-created</li>
-<li>IBM whitepaper on developer performance measurement using data: https://jazz.net/library/content/articles/insight/performance-management.pdf , article on the implementation of this: http://www.networkworld.com/article/2182958/software/how-ibm-started-grading-its-developers--productivity.html</li>
+<li>Measuring Performance Management in Organizations book by Robert D. Austin: <a href="http://www.amazon.com/gp/product/0932633366">http://www.amazon.com/gp/product/0932633366</a></li>
+<li>A Stack Overflow discussion on measuring developer performance using data: <a href="http://pm.stackexchange.com/questions/5289/how-do-i-measure-employee-software-developer-performance-based-on-bugs-created">http://pm.stackexchange.com/questions/5289/how-do-i-measure-employee-software-developer-performance-based-on-bugs-created</a></li>
+<li>IBM whitepaper on developer performance measurement using data: <a href="https://jazz.net/library/content/articles/insight/performance-management.pdf">https://jazz.net/library/content/articles/insight/performance-management.pdf</a> , and an article on the implementation of this: <a href="http://www.networkworld.com/article/2182958/software/how-ibm-started-grading-its-developers--productivity.html">http://www.networkworld.com/article/2182958/software/how-ibm-started-grading-its-developers--productivity.html</a></li>
 </ul>
 
 ]]></content>
