@@ -3,7 +3,7 @@ layout: post
 title: "On Software Development Metrics"
 date: 2014-08-16 12:57
 comments: true
-featured_image: "/images/headers/fighting.jpg"
+featured_image: "/images/headers/icecycles.jpg"
 photo_credit: "<a href=\"http://analogromance.tumblr.com/\">Carter Brundage</a>"
 categories: ['misc']
 ---
