@@ -4,7 +4,7 @@
   <title><![CDATA[Category: misc | Will You Harry Me]]></title>
   <link href="http://harry.me/blog/categories/misc/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2013-07-31T20:54:49-04:00</updated>
+  <updated>2014-08-17T17:26:04-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -12,6 +12,49 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[On Software Development Metrics]]></title>
+    <link href="http://harry.me/blog/2014/08/16/on-software-development-metrics/"/>
+    <updated>2014-08-16T12:57:00-04:00</updated>
+    <id>http://harry.me/blog/2014/08/16/on-software-development-metrics</id>
+    <content type="html"><![CDATA[<p>In which I try to justify data driven software development, just not for performance management.</p>
+
+<!--more-->
+
+
+<p>Shopify, where I work, has a business unit who's performance measurement and goals are all completely data driven. We know with a good degree of accuracy if the group is hitting its goals, we know exactly who in the group is excelling and who could use some help, and we know how exactly how happy the clients of the group are. We sign contracts with business partners guaranteeing this group's performance because we are confident in it, and the data powering these measurements. These measurements are quantifiable data, which is amazing because we can slice and dice it to learn more about the nature of the group's performance and goals. We can ask valuable operational questions like "when during the day do we need to schedule more people because we do worse than we want to", or "how many people do we need to hire next quarter to keep our customers happy". We can ask valuable strategic questions as well, like "does this change to the product affect outcomes", or "should we switch everyone over to this new potentially more productive tool". Hard data powers better insight.</p>
+
+<p>This group is, unfortunately, not comprised of software developers like me, but of sales and support staff at Shopify. They're measured using metrics: how many people did they talk to today, how long did they talk to each of them for, which of those people said the experience was good or bad, etc, which powers the above decisions. For all the concerns the support group has down pat, developers however have little to no analog. We have no objective benchmark which tells us if we are meeting all our obligations, we have no objective measure of individual performance for accolades or accusations, and we only have murky, through the grapevine indications of how satisfied our development group's clients are. We can't really predict demand for developers with anything other than a loose survey of the team leads, and we struggle to run experiments concerning techniques or tooling with any kind of data to actually make it a bona fide experiment. This upsets me, because I believe that this lack of data inhibits effective decision making for my business group. I'd really like to be able to run experiments, or to give long term hiring estimates to finance, or to understand internal customer satisfaction with our deliverables, but we just don't have the data to power these insights.</p>
+
+<p>So, how could we measure developers and the software development process to try to drive answers to the above questions using data? Well, the industry consensus, and the ideology inside Shopify, is that you can't.</p>
+
+<p>A mantra often repeated inside Shopify is "if you want a number to go up, put it on a dashboard", and I've found this to be true many times over. A metric gives us a clear goal and a clear report on our progress towards it, so we start getting rewarding feedback cycles as we accomplish things that push that metric in the right direction. We make changes to the product or the code, we see the metric on the dashboard change for the better, and we get our dopamine or our promotion or whatever. This said, every metric has a dual nature: it encourages those who care about it to figure out how to push it in the right direction, but at the cost of that metric potentially forcing people to care about the wrong thing. For the metric to encourage the correct behaviour, it must accurately capture the true goals of the business. If it doesn't, as soon as anyone or anything's performance is tied to that metric, they are likely going to start working towards improving it above serving the underlying business goals. Aligning people with a metric only serves the business if the metric captures the business' values completely, lest the metric be gamed.</p>
+
+<p>Take, for example "average customer satisfaction as measured by a short survey". If we decide to reward service staff based on this metric (among others), we will likely have happier customers, because our service staff is encouraged to satisfy customers. This aligns with the business goal of making more money by keeping customers around, so it is a good metric to stick on dashboards.</p>
+
+<p>Take, for a counter example, a metric like "lines of code added or removed this week" as a way to compare developers. If we started paying developers on a per line basis, we'd start seeing people making gigantic, overly verbose pull requests full of needless code and comments, because they'd get paid more! This does not align with the business goal of developing product faster than our competitors, because developers will be busy writing useless comments and hard-to-maintain complex code. This is thus a bad metric, and not suitable for dashboarding or performance management.</p>
+
+<p>This conundrum of capturing the business goals with a metric is the oft-touted reason that software developers often go without quantitative measurement, at least in a performance management context. No one has really thought of a good metric or combination thereof that really encapsulates all the competing goals during software development. The most frequently pondered metrics are things like lines of code added or removed, automated code complexity reporting, test coverage, test run time and run frequency, code churn / change frequency, or defect discovery or fix rate, which are all really elementary, shortsighted observations about the happenings with the code. These metrics don't bake in much understanding of true causality, long term maintainability, performance, security, among many other competing concerns good software developers spend time caring about.</p>
+
+<p>The fact that we can't come up with a suitable performance measurement scheme does not mean we shouldn't measure the process though. Lines of code added or removed this period isn't suitable for a feedback system in a dashboard, but it is still an interesting measurement to have on a report. If it grows like crazy all of a sudden, don't you think it is worth investigating why? I've only ever heard of people not caring about this metric, or taking a casual glance at it in Github Pulse, but it really is correlated with important things. If a new developer starts and the rate spikes, that developer could likely use some feedback about simplicity and brevity. If it doesn't change at all when a developer leaves, perhaps it is a good thing that developer has left, as the absence of their contributions should have at least been felt in the metric. The data that we do have is not useful for holistically measuring developers for performance review purposes, but it is useful for other insight. We correctly hesitate to practice <em>data driven</em> decision making using metrics like lines of code, but we forget that you can still make <em>data informed</em> decisions using these metrics as indicators.</p>
+
+<p>For more examples: if test coverage plummets over the course of a few weeks, I'd love to have a dashboard which tells me where and who authored the new, uncovered code. If one particular area of the code is changing over and over, it's likely a good candidate for the next refactor to try to make this change easier. If we had a report about the most frequently failed tests on local developer's full suite runs, we should probably look at the top failures to see if they are easy to understand or perhaps overly brittle.</p>
+
+<p>The benefits of data warehousing apply just as well: by mixing and matching this data with itself, and other data from the organization, we are able to do incredible stuff we couldn't do before. We could join the lines added / removed history with the list of security incidents to see how old previously insecure code was, and then prompt an audit of code in the same age range to spot security issues before anyone nefarious beats us to it. We could correlate areas of code change with the aforementioned customer satisfaction surveys to see if we can tease out previously unknown relationships between changes to the product and changes in how customers perceive it. We could build data products for ourselves as well: we could make a bot which comments on Github when someone changes a particularly defective piece of code warning them to be extra careful, or we could optimize the order our tests run in so that those most likely to fail run first to give us fast feedback. So far at Shopify we've had success reporting on which sections of our codebase need the most love by counting Github issues opened and closed segmented by label, as well as reporting on production exceptions and which areas they have occurred in.</p>
+
+<p>In summary, don't let the fear of imperfect metrics for performance management stop you from gathering data, and doing some analysis on the software development process. Data driven organizations are more successful, and software development should be no exception.</p>
+
+<p>Further reading:</p>
+
+<ul>
+<li>Measuring Performance Management in Organizations book by Robert D. Austin: http://www.amazon.com/gp/product/0932633366</li>
+<li>A Stack Overflow discussion on measuring developer performance using data: http://pm.stackexchange.com/questions/5289/how-do-i-measure-employee-software-developer-performance-based-on-bugs-created</li>
+<li>IBM whitepaper on developer performance measurement using data: https://jazz.net/library/content/articles/insight/performance-management.pdf , article on the implementation of this: http://www.networkworld.com/article/2182958/software/how-ibm-started-grading-its-developers--productivity.html</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[I'd like to have an argument: A primer on consensus]]></title>

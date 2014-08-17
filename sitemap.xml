@@ -2,52 +2,56 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://harry.me/blog/2011/01/27/today-web-development-sucks/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T15:57:38-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/blog/2011/02/17/neat-algorithms-flocking/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T15:57:38-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/blog/2011/05/11/converting-from-jasmine-to-qunit/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T15:57:38-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/blog/2011/07/05/neat-algorithms-harmony-search/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T15:57:38-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/blog/2011/09/19/why-batman/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T15:57:38-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/blog/2012/01/22/javascript-documentation-sucks/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T15:57:38-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/blog/2013/05/12/reinvigoration-really-just-a-new-theme/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T09:37:24-04:00</lastmod>
     </url>
     <url>
         <loc>
             http://harry.me/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/
         </loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T15:57:38-04:00</lastmod>
+    </url>
+    <url>
+        <loc>http://harry.me/blog/2014/08/16/on-software-development-metrics/</loc>
+        <lastmod>2014-08-17T17:23:41-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/about/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T15:57:38-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/blog/archives/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-17T17:23:41-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-17T17:23:41-04:00</lastmod>
     </url>
     <url>
         <loc>http://harry.me/robots.txt</loc>
-        <lastmod>2013-07-31T20:52:14-04:00</lastmod>
+        <lastmod>2014-08-16T09:37:24-04:00</lastmod>
     </url>
 </urlset>
