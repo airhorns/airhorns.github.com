@@ -2,7 +2,7 @@
 
 class Harry.Replica extends Batman.StateMachine
   @transitions
-    startSet: {idle: 'awaiting-promises'}
+    startSet: {'idle': 'awaiting-promises', 'awaiting-promises': 'awaiting-promises'}
     proposalSucceeded: {'awaiting-promises': 'idle'}
     proposalFailed: {'awaiting-promises': 'idle'}
     mute:
@@ -18,23 +18,21 @@ class Harry.Replica extends Batman.StateMachine
   startNewRound: (roundNumber) ->
     @roundNumber = roundNumber
     @set 'value', null
+    clearTimeout(@timeout) if @timeout?
     @set 'highestSeenSequenceNumber', 0
+    if @get('state') != 'muted'
+      @set '_state', 'idle'
     delete @roundAttempt
 
   processMessage: (message) ->
     return unless message.roundNumber == @roundNumber
-
-    switch @get('state')
-      when 'awaiting-promises'
-        switch message.constructor
-          when Harry.PromiseMessage         then @promiseReceived(message)
-          when Harry.RejectProposalMessage  then @promiseRejectionReceived(message)
-      when 'idle'
-        switch message.constructor
-          when Harry.QueryMessage           then @queryReceived(message)
-          when Harry.PrepareMessage         then @prepareReceived(message)
-          when Harry.AcceptMessage          then @acceptReceived(message)
-          when Harry.SetValueMessage        then @setRequestReceived(message)
+    switch message.constructor
+      when Harry.QueryMessage           then @queryReceived(message)
+      when Harry.PrepareMessage         then @prepareReceived(message)
+      when Harry.AcceptMessage          then @acceptReceived(message)
+      when Harry.SetValueMessage        then @setRequestReceived(message)
+      when Harry.PromiseMessage         then @promiseReceived(message)
+      when Harry.RejectProposalMessage  then @promiseRejectionReceived(message)
 
   # Messages triggered by clients which cause round leadership
   setRequestReceived: (message) ->
@@ -44,7 +42,7 @@ class Harry.Replica extends Batman.StateMachine
   queryReceived: (message) -> @sendMessage(message.sender, new Harry.QueryResponseMessage(@value))
 
   setValue: (value, callback) ->
-    @set('highestSeenSequenceNumber', @get('highestSeenSequenceNumber') + 1)
+    @set('highestSeenSequenceNumber', @_nextSequenceNumber())
     @roundAttempt =
       sequenceNumber: @get('highestSeenSequenceNumber')
       callback: callback
@@ -56,9 +54,10 @@ class Harry.Replica extends Batman.StateMachine
   getValue: ->
 
   promiseReceived: ->
-    @roundAttempt.promisesReceived += 1
-    if @roundAttempt.promisesReceived >= @quorum
-      @startTransition 'proposalSucceeded'
+    if @roundAttempt?
+      @roundAttempt.promisesReceived += 1
+      if @roundAttempt.promisesReceived >= @quorum
+        @startTransition 'proposalSucceeded'
 
   promiseRejectionReceived: ->
     @startTransition 'proposalFailed'
@@ -88,14 +87,30 @@ class Harry.Replica extends Batman.StateMachine
 
   # Actions caused by roundAttempt membership
   prepareReceived: (message) ->
-    response = if message.sequenceNumber > @get('highestSeenSequenceNumber')
+    if message.sequenceNumber > @get('highestSeenSequenceNumber')
       @set('highestSeenSequenceNumber', message.sequenceNumber)
-      new Harry.PromiseMessage()
+      # Fail my current proposal if there is a newer one on the loose
+      if @get('isAwaiting-promises')
+        @startTransition 'proposalFailed'
+      response = new Harry.PromiseMessage()
+      shouldStage = true
     else
-      new Harry.RejectProposalMessage(@get('highestSeenSequenceNumber'))
+      response = new Harry.RejectProposalMessage(@get('highestSeenSequenceNumber'))
+      shouldStage = false
+
     @sendMessage(message.sender, response)
+    return shouldStage
 
   acceptReceived: (message) ->
     if message.sequenceNumber >= @get('highestSeenSequenceNumber')
       @set('highestSeenSequenceNumber', message.sequenceNumber)
       @set 'value', message.value
+
+  _nextSequenceNumber: ->
+    rounds = Math.floor(@get('highestSeenSequenceNumber') / @network.replicaCount)
+    base = rounds * @network.replicaCount
+    return base + @id
+
+  sendMessage: ->
+    return false if @get('isMuted')
+    Harry.NetworkMember.sendMessage.apply(this, arguments)
