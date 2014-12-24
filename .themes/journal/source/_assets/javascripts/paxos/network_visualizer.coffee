@@ -50,9 +50,8 @@ class Harry.NetworkVisualizer
 
     propose = =>
       @network.startNewRound() if @newRoundsOnPropose
-      @drawFlyingStuff()
-
       @onPropose?(@, @network)
+      @drawFlyingStuff()
       @network.clients[Math.floor(Math.random() * @network.clients.length)].propose() if @autoPropose
 
     setInterval propose, @proposeEvery
