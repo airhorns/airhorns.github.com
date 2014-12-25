@@ -162,50 +162,38 @@ class Harry.NetworkVisualizer
     message.radius = @messageWidth / 2
     message.x = @network.entitiesById[message.sender].x
     message.y = @network.entitiesById[message.sender].y
-
     message.link = {source: message, target: @network.entitiesById[message.destination]}
-    debugger unless message.link.target
+
     @links.push message.link
     @nodes.push message
     @messageReceivedCallbacks[message.id] = => @network._processArrival(message)
 
-    switch message.constructor
-       # new message to broadcast
-      when Harry.SetValueMessage then @animateSendValue(message)
-      # new message with a new value to hold in temporary storage
-      when Harry.PrepareMessage then @animateSendValue(message)
-      # telling others its time to accept the given value
-      when Harry.AcceptMessage
-        true
+    if message.constructor in [Harry.SetValueMessage, Harry.PrepareMessage]
+      @animateSendValue(message)
 
     @updateForceItems()
 
   messageSent: (message) =>
     @nodes.splice(@nodes.indexOf(message), 1)
     @links.splice(@links.indexOf(message.link), 1)
-    destination = @network.entitiesById[message.destination]
-    switch message.constructor
-      # new message to broadcast
-      when Harry.SetValueMessage then @animateStageValue(message, destination)
-      # new message with a new value to hold in temporary storage
-      when Harry.PrepareMessage then @animateStageValue(message, destination)
-      # time to accept the given value
-      when Harry.AcceptMessage then true
+    @links.splice(@links.indexOf(message.valueLink), 1) if message.valueLink?
+    shouldStageValue = @messageReceivedCallbacks[message.id]()
+
+    if shouldStageValue and message.constructor in [Harry.SetValueMessage, Harry.PrepareMessage]
+      destination = @network.entitiesById[message.destination]
+      @animateStageValue(message, destination)
 
     @updateForceItems()
-    @messageReceivedCallbacks[message.id]()
 
   animateSendValue: (message) ->
     value = new Harry.Value(message.value)
     value.radius = @valueWidth / 2
     message.valueLink = {source: value, target: message}
-    message.valuePresenter = value
     @links.push message.valueLink
     @nodes.push value
 
   animateStageValue: (message, replica) ->
     value = message.valueLink.source
-    @links.splice(@links.indexOf(message.valueLink), 1)
 
     # remove an existing value if present
     if replica.valueLink && ~(index = @links.indexOf(replica.valueLink))
@@ -215,10 +203,11 @@ class Harry.NetworkVisualizer
     replica.valueLink = {source: value, target: replica, holding: true}
     @links.push replica.valueLink
 
-  animateAcceptValue: (replica) -> replica.valueLink.holding = false
+  animateAcceptValue: (replica) ->
+    replica.valueLink.holding = false
 
   animateReleaseValue: (value) ->
-      value.obsolete = true
+    value.obsolete = true
 
   attachValueHandlers: ->
     redraw = =>
@@ -298,7 +287,7 @@ class Harry.NetworkVisualizer
 
     @force = d3.layout.force()
       .size([@width, @height])
-      .gravity(0)
+      .gravity(-0.005)
       .charge((d, i) -> if d instanceof Harry.Replica then 0 else -10)
       .friction(0.89)
       .linkDistance((d, i) =>
@@ -316,8 +305,7 @@ class Harry.NetworkVisualizer
 
     @updateForceItems()
 
-  updateForceItems: ->
-    @force.start()
+  updateForceItems: -> @force.start()
 
   collideMessages: (alpha) =>
     for node in @nodes.slice() when node instanceof Harry.AbstractMessage
