@@ -1,3 +1,5 @@
+#= require paxos/replica
+
 class Harry.Network extends Batman.Object
   baseNetworkDelay: 1000
   networkDelayVariability: 2
@@ -5,6 +7,7 @@ class Harry.Network extends Batman.Object
   replicaCount: 10
   roundNumber: 0
   nextValue: 0
+  replicaClass: Harry.Replica
 
   constructor: (optionsOrReplicaCount) ->
     if Batman.typeOf(optionsOrReplicaCount) is 'Number'
@@ -16,7 +19,7 @@ class Harry.Network extends Batman.Object
     @maxAdditionalNetworkDelay ?= @networkDelayVariability * @baseNetworkDelay
     @nextMessageID = 0
 
-    @replicas = (new Harry.Replica(i, @quorum, @) for i in [1..@replicaCount])
+    @replicas = (new @replicaClass(i, @quorum, @) for i in [1..@replicaCount])
     @clients = (new Harry.Client(-1 * i, @) for i in [1..@clientCount])
 
     @entitiesById = @replicas.concat(@clients).reduce (acc, entity) ->

@@ -2,7 +2,7 @@ class Harry.NetworkVisualizer
   width: 720
   height: 620
   clientMargin: 10
-  labels: true
+  labels: false
   nextValue: 0
   proposeEvery: 8500
   newRoundsOnPropose: true
@@ -12,8 +12,8 @@ class Harry.NetworkVisualizer
   valueWidth: 20
   maxVelocity: 1
 
-  constructor: (options) ->
-    Batman.extend(@, options)
+  constructor: ->
+    Batman.extend(@, option) for option in arguments
     @count = @network.length
     @messageReceivedCallbacks = []
     @easer = d3.ease("cubic-in-out")
@@ -47,6 +47,8 @@ class Harry.NetworkVisualizer
     @startVisualGC()
 
     @onStart?(@, @network)
+
+    @setupInitialValues()
 
     propose = =>
       @network.startNewRound() if @newRoundsOnPropose
@@ -155,6 +157,14 @@ class Harry.NetworkVisualizer
     messages.exit()
         .remove()
 
+  setupInitialValues: ->
+    for replica in @network.replicas when replica.value?
+      value = new Harry.Value(replica.value)
+      value.radius = @valueWidth / 2
+      @nodes.push value
+      replica.valueLink = {source: value, target: replica, holding: false}
+      @links.push replica.valueLink
+
   attachMessageHandlers: ->
     @network._deliverMessage = @messageSending
 
@@ -168,7 +178,7 @@ class Harry.NetworkVisualizer
     @nodes.push message
     @messageReceivedCallbacks[message.id] = => @network._processArrival(message)
 
-    if message.constructor in [Harry.SetValueMessage, Harry.PrepareMessage]
+    if message.constructor in [Harry.SetValueMessage, Harry.PrepareMessage, Harry.QueryResponseMessage]
       @animateSendValue(message)
 
     @updateForceItems()
@@ -178,36 +188,52 @@ class Harry.NetworkVisualizer
     @links.splice(@links.indexOf(message.link), 1)
     @links.splice(@links.indexOf(message.valueLink), 1) if message.valueLink?
     shouldStageValue = @messageReceivedCallbacks[message.id]()
+    destination = @network.entitiesById[message.destination]
 
-    if shouldStageValue and message.constructor in [Harry.SetValueMessage, Harry.PrepareMessage]
-      destination = @network.entitiesById[message.destination]
-      @animateStageValue(message, destination)
+    switch message.constructor
+      when Harry.SetValueMessage, Harry.PrepareMessage
+        if shouldStageValue
+          @animateStageValue(message, destination)
+      when Harry.QueryResponseMessage
+        if shouldStageValue
+          @animateQueryResponse(destination)
+        if value = message.valueLink?.source
+          @nodes.splice(@nodes.indexOf(value), 1)
 
     @updateForceItems()
 
   animateSendValue: (message) ->
-    value = new Harry.Value(message.value)
-    value.radius = @valueWidth / 2
-    message.valueLink = {source: value, target: message}
-    @links.push message.valueLink
-    @nodes.push value
+    if message.value?
+      value = new Harry.Value(message.value)
+      value.radius = @valueWidth / 2
+      message.valueLink = {source: value, target: message}
+      @links.push message.valueLink
+      @nodes.push value
 
   animateStageValue: (message, replica) ->
-    value = message.valueLink.source
+    if message.valueLink?
+      value = message.valueLink.source
 
-    # remove an existing value if present
-    if replica.valueLink && ~(index = @links.indexOf(replica.valueLink))
-      @animateReleaseValue(value)
-      @links.splice(index, 1)
+      # remove an existing value if present
+      if replica.valueLink && ~(index = @links.indexOf(replica.valueLink))
+        @animateReleaseValue(value)
+        @links.splice(index, 1)
 
-    replica.valueLink = {source: value, target: replica, holding: true}
-    @links.push replica.valueLink
+      replica.valueLink = {source: value, target: replica, holding: true}
+      @links.push replica.valueLink
 
   animateAcceptValue: (replica) ->
     replica.valueLink.holding = false
 
   animateReleaseValue: (value) ->
     value.obsolete = true
+
+  animateQueryResponse: (client) ->
+    value = new Harry.Value(client.readAttempt.readValue)
+    value.radius = @valueWidth / 2
+    client.valueLink = {source: value, target: client, holding: false}
+    @links.push client.valueLink
+    @nodes.push value
 
   attachValueHandlers: ->
     redraw = =>

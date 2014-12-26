@@ -39,7 +39,8 @@ class Harry.Replica extends Batman.StateMachine
     @setValue message.value, (error) =>
       @sendMessage message.sender, new Harry.SetValueResultMessage(error)
 
-  queryReceived: (message) -> @sendMessage(message.sender, new Harry.QueryResponseMessage(@value))
+  queryReceived: (message) ->
+    @sendMessage message.sender, new Harry.QueryResponseMessage(@value)
 
   setValue: (value, callback) ->
     @set('highestSeenSequenceNumber', @_nextSequenceNumber())
@@ -50,8 +51,7 @@ class Harry.Replica extends Batman.StateMachine
       promisesReceived: 0
 
     @startTransition 'startSet'
-
-  getValue: ->
+    return @get('isAwaiting-promises')
 
   promiseReceived: ->
     if @roundAttempt?
@@ -114,3 +114,13 @@ class Harry.Replica extends Batman.StateMachine
   sendMessage: ->
     return false if @get('isMuted')
     Harry.NetworkMember.sendMessage.apply(this, arguments)
+
+
+class Harry.TimePrecedenceReplica extends Harry.Replica
+  prepareReceived: (message) ->
+    if @get('isAwaiting-promises')
+      @startTransition 'proposalFailed'
+    response = new Harry.PromiseMessage()
+
+    @sendMessage(message.sender, response)
+    true

@@ -8,6 +8,8 @@ photo_credit: "<a href=\"http://analogromance.tumblr.com/\">Carter Brundage</a>"
 categories: ['neat algos']
 ---
 
+{% stylesheet paxos %}
+
 This is an explanation and demonstration of an extraordinarily neat algorithm called Paxos. Paxos is a family of algorithms for teaching a whole bunch of decidedly unreliable processes to reliably decide on stuff. More formally: it allows a group of unreliable processors to deterministically and safely reach consensus if some certain conditions can be met, while ensuring the group remains consistent if the conditions can't be met.
 
 The demo below demonstrates a live version of Paxos implemented in Javascript. A first client proposes a new value to the system which then gets pre-empted by a second client, who then ends up getting it's new value accepted by the end of the algorithm.
@@ -94,10 +96,3 @@ All this procedure accomplishes one thing: durable writes. If some of the nodes 
 If I got any of this stuff wrong, please send [me](mailto:harry@harry.me) an email and I will try to get it right!
 
 {% javascript paxos/paxos %}
-{% stylesheet paxos %}
-
-<style>
-#postmeta {
-  height: auto !important;
-}
-</style>
