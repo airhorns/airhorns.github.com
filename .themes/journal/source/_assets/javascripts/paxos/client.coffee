@@ -21,7 +21,9 @@ class Harry.Client extends Batman.Object
       when Harry.QueryResponseMessage   then @queryResponseReceived(message)
 
   replicaIDForMessages: ->
-    Math.floor(Math.random() * @network.replicas.length) + 1
+    id = Math.floor(Math.random() * @network.replicas.length) + 1
+    console.log "#{@id} sending to replica #{id}"
+    id
 
   queryResponseReceived: (message) ->
     if @readAttempt?

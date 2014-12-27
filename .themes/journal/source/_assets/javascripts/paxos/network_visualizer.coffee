@@ -88,6 +88,16 @@ class Harry.NetworkVisualizer
         .attr("y", (replica) => replica.y - 8)
         .text((replica) -> replica.highestSeenSequenceNumber)
 
+    @valueLabels = @svg.selectAll("text.value-label")
+      .data(@network.replicas)
+      .text((replica) -> replica.get('value'))
+      .enter()
+        .append("svg:text")
+        .attr("class", "replica-label value-label")
+        .attr("x", (replica) => @entityX(replica.id) + 23)
+        .attr("y", (replica) => @entityY(replica.id) + 4)
+        .text((replica) -> replica.get('value'))
+
     @stateLabels = @svg.selectAll("text.state-label")
       .data(@network.replicas)
       .text((replica) -> replica.get('state'))
@@ -98,15 +108,6 @@ class Harry.NetworkVisualizer
         .attr("y", (replica) => @entityY(replica.id) + 16)
         .text((replica) -> replica.get('state'))
 
-    @valueLabels = @svg.selectAll("text.value-label")
-      .data(@network.replicas)
-      .text((replica) -> replica.get('value'))
-      .enter()
-        .append("svg:text")
-        .attr("class", "replica-label value-label")
-        .attr("x", (replica) => @entityX(replica.id) + 23)
-        .attr("y", (replica) => @entityY(replica.id) + 4)
-        .text((replica) -> replica.get('value'))
 
   drawClients: ->
     for client in @network.clients
@@ -249,7 +250,7 @@ class Harry.NetworkVisualizer
         redraw()
         if newValue != null
           @emitValueChange(replica)
-          @animateAcceptValue(replica)
+          @animateAcceptValue(replica, newValue)
 
   emitReplicaOrb: (replica, klass, fill) ->
     orb = @svg.selectAll("circle.#{klass}.replica-#{replica.id}")

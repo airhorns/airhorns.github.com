@@ -10,6 +10,7 @@ class Harry.PrepareMessage extends Harry.AbstractMessage
   type: 1
 
 class Harry.PromiseMessage extends Harry.AbstractMessage
+  constructor: (@value) -> super
   type: 2
 
 class Harry.RejectProposalMessage extends Harry.AbstractMessage
@@ -24,13 +25,13 @@ class Harry.QueryMessage extends Harry.AbstractMessage
   type: 6
 
 class Harry.QueryResponseMessage extends Harry.AbstractMessage
-  constructor: (@value) ->
+  constructor: (@value) -> super
   type: 7
 
 class Harry.SetValueMessage extends Harry.AbstractMessage
-  constructor: (@value) ->
+  constructor: (@value) -> super
   type: 8
 
 class Harry.SetValueResultMessage extends Harry.AbstractMessage
-  constructor: (@error) ->
+  constructor: (@error) -> super
   type: 9

@@ -43,6 +43,10 @@ class Harry.Replica extends Batman.StateMachine
     @sendMessage message.sender, new Harry.QueryResponseMessage(@value)
 
   setValue: (value, callback) ->
+    if @get('value')? and @get('value') != value
+      callback("Can't set a new value if one has already been accepted")
+      return false
+
     @set('highestSeenSequenceNumber', @_nextSequenceNumber())
     @roundAttempt =
       sequenceNumber: @get('highestSeenSequenceNumber')
@@ -53,8 +57,14 @@ class Harry.Replica extends Batman.StateMachine
     @startTransition 'startSet'
     return @get('isAwaiting-promises')
 
-  promiseReceived: ->
+  promiseReceived: (message) ->
     if @roundAttempt?
+      # Detect previous acceptances and abort if underway
+      if message.value?
+        if message.value != @roundAttempt.value
+          @startTransition 'proposalFailed'
+          return
+
       @roundAttempt.promisesReceived += 1
       if @roundAttempt.promisesReceived >= @quorum
         @startTransition 'proposalSucceeded'
@@ -92,8 +102,8 @@ class Harry.Replica extends Batman.StateMachine
       # Fail my current proposal if there is a newer one on the loose
       if @get('isAwaiting-promises')
         @startTransition 'proposalFailed'
-      response = new Harry.PromiseMessage()
-      shouldStage = true
+      response = new Harry.PromiseMessage(@get('value'))
+      shouldStage = !@get('value')? || @get('value') == message.value
     else
       response = new Harry.RejectProposalMessage(@get('highestSeenSequenceNumber'))
       shouldStage = false
@@ -103,6 +113,9 @@ class Harry.Replica extends Batman.StateMachine
 
   acceptReceived: (message) ->
     if message.sequenceNumber >= @get('highestSeenSequenceNumber')
+      # Fail my current proposal if there is a newer one on the loose
+      if @get('isAwaiting-promises')
+        @startTransition 'proposalFailed'
       @set('highestSeenSequenceNumber', message.sequenceNumber)
       @set 'value', message.value
 
