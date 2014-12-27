@@ -10,4 +10,4 @@ In development, run `bundle exec rake preview` to auto-regenerate the jekyll sit
 
 ### Deploying
 
-Not sure.
+On the `source` branch, run `rake generate`, and then `rake deploy`
