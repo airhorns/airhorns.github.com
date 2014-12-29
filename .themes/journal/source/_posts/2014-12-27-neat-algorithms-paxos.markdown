@@ -31,7 +31,7 @@ Paxos is only a small piece of building a distributed database: it only implemen
 
 <div id="read_demo"></div>
 
-To read a value from the basic Paxos system, a client asks all the processes in the system what they have stored for the current value, and then takes the value that the majority of the processes in the system hold. If there is no majority or if not enough clients respond, the read fails. To the left you can see a client asking the nodes what their value is, and them returning the value to the client. When the client gets a majority of responses agreeing on a value, it has successfully read it and keeps it handy.
+To read a value from the basic Paxos system, a client asks all the processes in the system what they have stored for the current value, and then takes the value that the majority of the processes in the system hold. If there is no majority or if not enough processes respond, the read fails. To the left you can see a client asking the nodes what their value is, and them returning the value to the client. When the client gets a majority of responses agreeing on a value, it has successfully read it and keeps it handy.
 
 <br class="break" />
 
@@ -66,7 +66,7 @@ We could imagine a different consensus algorithm which didn't do this step of se
 
 <div id="prepare_right_demo">
   <div class="viz"></div>
-  <i>The above demo uses proper Paxos processes which examine the sequence number of the incoming proposal to figure out weather or not to actually prepare to accept the new value in tow. All the processes disambiguate properly, and consensus could be reached!</i>
+  <i>The above demo uses proper Paxos processes which examine the sequence number of the incoming proposal to figure out whether or not to actually prepare to accept the new value in tow. All the processes disambiguate properly, and consensus could be reached!</i>
 </div>
 
 <br class="break" />
