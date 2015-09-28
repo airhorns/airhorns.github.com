@@ -4,7 +4,7 @@
   <title><![CDATA[Category: neat algos | Will You Harry Me]]></title>
   <link href="http://harry.me/blog/categories/neat-algos/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2014-12-27T16:31:35-05:00</updated>
+  <updated>2015-09-28T17:12:57-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -46,7 +46,7 @@
 <div id="read_demo"></div>
 
 
-<p>To read a value from the basic Paxos system, a client asks all the processes in the system what they have stored for the current value, and then takes the value that the majority of the processes in the system hold. If there is no majority or if not enough clients respond, the read fails. To the left you can see a client asking the nodes what their value is, and them returning the value to the client. When the client gets a majority of responses agreeing on a value, it has successfully read it and keeps it handy.</p>
+<p>To read a value from the basic Paxos system, a client asks all the processes in the system what they have stored for the current value, and then takes the value that the majority of the processes in the system hold. If there is no majority or if not enough processes respond, the read fails. To the left you can see a client asking the nodes what their value is, and them returning the value to the client. When the client gets a majority of responses agreeing on a value, it has successfully read it and keeps it handy.</p>
 
 <br class="break" />
 
@@ -87,7 +87,7 @@
 
 <div id="prepare_right_demo">
   <div class="viz"></div>
-  <i>The above demo uses proper Paxos processes which examine the sequence number of the incoming proposal to figure out weather or not to actually prepare to accept the new value in tow. All the processes disambiguate properly, and consensus could be reached!</i>
+  <i>The above demo uses proper Paxos processes which examine the sequence number of the incoming proposal to figure out whether or not to actually prepare to accept the new value in tow. All the processes disambiguate properly, and consensus could be reached!</i>
 </div>
 
 
@@ -974,6 +974,8 @@ $ Exam.mark(10,10)
 <h2>Discussion</h2>
 
 <p>The demo at the very top of the page implements Harmony Search in an attempt to solve a sudoku. I tried quite hard to achieve similar results to those to Geem's [1], but I was downright stumped. Geem managed to solve the default sudoku (the one called 'geem' in my simulation) in "285 improvisations", which to me is just absurdly low. It takes my implementation anywhere from 5000 to 50000 improvisations to find a valid solution, which is an awful lot more than 285. So I think I either made a serious mistake when implementing, a serious mistake when interpreting Geem's results, or discovered some academic fraud. I trust the inventor of the algorithm to be better at implementing it than I am, so I am pretty sure I made a blunder at some point or another.</p>
+
+<p><strong>Update Sept 28th 2015</strong>: Turns out that it may have indeed been academic fraud! Dennis Weyland has published some results which match mine here and contradict those in the original paper concerning Harmony Search's efficency and novelty. A sad jazz trombone to you, Mr Geem. See them here: http://www.dennisweyland.net/blog/?p=12 , and thanks Dennis!</p>
 
 <p>The puzzle in question has 41 unsolved cells, giving a search space with 9<sup>41</sup> different solutions. That number has 40 digits. Its big. It's big enough that finding a solution after only 235 tries is really, really impressive. In an attempt to get my numbers down to at least the same order of magnitude, I tried precomputing the possible choices for each cell instead of letting each one be any number from 1 to 9. This is silly because it shows we don't need to use HS to solve this problem at all, because the algorithm to determine the possible choices for each cell is one that we could use to just solve the puzzle. If we can get the possible choices for a cell using some algorithm, we can just pick one choice, see if the solution works,and if not, pick the next choice, and repeat. We are implementing only the first step of the smart solving algorithm in order to make the dumb one just a tad smarter. If its possible for us to come up with an algorithm which can solve a sudoku deterministically instead of using a heuristic to search, we should most probably take the former approach.</p>
 
