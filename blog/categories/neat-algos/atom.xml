@@ -4,7 +4,7 @@
   <title><![CDATA[Category: neat algos | Will You Harry Me]]></title>
   <link href="http://harry.me/blog/categories/neat-algos/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2015-09-28T17:12:57-04:00</updated>
+  <updated>2015-09-28T17:23:14-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -448,7 +448,7 @@
     <link href="http://harry.me/blog/2011/07/05/neat-algorithms-harmony-search/"/>
     <updated>2011-07-05T12:41:00-04:00</updated>
     <id>http://harry.me/blog/2011/07/05/neat-algorithms-harmony-search</id>
-    <content type="html"><![CDATA[<p>Here I'll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles.</p>
+    <content type="html"><![CDATA[<p>Here I'll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles. <strong>Update Sept 28th 2015</strong>: Turns out this algorithm is ballyhoo and I don't like it any more, use something else. Kind of a fun idea though. See http://www.dennisweyland.net/blog/?p=12.</p>
 
 <p>Harmony Search (often abbreviated HS) is a <a href="http://en.wikipedia.org/wiki/Metaheuristic">metaheuristic optimization</a> algorithm pioneered by <a href="https://sites.google.com/a/hydroteq.com/www/">Dr Zong Woo Geem</a>. Metaheuristic algorithms like harmony search attempt to find the optimal input to some objecting measure of quality, or in other words, find the "best" solution to a given problem. Harmony search has been successfully applied to a vast array of such problems, such as the Travelling Salesman problem, water network design, and actual algorithmic music generation.</p>
 
