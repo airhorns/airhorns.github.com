@@ -4,7 +4,7 @@
   <title><![CDATA[Will You Harry Me]]></title>
   <link href="http://harry.me/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2015-09-28T17:23:14-04:00</updated>
+  <updated>2015-09-28T17:23:58-04:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -12,41 +12,6 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
-  
-  <entry>
-    <title type="html"><![CDATA[Draw a Circle Around It]]></title>
-    <link href="http://harry.me/blog/2015/09/20/draw-a-circle-around-it/"/>
-    <updated>2015-09-20T14:32:00-04:00</updated>
-    <id>http://harry.me/blog/2015/09/20/draw-a-circle-around-it</id>
-    <content type="html"><![CDATA[<ul>
-<li>don&#8217;t govern the design of a system by it&#8217;s weakest link, make two, or a special subsystem</li>
-<li>the majority of the system&#8217;s value is delivered by things that aren&#8217;t hard</li>
-<li>that value likely doesn&#8217;t need whatever crazy things you need to build in order to support this other weird requirement</li>
-<li>the weird requirement has maintenance burden and cost, why apply it liberally</li>
-<li>hadoop deletes example
-
-<ul>
-<li>it&#8217;s hard to purge data through a DAG</li>
-<li>sidechain it</li>
-</ul>
-</li>
-<li>SOX compliance
-
-<ul>
-<li>change control, slow pace</li>
-</ul>
-</li>
-<li><h2>you inevitably need to deal with this complexity somewhere, the question is how much cost are you going to incur by dealing with it (or should have identified if you don&#8217;t and struck it from the list of things you want to build)</h2></li>
-</ul>
-
-
-<p>System design is hard. In my world as a software engineer, the objective is to minimize the cost of creating and maintaining the thing while maximizing the effectiveness of the thing towards some goal. Shopify for example is a thing who&#8217;s goal is making it really really easy to sell stuff, which it&#8217;s doing a pretty good job of. It&#8217;s cost of creation and maintenance is quite high though, as a veritable army of software developers have been employed for many years by Shopify to keep it running and add new features to it.</p>
-
-<p>What I find interesting is that this act of designing the way a big scary system like Shopify works is not really a science. The designers of it don&#8217;t govern themselves with laws, forumlas, or principles established in peer-reviewed literature like many other engineering disciplines, they instead make mistakes over time and read blogs about other people</p>
-
-<p>In software engineering at least, we still see it as part art part science because we don&#8217;t govern ourselves with laws and formulas, but instead by experience and intuition. The challenge</p>
-]]></content>
-  </entry>
   
   <entry>
     <title type="html"><![CDATA[Neat Algorithms - Paxos]]></title>
