@@ -7,7 +7,7 @@ featured_image: "/images/headers/harmony.jpg"
 photo_credit: "Carter Brundage"
 categories: ['neat algos']
 ---
-Here I'll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles.
+Here I'll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles. __Update Sept 28th 2015__: Turns out this algorithm is ballyhoo and I don't like it any more, use something else. Kind of a fun idea though. See [http://www.dennisweyland.net/blog/?p=12](http://www.dennisweyland.net/blog/?p=12).
 
 Harmony Search (often abbreviated HS) is a [metaheuristic optimization](http://en.wikipedia.org/wiki/Metaheuristic) algorithm pioneered by [Dr Zong Woo Geem](https://sites.google.com/a/hydroteq.com/www/). Metaheuristic algorithms like harmony search attempt to find the optimal input to some objecting measure of quality, or in other words, find the "best" solution to a given problem. Harmony search has been successfully applied to a vast array of such problems, such as the Travelling Salesman problem, water network design, and actual algorithmic music generation.
 
@@ -340,6 +340,8 @@ Also, a quick side note: the `HarmonySearch` class tries to _maximize_ a given q
 ## Discussion
 
 The demo at the very top of the page implements Harmony Search in an attempt to solve a sudoku. I tried quite hard to achieve similar results to those to Geem's [1], but I was downright stumped. Geem managed to solve the default sudoku (the one called 'geem' in my simulation) in "285 improvisations", which to me is just absurdly low. It takes my implementation anywhere from 5000 to 50000 improvisations to find a valid solution, which is an awful lot more than 285. So I think I either made a serious mistake when implementing, a serious mistake when interpreting Geem's results, or discovered some academic fraud. I trust the inventor of the algorithm to be better at implementing it than I am, so I am pretty sure I made a blunder at some point or another.
+
+__Update Sept 28th 2015__: Turns out that it may have indeed been academic fraud! Dennis Weyland has published some results which match mine here and contradict those in the original paper concerning Harmony Search's efficency and novelty. A sad jazz trombone to you, Mr Geem. See them here: http://www.dennisweyland.net/blog/?p=12 , and thanks Dennis!
 
 The puzzle in question has 41 unsolved cells, giving a search space with 9^41 different solutions. That number has 40 digits. Its big. It's big enough that finding a solution after only 235 tries is really, really impressive. In an attempt to get my numbers down to at least the same order of magnitude, I tried precomputing the possible choices for each cell instead of letting each one be any number from 1 to 9. This is silly because it shows we don't need to use HS to solve this problem at all, because the algorithm to determine the possible choices for each cell is one that we could use to just solve the puzzle. If we can get the possible choices for a cell using some algorithm, we can just pick one choice, see if the solution works,and if not, pick the next choice, and repeat. We are implementing only the first step of the smart solving algorithm in order to make the dumb one just a tad smarter. If its possible for us to come up with an algorithm which can solve a sudoku deterministically instead of using a heuristic to search, we should most probably take the former approach.
 
