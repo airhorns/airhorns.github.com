@@ -15629,9 +15629,7 @@ pv.Geo.scale = function(p) {
   return scale;
 };
 (function() {
-
   Harry.Harmony = (function() {
-
     function Harmony(chord) {
       var i, info;
       this.notes = [];
@@ -15658,9 +15656,7 @@ pv.Geo.scale = function(p) {
 
 }).call(this);
 (function() {
-
   Harry.HarmonySearch = (function() {
-
     HarmonySearch.defaults = {
       maxTries: 100,
       iterationMilestone: 100,
@@ -15698,77 +15694,80 @@ pv.Geo.scale = function(p) {
     };
 
     HarmonySearch.prototype.search = function(callback) {
-      var bestIndex, bestQuality, i, iterate, randoms, worstIndex, worstQuality, _ref, _ref1, _ref2,
-        _this = this;
+      var bestIndex, bestQuality, i, iterate, randoms, ref, ref1, worstIndex, worstQuality;
       this.running = true;
       if (this.harmonyMemory == null) {
         randoms = (function() {
-          var _i, _ref, _results;
-          _results = [];
-          for (i = _i = 1, _ref = this.options.harmonyMemorySize * this.options.randomAllocationMultiplier; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-            _results.push(this.getRandomHarmony());
+          var j, ref, results;
+          results = [];
+          for (i = j = 1, ref = this.options.harmonyMemorySize * this.options.randomAllocationMultiplier; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
+            results.push(this.getRandomHarmony());
           }
-          return _results;
+          return results;
         }).call(this);
         randoms.sort(function(a, b) {
           return b.quality() - a.quality();
         });
         this.harmonyMemory = randoms.slice(0, this.options.harmonyMemorySize);
         this.options.afterInitMemory(this.harmonyMemory, this);
-        if ((_ref = this.tries) == null) {
+        if (this.tries == null) {
           this.tries = 0;
         }
-        this.ret = function() {
-          var bestIndex, bestQuality, vals, _ref1;
-          _ref1 = _this._getBest(), bestQuality = _ref1[0], bestIndex = _ref1[1];
-          vals = {
-            harmonies: _this.harmonyMemory,
-            bestQuality: bestQuality,
-            best: _this.harmonyMemory[bestIndex],
-            worstQuality: worstQuality,
-            worst: _this.harmonyMemory[worstIndex],
-            tries: _this.tries
+        this.ret = (function(_this) {
+          return function() {
+            var bestIndex, bestQuality, ref, vals;
+            ref = _this._getBest(), bestQuality = ref[0], bestIndex = ref[1];
+            vals = {
+              harmonies: _this.harmonyMemory,
+              bestQuality: bestQuality,
+              best: _this.harmonyMemory[bestIndex],
+              worstQuality: worstQuality,
+              worst: _this.harmonyMemory[worstIndex],
+              tries: _this.tries
+            };
+            _this.options.afterMilestone(vals);
+            if (callback != null) {
+              return callback(vals);
+            }
           };
-          _this.options.afterMilestone(vals);
-          if (callback != null) {
-            return callback(vals);
-          }
-        };
+        })(this);
       }
-      _ref1 = this._getWorst(), worstQuality = _ref1[0], worstIndex = _ref1[1];
-      _ref2 = this._getBest(), bestQuality = _ref2[0], bestIndex = _ref2[1];
-      iterate = function() {
-        var harmony, _ref3, _ref4;
-        if (_this.tries > _this.options.maxTries || bestQuality >= _this.options.targetQuality) {
-          _this.ret();
-          return true;
-        }
-        if (_this.tries % _this.options.iterationMilestone === 0) {
-          _ref3 = _this._getBest(), bestQuality = _ref3[0], bestIndex = _ref3[1];
-          _this.options.afterMilestone({
-            tries: _this.tries,
-            best: _this.harmonyMemory[bestIndex],
-            worst: _this.harmonyMemory[worstIndex]
-          });
-        }
-        harmony = _this.getNextHarmony();
-        if (harmony.quality() > worstQuality) {
-          _this.harmonyMemory.push(harmony);
-          _this.harmonyMemory.splice(worstIndex, 1);
-          _this.options.afterNew(harmony, _this);
-          if (harmony.quality() > bestQuality) {
-            bestQuality = harmony.quality();
+      ref = this._getWorst(), worstQuality = ref[0], worstIndex = ref[1];
+      ref1 = this._getBest(), bestQuality = ref1[0], bestIndex = ref1[1];
+      iterate = (function(_this) {
+        return function() {
+          var harmony, ref2, ref3;
+          if (_this.tries > _this.options.maxTries || bestQuality >= _this.options.targetQuality) {
+            _this.ret();
+            return true;
           }
-          _ref4 = _this._getWorst(), worstQuality = _ref4[0], worstIndex = _ref4[1];
-        }
-        _this.tries++;
-        if (_this.tries % _this.options.popStack === 0) {
-          _this.timer = setTimeout(iterate, _this.options.timer);
-        } else {
-          iterate();
-        }
-        return true;
-      };
+          if (_this.tries % _this.options.iterationMilestone === 0) {
+            ref2 = _this._getBest(), bestQuality = ref2[0], bestIndex = ref2[1];
+            _this.options.afterMilestone({
+              tries: _this.tries,
+              best: _this.harmonyMemory[bestIndex],
+              worst: _this.harmonyMemory[worstIndex]
+            });
+          }
+          harmony = _this.getNextHarmony();
+          if (harmony.quality() > worstQuality) {
+            _this.harmonyMemory.push(harmony);
+            _this.harmonyMemory.splice(worstIndex, 1);
+            _this.options.afterNew(harmony, _this);
+            if (harmony.quality() > bestQuality) {
+              bestQuality = harmony.quality();
+            }
+            ref3 = _this._getWorst(), worstQuality = ref3[0], worstIndex = ref3[1];
+          }
+          _this.tries++;
+          if (_this.tries % _this.options.popStack === 0) {
+            _this.timer = setTimeout(iterate, _this.options.timer);
+          } else {
+            iterate();
+          }
+          return true;
+        };
+      })(this);
       iterate();
       return true;
     };
@@ -15788,18 +15787,18 @@ pv.Geo.scale = function(p) {
     HarmonySearch.prototype.getRandomHarmony = function() {
       var chord, i, index;
       chord = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (i = _i = 0, _ref = this.options.instruments - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        var j, ref, results;
+        results = [];
+        for (i = j = 0, ref = this.options.instruments - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
           if (this.options.notesGlobal) {
             index = Math.floor(Math.random() * this.options.notesLength);
-            _results.push([this.options.notes[index], index]);
+            results.push([this.options.notes[index], index]);
           } else {
             index = Math.floor(Math.random() * this.options.notes[i].length);
-            _results.push([this.options.notes[i][index], index]);
+            results.push([this.options.notes[i][index], index]);
           }
         }
-        return _results;
+        return results;
       }).call(this);
       return new this.options.harmonyClass(chord);
     };
@@ -15808,12 +15807,12 @@ pv.Geo.scale = function(p) {
       var annotation, chord, creationAnnotations, harmony, harmonyMemoryIndex, i, note, noteIndex;
       creationAnnotations = [];
       chord = (function() {
-        var _i, _ref, _results;
-        _results = [];
-        for (i = _i = 0, _ref = this.options.instruments - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        var j, ref, results;
+        results = [];
+        for (i = j = 0, ref = this.options.instruments - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
           annotation = creationAnnotations[i] = {};
           if (this.options.notesGlobal && this.options.notes[i].length === 1) {
-            _results.push([this.options.notes[i][0], 0]);
+            results.push([this.options.notes[i][0], 0]);
           } else {
             if (Math.random() < this.options.harmonyMemoryConsiderationRate) {
               harmonyMemoryIndex = Math.floor(Math.random() * this.options.harmonyMemorySize);
@@ -15845,10 +15844,10 @@ pv.Geo.scale = function(p) {
               annotation.pick = note;
             }
             annotation.noteIndex = noteIndex;
-            _results.push([note, noteIndex]);
+            results.push([note, noteIndex]);
           }
         }
-        return _results;
+        return results;
       }).call(this);
       harmony = new this.options.harmonyClass(chord);
       harmony.creationAnnotations = creationAnnotations;
@@ -15856,12 +15855,12 @@ pv.Geo.scale = function(p) {
     };
 
     HarmonySearch.prototype._getComp = function(comp, start) {
-      var harmony, i, index, quality, _ref;
+      var harmony, i, index, quality, ref;
       quality = start;
       index = -1;
-      _ref = this.harmonyMemory;
-      for (i in _ref) {
-        harmony = _ref[i];
+      ref = this.harmonyMemory;
+      for (i in ref) {
+        harmony = ref[i];
         if (comp(harmony.quality(), quality)) {
           quality = harmony.quality();
           index = i;
@@ -15876,19 +15875,18 @@ pv.Geo.scale = function(p) {
 
 }).call(this);
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   Harry.SudokuPuzzle = (function() {
-
     function SudokuPuzzle(puzzle) {
-      var char, col, row, _i, _j;
+      var char, col, i, j, row;
       this.puzzle = puzzle;
       this.unsolvedCount = 0;
       this.nums = [];
-      for (row = _i = 0; _i <= 8; row = ++_i) {
+      for (row = i = 0; i <= 8; row = ++i) {
         this.nums[row] = [];
-        for (col = _j = 0; _j <= 8; col = ++_j) {
+        for (col = j = 0; j <= 8; col = ++j) {
           char = this.puzzle.charAt(row * 9 + col);
           if (char === ".") {
             this.unsolvedCount++;
@@ -15905,9 +15903,8 @@ pv.Geo.scale = function(p) {
       c = this.unsolvedCount;
       n = this.nums;
       p = this.possibilities;
-      PuzzleSolver = (function(_super) {
-
-        __extends(PuzzleSolver, _super);
+      PuzzleSolver = (function(superClass) {
+        extend(PuzzleSolver, superClass);
 
         function PuzzleSolver() {
           return PuzzleSolver.__super__.constructor.apply(this, arguments);
@@ -15926,13 +15923,13 @@ pv.Geo.scale = function(p) {
     };
 
     SudokuPuzzle.prototype.getPossibilities = function() {
-      var acc, block_x, block_y, other_row_val, other_x, other_y, other_y_index, possibility, possible, possible_vals, row, valp, x, y, _i, _j, _k, _l, _ref, _ref1, _ref2, _ref3;
+      var acc, block_x, block_y, i, j, k, l, other_row_val, other_x, other_y, other_y_index, possibility, possible, possible_vals, ref, ref1, ref2, ref3, ref4, ref5, row, valp, x, y;
       acc = [];
-      _ref = this.nums;
-      for (y in _ref) {
-        row = _ref[y];
+      ref = this.nums;
+      for (y in ref) {
+        row = ref[y];
         y = parseInt(y);
-        for (x = _i = 0; _i <= 8; x = ++_i) {
+        for (x = i = 0; i <= 8; x = ++i) {
           if (row[x] == null) {
             possible = [true, true, true, true, true, true, true, true, true];
             for (other_x in row) {
@@ -15941,15 +15938,15 @@ pv.Geo.scale = function(p) {
                 possible[other_row_val - 1] = false;
               }
             }
-            for (other_y_index = _j = 0; _j <= 8; other_y_index = ++_j) {
-              if (other_y_index !== y && (((_ref1 = this.nums[other_y_index]) != null ? _ref1[x] : void 0) != null)) {
+            for (other_y_index = j = 0; j <= 8; other_y_index = ++j) {
+              if (other_y_index !== y && (((ref1 = this.nums[other_y_index]) != null ? ref1[x] : void 0) != null)) {
                 possible[this.nums[other_y_index][x] - 1] = false;
               }
             }
             block_y = Math.floor(y / 3) * 3;
             block_x = Math.floor(x / 3) * 3;
-            for (other_y = _k = block_y, _ref2 = block_y + 2; block_y <= _ref2 ? _k <= _ref2 : _k >= _ref2; other_y = block_y <= _ref2 ? ++_k : --_k) {
-              for (other_x = _l = block_x, _ref3 = block_x + 2; block_x <= _ref3 ? _l <= _ref3 : _l >= _ref3; other_x = block_x <= _ref3 ? ++_l : --_l) {
+            for (other_y = k = ref2 = block_y, ref3 = block_y + 2; ref2 <= ref3 ? k <= ref3 : k >= ref3; other_y = ref2 <= ref3 ? ++k : --k) {
+              for (other_x = l = ref4 = block_x, ref5 = block_x + 2; ref4 <= ref5 ? l <= ref5 : l >= ref5; other_x = ref4 <= ref5 ? ++l : --l) {
                 if (other_y !== y && other_x !== x) {
                   possible[this.nums[other_y][other_x] - 1] = false;
                 }
@@ -15975,31 +15972,28 @@ pv.Geo.scale = function(p) {
 
 }).call(this);
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
-  Harry.SudokuHarmony = (function(_super) {
-    var i;
+  Harry.SudokuHarmony = (function(superClass) {
+    var i, j;
 
-    __extends(SudokuHarmony, _super);
+    extend(SudokuHarmony, superClass);
 
-    SudokuHarmony.prototype.unsolved = (function() {
-      var _i, _results;
-      _results = [];
-      for (i = _i = 0; _i <= 8; i = ++_i) {
-        _results.push([]);
-      }
-      return _results;
-    })();
+    for (i = j = 0; j <= 8; i = ++j) {
+      ({
+        unsolved: []
+      });
+    }
 
     function SudokuHarmony() {
-      var col, k, row, _i, _j;
+      var col, k, l, m, row;
       SudokuHarmony.__super__.constructor.apply(this, arguments);
       k = 0;
       this.nums = [];
-      for (row = _i = 0; _i <= 8; row = ++_i) {
+      for (row = l = 0; l <= 8; row = ++l) {
         this.nums[row] = [];
-        for (col = _j = 0; _j <= 8; col = ++_j) {
+        for (col = m = 0; m <= 8; col = ++m) {
           this.nums[row][col] = this.unsolved[row][col] != null ? this.unsolved[row][col] : this.notes[k++];
         }
       }
@@ -16023,29 +16017,29 @@ pv.Geo.scale = function(p) {
     };
 
     SudokuHarmony.prototype.calculateQualitySum = function() {
-      var box, box_x, box_y, boxes, c, col, horiz, r, row, vert, x, _i, _j, _k, _l, _m, _n, _o, _p;
+      var box, box_x, box_y, boxes, c, col, horiz, l, m, n, o, p, q, r, row, t, u, vert, x;
       horiz = 0;
-      for (row = _i = 0; _i <= 8; row = ++_i) {
+      for (row = l = 0; l <= 8; row = ++l) {
         r = -45;
-        for (col = _j = 0; _j <= 8; col = ++_j) {
+        for (col = m = 0; m <= 8; col = ++m) {
           r += this.nums[row][col];
         }
         horiz += Math.abs(r);
       }
       vert = 0;
-      for (col = _k = 0; _k <= 8; col = ++_k) {
+      for (col = n = 0; n <= 8; col = ++n) {
         c = -45;
-        for (row = _l = 0; _l <= 8; row = ++_l) {
+        for (row = o = 0; o <= 8; row = ++o) {
           c += this.nums[row][col];
         }
         vert += Math.abs(c);
       }
       boxes = 0;
-      for (box_x = _m = 0; _m <= 8; box_x = _m += 3) {
-        for (box_y = _n = 0; _n <= 8; box_y = _n += 3) {
+      for (box_x = p = 0; p <= 8; box_x = p += 3) {
+        for (box_y = q = 0; q <= 8; box_y = q += 3) {
           box = -45;
-          for (row = _o = 0; _o <= 2; row = ++_o) {
-            for (col = _p = 0; _p <= 2; col = ++_p) {
+          for (row = t = 0; t <= 2; row = ++t) {
+            for (col = u = 0; u <= 2; col = ++u) {
               box += this.nums[box_y + row][box_x + col];
             }
           }
@@ -16057,28 +16051,28 @@ pv.Geo.scale = function(p) {
     };
 
     SudokuHarmony.prototype.calculateQualityUniq = function() {
-      var box, box_x, box_y, boxes, col, horiz, row, vert, _i, _j, _k, _l, _m, _n;
+      var box, box_x, box_y, boxes, col, horiz, l, m, n, o, p, q, row, vert;
       horiz = 0;
-      for (row = _i = 0; _i <= 8; row = ++_i) {
+      for (row = l = 0; l <= 8; row = ++l) {
         horiz += 9 - _.uniq(this.nums[row]).length;
       }
       vert = 0;
-      for (col = _j = 0; _j <= 8; col = ++_j) {
+      for (col = m = 0; m <= 8; col = ++m) {
         vert += 9 - _.uniq((function() {
-          var _k, _results;
-          _results = [];
-          for (row = _k = 0; _k <= 8; row = ++_k) {
-            _results.push(this.nums[row][col]);
+          var n, results;
+          results = [];
+          for (row = n = 0; n <= 8; row = ++n) {
+            results.push(this.nums[row][col]);
           }
-          return _results;
+          return results;
         }).call(this)).length;
       }
       boxes = 0;
-      for (box_x = _k = 0; _k <= 8; box_x = _k += 3) {
-        for (box_y = _l = 0; _l <= 8; box_y = _l += 3) {
+      for (box_x = n = 0; n <= 8; box_x = n += 3) {
+        for (box_y = o = 0; o <= 8; box_y = o += 3) {
           box = [];
-          for (row = _m = 0; _m <= 2; row = ++_m) {
-            for (col = _n = 0; _n <= 2; col = ++_n) {
+          for (row = p = 0; p <= 2; row = ++p) {
+            for (col = q = 0; q <= 2; col = ++q) {
               box.push(this.nums[box_y + row][box_x + col]);
             }
           }
@@ -16089,12 +16083,11 @@ pv.Geo.scale = function(p) {
     };
 
     SudokuHarmony.prototype.getViolations = function() {
-      var block_violation, col_violation, other_x, other_y, row, row_violation, val, violations, x, y, _i, _j, _ref,
-        _this = this;
+      var block_violation, col_violation, l, m, other_x, other_y, ref, row, row_violation, val, violations, x, y;
       violations = [];
-      _ref = this.nums;
-      for (y in _ref) {
-        row = _ref[y];
+      ref = this.nums;
+      for (y in ref) {
+        row = ref[y];
         y = parseInt(y);
         violations[y] = [];
         for (x in row) {
@@ -16102,7 +16095,7 @@ pv.Geo.scale = function(p) {
           x = parseInt(x);
           if (this.unsolved[y][x] == null) {
             row_violation = false;
-            for (other_x = _i = 0; _i <= 8; other_x = ++_i) {
+            for (other_x = l = 0; l <= 8; other_x = ++l) {
               if (other_x !== x) {
                 if (this.nums[y][other_x] === val) {
                   row_violation = true;
@@ -16111,7 +16104,7 @@ pv.Geo.scale = function(p) {
               }
             }
             col_violation = false;
-            for (other_y = _j = 0; _j <= 8; other_y = ++_j) {
+            for (other_y = m = 0; m <= 8; other_y = ++m) {
               if (other_y !== y) {
                 if (this.nums[other_y][x] === val) {
                   col_violation = true;
@@ -16119,21 +16112,23 @@ pv.Geo.scale = function(p) {
                 }
               }
             }
-            block_violation = (function() {
-              var block_x, block_y, _k, _l, _ref1, _ref2;
-              block_y = Math.floor(y / 3) * 3;
-              block_x = Math.floor(x / 3) * 3;
-              for (other_y = _k = block_y, _ref1 = block_y + 2; block_y <= _ref1 ? _k <= _ref1 : _k >= _ref1; other_y = block_y <= _ref1 ? ++_k : --_k) {
-                for (other_x = _l = block_x, _ref2 = block_x + 2; block_x <= _ref2 ? _l <= _ref2 : _l >= _ref2; other_x = block_x <= _ref2 ? ++_l : --_l) {
-                  if (other_y !== y && other_x !== x) {
-                    if (_this.nums[other_y][other_x] === val) {
-                      return true;
+            block_violation = (function(_this) {
+              return function() {
+                var block_x, block_y, n, o, ref1, ref2, ref3, ref4;
+                block_y = Math.floor(y / 3) * 3;
+                block_x = Math.floor(x / 3) * 3;
+                for (other_y = n = ref1 = block_y, ref2 = block_y + 2; ref1 <= ref2 ? n <= ref2 : n >= ref2; other_y = ref1 <= ref2 ? ++n : --n) {
+                  for (other_x = o = ref3 = block_x, ref4 = block_x + 2; ref3 <= ref4 ? o <= ref4 : o >= ref4; other_x = ref3 <= ref4 ? ++o : --o) {
+                    if (other_y !== y && other_x !== x) {
+                      if (_this.nums[other_y][other_x] === val) {
+                        return true;
+                      }
                     }
                   }
                 }
-              }
-              return false;
-            })();
+                return false;
+              };
+            })(this)();
             violations[y][x] = row_violation || col_violation || block_violation;
           }
         }
@@ -16142,14 +16137,14 @@ pv.Geo.scale = function(p) {
     };
 
     SudokuHarmony.prototype.showGame = function() {
-      var cssClass, row, s, unsolvedCount, val, violations, violationsCount, x, y, _ref;
+      var cssClass, ref, row, s, unsolvedCount, val, violations, violationsCount, x, y;
       unsolvedCount = 0;
       violationsCount = 0;
       violations = this.getViolations();
       s = "<table class=\"sudoku_game\">";
-      _ref = this.nums;
-      for (y in _ref) {
-        row = _ref[y];
+      ref = this.nums;
+      for (y in ref) {
+        row = ref[y];
         y = parseInt(y);
         s += "<tr>";
         for (x in row) {
@@ -16185,13 +16180,10 @@ pv.Geo.scale = function(p) {
 
 }).call(this);
 (function() {
-
   Harry.HarmonySearchVisualizer = (function() {
-
     HarmonySearchVisualizer.defaults = {};
 
     function HarmonySearchVisualizer(options) {
-      var _this = this;
       this.options || (this.options = _.extend({}, HarmonySearchVisualizer.defaults, options));
       this.div = $("#" + this.options.id).addClass("sudoku_vis");
       this.visId = this.options.id + "_vis";
@@ -16201,57 +16193,63 @@ pv.Geo.scale = function(p) {
       this.div.append("<div id=\"" + this.visId + "\" class=\"wheel\"></div>");
       this.game = $("<div id=\"" + this.options.id + "_game\" class=\"game\"></div>").appendTo(this.div);
       this.div.append("<div id=\"" + this.vis2Id + "\" class=\"create\"></div>");
-      this.startstop = $("<button class=\"awesome\">" + (this.options.startOnInit ? "Pause" : "Start") + "</button>").appendTo(this.controls).click(function() {
-        if (_this.running) {
-          _this.stop();
-          return _this.startstop.html("Start");
-        } else {
-          _this.start();
-          return _this.startstop.html("Pause");
-        }
-      });
-      this.restartVis = function() {
-        var _ref;
-        if (_this.running) {
-          if ((_ref = _this.options.computationMode) != null ? _ref.webworkers : void 0) {
-            _this.hive.terminate();
+      this.startstop = $("<button class=\"awesome\">" + (this.options.startOnInit ? "Pause" : "Start") + "</button>").appendTo(this.controls).click((function(_this) {
+        return function() {
+          if (_this.running) {
+            _this.stop();
+            return _this.startstop.html("Start");
           } else {
-            _this.search.stop();
+            _this.start();
+            return _this.startstop.html("Pause");
           }
-        }
-        delete _this.best;
-        delete _this.worst;
-        delete _this.bestViolations;
-        _this.harmonies = [];
-        _this.rows = 0;
-        _this._initializeSearch();
-        _this._initializeMemoryVisualization();
-        _this._initializeCreationVisualization();
-        _this.start();
-        return _this.stop();
-      };
-      this.reset = $('<button class="awesome">Reset</button>').appendTo(this.controls).click(function() {
-        var before_restart;
-        before_restart = _this.running;
-        _this.restartVis();
-        if (before_restart) {
-          return _this.start();
-        }
-      });
+        };
+      })(this));
+      this.restartVis = (function(_this) {
+        return function() {
+          var ref;
+          if (_this.running) {
+            if ((ref = _this.options.computationMode) != null ? ref.webworkers : void 0) {
+              _this.hive.terminate();
+            } else {
+              _this.search.stop();
+            }
+          }
+          delete _this.best;
+          delete _this.worst;
+          delete _this.bestViolations;
+          _this.harmonies = [];
+          _this.rows = 0;
+          _this._initializeSearch();
+          _this._initializeMemoryVisualization();
+          _this._initializeCreationVisualization();
+          _this.start();
+          return _this.stop();
+        };
+      })(this);
+      this.reset = $('<button class="awesome">Reset</button>').appendTo(this.controls).click((function(_this) {
+        return function() {
+          var before_restart;
+          before_restart = _this.running;
+          _this.restartVis();
+          if (before_restart) {
+            return _this.start();
+          }
+        };
+      })(this));
       this.activityIndicator = $('<img class="working" src="/images/working.gif">').hide().appendTo(this.controls);
       this.restartVis();
     }
 
     HarmonySearchVisualizer.prototype.addHarmony = function(harmony) {
-      var i, minIndex, minQuality, secondMinIndex, _ref, _ref1;
+      var i, minIndex, minQuality, ref, secondMinIndex;
       this.harmonies.push(harmony);
       if (this.rows > this.options.maxRows) {
         minIndex = 0;
         secondMinIndex = 0;
         minQuality = this.harmonies[0]._quality;
-        _ref = this.harmonies;
-        for (i in _ref) {
-          harmony = _ref[i];
+        ref = this.harmonies;
+        for (i in ref) {
+          harmony = ref[i];
           if (harmony._quality <= minQuality) {
             secondMinIndex = minIndex;
             minQuality = harmony._quality;
@@ -16263,7 +16261,7 @@ pv.Geo.scale = function(p) {
       } else {
         this.rows++;
       }
-      if ((_ref1 = this.best) == null) {
+      if (this.best == null) {
         this.best = harmony;
       }
       if (this.best._quality < harmony._quality) {
@@ -16323,69 +16321,91 @@ pv.Geo.scale = function(p) {
     };
 
     HarmonySearchVisualizer.prototype._initializeMemoryVisualization = function() {
-      var inner, minimum,
-        _this = this;
+      var inner, minimum;
       inner = this.options.width / 2 - this.options.thickness - this.options.edgeOffset;
       minimum = this.options.thickness - this.options.thicknessScale;
       this.options.colorScale = pv.Scale.linear(2 * this.options.targetQuality / 3, this.options.targetQuality).range('white', 'purple');
       this.vis = new pv.Panel().width(this.options.width).height(this.options.height).canvas(this.visId);
-      this.vis.add(pv.Wedge).data(function() {
-        return _this.harmonies;
-      }).left(this.options.width / 2).bottom(this.options.height / 2).innerRadius(inner).outerRadius(function(d) {
-        var size;
-        if ((_this.bestViolations == null) || d.violations() === 0) {
-          return inner + _this.options.thickness;
-        }
-        size = _this.options.thicknessScale * (_this.bestViolations.violations() / d.violations());
-        return inner + minimum + size;
-      }).angle(function(d) {
-        return -2 * Math.PI / _this.harmonies.length;
-      }).fillStyle(function(d) {
-        if (d._quality >= _this.options.targetQuality) {
-          return "#A0FF8C";
-        } else {
-          return _this.options.colorScale(d._quality);
-        }
-      }).strokeStyle("white").lineWidth(1).event("click", function(x) {
-        return _this.showSolution(x, true);
-      }).anchor("center").add(pv.Label).font("8pt Droid Sans").textAngle(0).text(function(d) {
+      this.vis.add(pv.Wedge).data((function(_this) {
+        return function() {
+          return _this.harmonies;
+        };
+      })(this)).left(this.options.width / 2).bottom(this.options.height / 2).innerRadius(inner).outerRadius((function(_this) {
+        return function(d) {
+          var size;
+          if ((_this.bestViolations == null) || d.violations() === 0) {
+            return inner + _this.options.thickness;
+          }
+          size = _this.options.thicknessScale * (_this.bestViolations.violations() / d.violations());
+          return inner + minimum + size;
+        };
+      })(this)).angle((function(_this) {
+        return function(d) {
+          return -2 * Math.PI / _this.harmonies.length;
+        };
+      })(this)).fillStyle((function(_this) {
+        return function(d) {
+          if (d._quality >= _this.options.targetQuality) {
+            return "#A0FF8C";
+          } else {
+            return _this.options.colorScale(d._quality);
+          }
+        };
+      })(this)).strokeStyle("white").lineWidth(1).event("click", (function(_this) {
+        return function(x) {
+          return _this.showSolution(x, true);
+        };
+      })(this)).anchor("center").add(pv.Label).font("8pt Droid Sans").textAngle(0).text(function(d) {
         return d._quality;
       });
-      this.vis.add(pv.Wedge).data(function() {
-        return _this.harmonies;
-      }).left(this.options.width / 2).bottom(this.options.height / 2).outerRadius(inner - 1).innerRadius(function(d) {
-        if ((_this.showing != null) && d === _this.showing) {
-          return 0;
-        } else {
-          return inner - 1;
-        }
-      }).angle(function(d) {
-        return -2 * Math.PI / _this.harmonies.length;
-      }).fillStyle("#CCC");
-      return this.vis.add(pv.Wedge).data(function() {
-        return _this.harmonies;
-      }).left(this.options.width / 2).bottom(this.options.height / 2).angle(function(d) {
-        return -2 * Math.PI / _this.harmonies.length;
-      }).outerRadius(inner - 1).innerRadius(function(d) {
-        if (((_this.best != null) && d._quality === _this.best._quality) || ((_this.worst != null) && d._quality === _this.worst._quality)) {
-          return inner - 5;
-        } else {
-          return inner - 1;
-        }
-      }).fillStyle(function(d) {
-        if ((_this.best != null) && d._quality === _this.best._quality) {
-          return "green";
-        } else if ((_this.worst != null) && d._quality === _this.worst._quality) {
-          return "red";
-        } else {
-          return "white";
-        }
-      });
+      this.vis.add(pv.Wedge).data((function(_this) {
+        return function() {
+          return _this.harmonies;
+        };
+      })(this)).left(this.options.width / 2).bottom(this.options.height / 2).outerRadius(inner - 1).innerRadius((function(_this) {
+        return function(d) {
+          if ((_this.showing != null) && d === _this.showing) {
+            return 0;
+          } else {
+            return inner - 1;
+          }
+        };
+      })(this)).angle((function(_this) {
+        return function(d) {
+          return -2 * Math.PI / _this.harmonies.length;
+        };
+      })(this)).fillStyle("#CCC");
+      return this.vis.add(pv.Wedge).data((function(_this) {
+        return function() {
+          return _this.harmonies;
+        };
+      })(this)).left(this.options.width / 2).bottom(this.options.height / 2).angle((function(_this) {
+        return function(d) {
+          return -2 * Math.PI / _this.harmonies.length;
+        };
+      })(this)).outerRadius(inner - 1).innerRadius((function(_this) {
+        return function(d) {
+          if (((_this.best != null) && d._quality === _this.best._quality) || ((_this.worst != null) && d._quality === _this.worst._quality)) {
+            return inner - 5;
+          } else {
+            return inner - 1;
+          }
+        };
+      })(this)).fillStyle((function(_this) {
+        return function(d) {
+          if ((_this.best != null) && d._quality === _this.best._quality) {
+            return "green";
+          } else if ((_this.worst != null) && d._quality === _this.worst._quality) {
+            return "red";
+          } else {
+            return "white";
+          }
+        };
+      })(this));
     };
 
     HarmonySearchVisualizer.prototype._initializeCreationVisualization = function() {
-      var boxPadding, cellWidth, colorScale, firstColWidth, height, i, maxCols, maxPossibilities, possibilities, proto, randoms, randomsRowHeight, row, rowHeight, rows, search, textColorScale,
-        _this = this;
+      var boxPadding, cellWidth, colorScale, firstColWidth, height, i, maxCols, maxPossibilities, possibilities, proto, randoms, randomsRowHeight, row, rowHeight, rows, search, textColorScale;
       height = this.options.creationVis.height;
       rowHeight = this.options.creationVis.rowHeight;
       cellWidth = this.options.creationVis.cellWidth;
@@ -16394,14 +16414,14 @@ pv.Geo.scale = function(p) {
       randomsRowHeight = 20;
       possibilities = this.puzzle != null ? this.puzzle.possibilities : [
         (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.search.options.instruments;
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            i = _ref[_i];
-            _results.push(this.search.options.notes);
+          var j, len, ref, results;
+          ref = this.search.options.instruments;
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            i = ref[j];
+            results.push(this.search.options.notes);
           }
-          return _results;
+          return results;
         }).call(this)
       ];
       maxPossibilities = _(possibilities.slice(0, +maxCols + 1 || 9e9)).chain().map(function(x) {
@@ -16411,16 +16431,18 @@ pv.Geo.scale = function(p) {
       rows = Math.floor((height - boxPadding) / rowHeight);
       colorScale = pv.Scale.linear(0, rows - 1).range("#000", "#666");
       this.vis2 = new pv.Panel().width(450).height(height).canvas(this.vis2Id);
-      row = this.vis2.add(pv.Panel).data(function() {
-        return _this.harmonies.slice().reverse().slice(0, +(rows - 1) + 1 || 9e9);
-      }).height(rowHeight - 3).top(function() {
+      row = this.vis2.add(pv.Panel).data((function(_this) {
+        return function() {
+          return _this.harmonies.slice().reverse().slice(0, +(rows - 1) + 1 || 9e9);
+        };
+      })(this)).height(rowHeight - 3).top(function() {
         return this.index * rowHeight + boxPadding;
       }).strokeStyle("#CCC").lineWidth(1);
       proto = new pv.Label().top(6).font("10pt Droid Sans").textBaseline("top").textStyle("#000");
       row.add(pv.Label).extend(proto).data(function(harmony) {
         return [harmony._quality];
       }).left(0).text(function(d) {
-        return "" + d + ":";
+        return d + ":";
       });
       search = this;
       textColorScale = pv.Scale.linear(0, rows).range("#000", "#AAA");
@@ -16439,7 +16461,7 @@ pv.Geo.scale = function(p) {
         if (this.parent.index === 0) {
           extra = "bold ";
         }
-        return "" + extra + "10pt Droid Sans";
+        return extra + "10pt Droid Sans";
       }).textStyle(function(d) {
         var x;
         if (x = search.harmonies[search.harmonies.length - 1].creationAnnotations) {
@@ -16465,18 +16487,20 @@ pv.Geo.scale = function(p) {
             extra = "bold ";
           }
         }
-        return "" + extra + "10pt Droid Sans";
+        return extra + "10pt Droid Sans";
       }).textStyle("#000").left(0).height(rowHeight).bottom(function(d) {
         return this.index * randomsRowHeight;
       });
-      return this.vis2.add(pv.Panel).data(function() {
-        var x;
-        if ((x = _this.harmonies[_this.harmonies.length - 1].creationAnnotations)) {
-          return x.slice(0, 34);
-        } else {
-          return [];
-        }
-      }).left(function() {
+      return this.vis2.add(pv.Panel).data((function(_this) {
+        return function() {
+          var x;
+          if ((x = _this.harmonies[_this.harmonies.length - 1].creationAnnotations)) {
+            return x.slice(0, 34);
+          } else {
+            return [];
+          }
+        };
+      })(this)).left(function() {
         return firstColWidth + this.index * cellWidth + 7;
       }).add(pv.Wedge).strokeStyle(function(d) {
         if (d.fromMemory) {
@@ -16515,12 +16539,11 @@ pv.Geo.scale = function(p) {
 
 }).call(this);
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
-  Harry.SudokuVisualizer = (function(_super) {
-
-    __extends(SudokuVisualizer, _super);
+  Harry.SudokuVisualizer = (function(superClass) {
+    extend(SudokuVisualizer, superClass);
 
     SudokuVisualizer.computationModes = {
       "light": {
@@ -16578,48 +16601,51 @@ pv.Geo.scale = function(p) {
     };
 
     function SudokuVisualizer(options) {
-      var mode, name, puzzle, _ref, _ref1,
-        _this = this;
+      var mode, name, puzzle, ref, ref1;
       this.options = _.extend({}, SudokuVisualizer.defaults, options);
       this.options.computationMode = SudokuVisualizer.computationModes[this.options.computationMode];
       this.options.puzzle = SudokuVisualizer.puzzles[this.options.puzzle];
       SudokuVisualizer.__super__.constructor.apply(this, arguments);
       this.controls.append("Computation Intensity: ");
       this.modeSelect = $('<select class="mode"></select>');
-      _ref = SudokuVisualizer.computationModes;
-      for (name in _ref) {
-        mode = _ref[name];
+      ref = SudokuVisualizer.computationModes;
+      for (name in ref) {
+        mode = ref[name];
         if (mode.enabled) {
           this.modeSelect.append("<option " + (mode === this.options.computationMode ? "selected" : "") + ">" + name + "</option>");
         }
       }
-      this.modeSelect.appendTo(this.controls).change(function(e) {
-        var before_restart;
-        _this.options.computationMode = SudokuVisualizer.computationModes[_this.modeSelect.val()];
-        before_restart = _this.running;
-        _this.restartVis();
-        if (before_restart) {
-          _this.start();
-        }
-        return true;
-      });
+      this.modeSelect.appendTo(this.controls).change((function(_this) {
+        return function(e) {
+          var before_restart;
+          _this.options.computationMode = SudokuVisualizer.computationModes[_this.modeSelect.val()];
+          before_restart = _this.running;
+          _this.restartVis();
+          if (before_restart) {
+            _this.start();
+          }
+          return true;
+        };
+      })(this));
       this.controls.append("Puzzle: ");
       this.puzzleSelect = $('<select class="puzzle"></select>');
-      _ref1 = SudokuVisualizer.puzzles;
-      for (name in _ref1) {
-        puzzle = _ref1[name];
+      ref1 = SudokuVisualizer.puzzles;
+      for (name in ref1) {
+        puzzle = ref1[name];
         this.puzzleSelect.append("<option " + (puzzle === this.options.puzzle ? "selected" : "") + " value=\"" + puzzle + "\">" + name + "</option>");
       }
-      this.puzzleSelect.appendTo(this.controls).change(function(e) {
-        var before_restart;
-        _this.options.puzzle = _this.puzzleSelect.val();
-        before_restart = _this.running;
-        _this.restartVis();
-        if (before_restart) {
-          _this.start();
-        }
-        return true;
-      });
+      this.puzzleSelect.appendTo(this.controls).change((function(_this) {
+        return function(e) {
+          var before_restart;
+          _this.options.puzzle = _this.puzzleSelect.val();
+          before_restart = _this.running;
+          _this.restartVis();
+          if (before_restart) {
+            _this.start();
+          }
+          return true;
+        };
+      })(this));
       if (this.options.startOnInit) {
         this.start();
       }
@@ -16653,9 +16679,8 @@ pv.Geo.scale = function(p) {
     };
 
     SudokuVisualizer.prototype.addHarmony = function(harmony) {
-      var _ref;
       SudokuVisualizer.__super__.addHarmony.apply(this, arguments);
-      if ((_ref = this.bestViolations) == null) {
+      if (this.bestViolations == null) {
         this.bestViolations = harmony;
       }
       if (this.bestViolations.violations() > harmony.violations()) {
@@ -16675,8 +16700,7 @@ pv.Geo.scale = function(p) {
     };
 
     SudokuVisualizer.prototype._initializeSearch = function() {
-      var getHarmony, options,
-        _this = this;
+      var getHarmony, options;
       this.puzzle = new Harry.SudokuPuzzle(this.options.puzzle);
       options = {
         maxTries: 1000000,
@@ -16693,71 +16717,85 @@ pv.Geo.scale = function(p) {
       this.harmonyClass = this.puzzle.harmonyClass();
       this.options.maxRows = options.harmonyMemorySize;
       if (this.options.computationMode.workers) {
-        getHarmony = function(data) {
-          var harmony;
-          harmony = new _this.harmonyClass(_.zip(data.notes, data.noteIndicies));
-          harmony._quality = data.wire_quality;
-          harmony.creationAnnotations = data.creationAnnotations;
-          return harmony;
-        };
+        getHarmony = (function(_this) {
+          return function(data) {
+            var harmony;
+            harmony = new _this.harmonyClass(_.zip(data.notes, data.noteIndicies));
+            harmony._quality = data.wire_quality;
+            harmony.creationAnnotations = data.creationAnnotations;
+            return harmony;
+          };
+        })(this);
         return jQuery.Hive.create({
           worker: '/js/harmonics/sudoku_worker.js',
-          created: function(hive) {
-            _this.hive = hive[0];
-            return _this.hive.send({
-              type: "init",
-              options: _.extend(options, {
-                maxTries: 100000000,
-                puzzle: _this.options.puzzle,
-                iterationMilestone: 1000,
-                popStack: 500
-              })
-            });
-          },
-          receive: function(data) {
-            var attrs, harmony;
-            switch (data.type) {
-              case "init":
-                return true;
-              case "add_harmony":
-              case "init_harmony":
-                harmony = getHarmony(data.harmony);
-                return _this.addHarmony(harmony);
-              case "milestone":
-                attrs = data.attrs;
-                attrs.best = getHarmony(attrs.best);
-                attrs.worst = getHarmony(attrs.worst);
-                return _this.showInfo(data.attrs);
-              case "console":
-              case "message":
-                return console.log(data);
-              default:
-                console.error("Unrecognized message!");
-                return console.error(data);
-            }
-          }
+          created: (function(_this) {
+            return function(hive) {
+              _this.hive = hive[0];
+              return _this.hive.send({
+                type: "init",
+                options: _.extend(options, {
+                  maxTries: 100000000,
+                  puzzle: _this.options.puzzle,
+                  iterationMilestone: 1000,
+                  popStack: 500
+                })
+              });
+            };
+          })(this),
+          receive: (function(_this) {
+            return function(data) {
+              var attrs, harmony;
+              switch (data.type) {
+                case "init":
+                  return true;
+                case "add_harmony":
+                case "init_harmony":
+                  harmony = getHarmony(data.harmony);
+                  return _this.addHarmony(harmony);
+                case "milestone":
+                  attrs = data.attrs;
+                  attrs.best = getHarmony(attrs.best);
+                  attrs.worst = getHarmony(attrs.worst);
+                  return _this.showInfo(data.attrs);
+                case "console":
+                case "message":
+                  return console.log(data);
+                default:
+                  console.error("Unrecognized message!");
+                  return console.error(data);
+              }
+            };
+          })(this)
         });
       } else {
         return this.search = new Harry.HarmonySearch(_.extend(options, {
           harmonyClass: this.harmonyClass,
-          afterInit: function(options) {},
-          afterInitMemory: function(harmonies, search) {
-            var harmony, _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = harmonies.length; _i < _len; _i++) {
-              harmony = harmonies[_i];
+          afterInit: (function(_this) {
+            return function(options) {};
+          })(this),
+          afterInitMemory: (function(_this) {
+            return function(harmonies, search) {
+              var harmony, i, len, results;
+              results = [];
+              for (i = 0, len = harmonies.length; i < len; i++) {
+                harmony = harmonies[i];
+                harmony._quality = harmony.quality();
+                results.push(_this.addHarmony(harmony));
+              }
+              return results;
+            };
+          })(this),
+          afterNew: (function(_this) {
+            return function(harmony, search) {
               harmony._quality = harmony.quality();
-              _results.push(_this.addHarmony(harmony));
-            }
-            return _results;
-          },
-          afterNew: function(harmony, search) {
-            harmony._quality = harmony.quality();
-            return _this.addHarmony(harmony);
-          },
-          afterMilestone: function(attrs) {
-            return _this.showInfo(attrs);
-          }
+              return _this.addHarmony(harmony);
+            };
+          })(this),
+          afterMilestone: (function(_this) {
+            return function(attrs) {
+              return _this.showInfo(attrs);
+            };
+          })(this)
         }));
       }
     };
@@ -16768,9 +16806,9 @@ pv.Geo.scale = function(p) {
 
 }).call(this);
 (function() {
-  var n, x, y, _i, _j,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var j, l, n, x, y,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   window.Exam = {
     impl_mark: function(x, y) {
@@ -16794,8 +16832,8 @@ pv.Geo.scale = function(p) {
     }
   };
 
-  for (x = _i = 0; _i <= 100; x = ++_i) {
-    for (y = _j = 0; _j <= 100; y = ++_j) {
+  for (x = j = 0; j <= 100; x = ++j) {
+    for (y = l = 0; l <= 100; y = ++l) {
       if ((n = Exam.impl_mark(x, y)) > Exam.impl_max) {
         Exam.maxIndex = [x, y];
         Exam.impl_max = n;
@@ -16808,7 +16846,6 @@ pv.Geo.scale = function(p) {
   }
 
   Harry.HeatmapVisualizer = (function() {
-
     HeatmapVisualizer.prototype.w = 100;
 
     HeatmapVisualizer.prototype.h = 100;
@@ -16826,8 +16863,7 @@ pv.Geo.scale = function(p) {
     HeatmapVisualizer.prototype.highlight = [-1, -1];
 
     function HeatmapVisualizer(options) {
-      var k,
-        _this = this;
+      var k;
       if (options == null) {
         options = {};
       }
@@ -16835,13 +16871,15 @@ pv.Geo.scale = function(p) {
       this.x = pv.Scale.linear().domain(0, 10).range(0, this.w * this.ratio);
       this.y = pv.Scale.linear().domain(0, 10).range(0, this.h * this.ratio);
       k = this.max - this.min;
-      this.heat = pv.Scale.linear().domain(Exam.min - 1, Exam.min, this.min, this.min + k / 6, this.min + 2 * k / 6, this.min + 3 * k / 6, this.min + 4 * k / 6, this.min + 5 * k / 6, this.max).range("#F00", "#000", "#000", "#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff").by(function(x, y) {
-        if ((Math.abs(x - _this.highlight[0]) + Math.abs(y - _this.highlight[1])) < 2) {
-          return Exam.min - 1;
-        } else {
-          return Exam.mark(x, y);
-        }
-      });
+      this.heat = pv.Scale.linear().domain(Exam.min - 1, Exam.min, this.min, this.min + k / 6, this.min + 2 * k / 6, this.min + 3 * k / 6, this.min + 4 * k / 6, this.min + 5 * k / 6, this.max).range("#F00", "#000", "#000", "#0a0", "#6c0", "#ee0", "#eb4", "#eb9", "#fff").by((function(_this) {
+        return function(x, y) {
+          if ((Math.abs(x - _this.highlight[0]) + Math.abs(y - _this.highlight[1])) < 2) {
+            return Exam.min - 1;
+          } else {
+            return Exam.mark(x, y);
+          }
+        };
+      })(this));
       this.heatmap = new pv.Panel().canvas(this.id).width(this.w * this.ratio).height(this.h * this.ratio).top(16).strokeStyle("#aaa").lineWidth(2).antialias(false);
       if (this.labels) {
         this.heatmap.margin(32);
@@ -16868,9 +16906,8 @@ pv.Geo.scale = function(p) {
 
   })();
 
-  Harry.ExamHarmony = (function(_super) {
-
-    __extends(ExamHarmony, _super);
+  Harry.ExamHarmony = (function(superClass) {
+    extend(ExamHarmony, superClass);
 
     function ExamHarmony() {
       return ExamHarmony.__super__.constructor.apply(this, arguments);
@@ -16884,9 +16921,8 @@ pv.Geo.scale = function(p) {
 
   })(Harry.Harmony);
 
-  Harry.HeatmapSearchVisualizer = (function(_super) {
-
-    __extends(HeatmapSearchVisualizer, _super);
+  Harry.HeatmapSearchVisualizer = (function(superClass) {
+    extend(HeatmapSearchVisualizer, superClass);
 
     HeatmapSearchVisualizer.defaults = {
       width: 500,
@@ -16945,15 +16981,14 @@ pv.Geo.scale = function(p) {
     };
 
     HeatmapSearchVisualizer.prototype._initializeSearch = function() {
-      var fmtquality, i, notes, options,
-        _this = this;
+      var fmtquality, i, notes, options;
       notes = (function() {
-        var _k, _results;
-        _results = [];
-        for (i = _k = 0; _k <= 100; i = ++_k) {
-          _results.push(i / 10);
+        var m, results;
+        results = [];
+        for (i = m = 0; m <= 100; i = ++m) {
+          results.push(i / 10);
         }
-        return _results;
+        return results;
       })();
       options = {
         maxTries: 10000,
@@ -16973,24 +17008,32 @@ pv.Geo.scale = function(p) {
       };
       return this.search = new Harry.HarmonySearch(_.extend(options, {
         harmonyClass: Harry.ExamHarmony,
-        afterInit: function(options) {},
-        afterInitMemory: function(harmonies, search) {
-          var harmony, _k, _len, _results;
-          _results = [];
-          for (_k = 0, _len = harmonies.length; _k < _len; _k++) {
-            harmony = harmonies[_k];
+        afterInit: (function(_this) {
+          return function(options) {};
+        })(this),
+        afterInitMemory: (function(_this) {
+          return function(harmonies, search) {
+            var harmony, len, m, results;
+            results = [];
+            for (m = 0, len = harmonies.length; m < len; m++) {
+              harmony = harmonies[m];
+              harmony._quality = fmtquality(harmony);
+              results.push(_this.addHarmony(harmony));
+            }
+            return results;
+          };
+        })(this),
+        afterNew: (function(_this) {
+          return function(harmony, search) {
             harmony._quality = fmtquality(harmony);
-            _results.push(_this.addHarmony(harmony));
-          }
-          return _results;
-        },
-        afterNew: function(harmony, search) {
-          harmony._quality = fmtquality(harmony);
-          return _this.addHarmony(harmony);
-        },
-        afterMilestone: function(attrs) {
-          return _this.showInfo(attrs);
-        }
+            return _this.addHarmony(harmony);
+          };
+        })(this),
+        afterMilestone: (function(_this) {
+          return function(attrs) {
+            return _this.showInfo(attrs);
+          };
+        })(this)
       }));
     };
 

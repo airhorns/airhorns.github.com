@@ -10,25 +10,25 @@
   margin: 0 auto; }
 
 circle.replica, circle.client {
-  stroke: #333333;
+  stroke: #333;
   stroke-width: 2; }
 
 text.replica-label {
   font-size: 10px;
-  color: fuchsia; }
+  color: #F0F; }
 
 circle.message {
-  stroke: #333333;
+  stroke: #333;
   stroke-width: 1; }
 
 .link {
   stroke-width: 2px;
   stroke-linecap: round;
-  stroke: #cccccc; }
+  stroke: #CCC; }
   .link.message {
     stroke-dasharray: 5, 5; }
   .link.unknown {
-    stroke: red; }
+    stroke: #F00; }
 
 #read_demo {
   float: left; }

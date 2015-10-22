@@ -99,7 +99,7 @@
 
 
 
-<time datetime="2011-07-05T12:41:00-04:00" pubdate data-updated="true">Jul 5<span>th</span>, 2011</time></span>
+<time datetime="2011-07-05T12:41:00-04:00" pubdate data-updated="true"></time></span>
           <h1 class="entry-title single-title" itemprop="headline">Neat Algorithms - Harmony Search</h1>
         </header>
 
@@ -149,9 +149,9 @@
           </div>
 
           <div id="post-content">
-            <p>Here I&#8217;ll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles. <strong>Update Sept 28th 2015</strong>: Turns out this algorithm is ballyhoo and I don&#8217;t like it any more, use something else. Kind of a fun idea though. See <a href="http://www.dennisweyland.net/blog/?p=12">http://www.dennisweyland.net/blog/?p=12</a>.</p>
+            <p>Here I&rsquo;ll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles. <strong>Update Sept 28th 2015</strong>: Turns out this algorithm is ballyhoo and I don&rsquo;t like it any more, use something else. Kind of a fun idea though. See <a href="http://www.dennisweyland.net/blog/?p=12">http://www.dennisweyland.net/blog/?p=12</a>.</p>
 
-<p>Harmony Search (often abbreviated HS) is a <a href="http://en.wikipedia.org/wiki/Metaheuristic">metaheuristic optimization</a> algorithm pioneered by <a href="https://sites.google.com/a/hydroteq.com/www/">Dr Zong Woo Geem</a>. Metaheuristic algorithms like harmony search attempt to find the optimal input to some objecting measure of quality, or in other words, find the &#8220;best&#8221; solution to a given problem. Harmony search has been successfully applied to a vast array of such problems, such as the Travelling Salesman problem, water network design, and actual algorithmic music generation.</p>
+<p>Harmony Search (often abbreviated HS) is a <a href="http://en.wikipedia.org/wiki/Metaheuristic">metaheuristic optimization</a> algorithm pioneered by <a href="https://sites.google.com/a/hydroteq.com/www/">Dr Zong Woo Geem</a>. Metaheuristic algorithms like harmony search attempt to find the optimal input to some objecting measure of quality, or in other words, find the &ldquo;best&rdquo; solution to a given problem. Harmony search has been successfully applied to a vast array of such problems, such as the Travelling Salesman problem, water network design, and actual algorithmic music generation.</p>
 
 <!--more-->
 
@@ -174,20 +174,20 @@
 
 <h1>About this page</h1>
 
-<p>This page features interactive demos and code examples, all written in <a href="http://coffeescript.org/">Coffeescript</a>. It shouldn&#8217;t be too hard to pick up if you haven&#8217;t seen it before, but visit that page if you want a quick primer on the syntax. If thats too much to ask, know that variables prefixed with <code>@</code> symbols signify instance variables, and that the last value of a block is the implicit return value, and you should be good. The example code you see in the post is also a distilled, unoptimized, nuance-lacking version which gets rid of the boring stuff for your benefit, so don&#8217;t make fun if it seems slow.</p>
+<p>This page features interactive demos and code examples, all written in <a href="http://coffeescript.org/">Coffeescript</a>. It shouldn&rsquo;t be too hard to pick up if you haven&rsquo;t seen it before, but visit that page if you want a quick primer on the syntax. If thats too much to ask, know that variables prefixed with <code>@</code> symbols signify instance variables, and that the last value of a block is the implicit return value, and you should be good. The example code you see in the post is also a distilled, unoptimized, nuance-lacking version which gets rid of the boring stuff for your benefit, so don&rsquo;t make fun if it seems slow.</p>
 
-<p>Also, the computationally intense demo above has an intensity setting you can pick. Pick <code>poutine</code> mode only if you run Chrome or want to watch your browser get crushed. The first three settings defer to the UI thread often enough to stay responsive, but <code>poutine</code> mode uses web workers to destroy FF3, FF4, and Opera on my machine faster than you can say &#8220;higgitus figgitus&#8221;. <code>Poutine</code> mode is called as such because the browser gobbles up CPU power like I gobble up the aforementioned artery clogger at 3 AM on a Saturday night. Very quickly.</p>
+<p>Also, the computationally intense demo above has an intensity setting you can pick. Pick <code>poutine</code> mode only if you run Chrome or want to watch your browser get crushed. The first three settings defer to the UI thread often enough to stay responsive, but <code>poutine</code> mode uses web workers to destroy FF3, FF4, and Opera on my machine faster than you can say &ldquo;higgitus figgitus&rdquo;. <code>Poutine</code> mode is called as such because the browser gobbles up CPU power like I gobble up the aforementioned artery clogger at 3 AM on a Saturday night. Very quickly.</p>
 
 <h1 id="heuristics">Heuristics and Fitness</h1>
 
 
-<p>Harmony search as well as the above mentioned algorithms are useful for solving a very wide class of problems. Below we&#8217;ll apply it to one problem in particular, but first lets examine the role of a metaheuristic algorithm.</p>
+<p>Harmony search as well as the above mentioned algorithms are useful for solving a very wide class of problems. Below we&rsquo;ll apply it to one problem in particular, but first lets examine the role of a metaheuristic algorithm.</p>
 
-<p>The central idea is that when trying to solve some given optimization problem, you have some set of input variables that can be evaluated for their quality, and you want to know what inputs produce the best quality. Metaheuristic algorithms try to find this global optimum using some strategy which is better than brute force. For problems where it is hard to decipher why changing an input changes the quality (and thus the optimal solution isn&#8217;t very obvious), these algorithms are extremely useful. Harmony search and its siblings in this category do not guarantee that the globally optimal solution will be found, but often they do find it, and they are often much more efficient than an exhaustive brute force search of all input combinations.</p>
+<p>The central idea is that when trying to solve some given optimization problem, you have some set of input variables that can be evaluated for their quality, and you want to know what inputs produce the best quality. Metaheuristic algorithms try to find this global optimum using some strategy which is better than brute force. For problems where it is hard to decipher why changing an input changes the quality (and thus the optimal solution isn&rsquo;t very obvious), these algorithms are extremely useful. Harmony search and its siblings in this category do not guarantee that the globally optimal solution will be found, but often they do find it, and they are often much more efficient than an exhaustive brute force search of all input combinations.</p>
 
 <h2>A Basic Example</h2>
 
-<p>Say I have a killer exam tomorrow, and I have function which represents what mark I&#8217;ll get depending on how much time I spend studying and how much time I spend sleeping. For the sake of the example, we&#8217;ll say that I can spend a maximum of 10 hours doing either activity, and any time I don&#8217;t spend doing either activity will be filled by normal day to day activities. The problem is I&#8217;ll get burned out if I study too much, but I won&#8217;t pass if I don&#8217;t study enough. I could also be groggy during the exam I sleep too much, or be weary and slow if I don&#8217;t sleep enough. How do I balance the time before the exam appropriately, given that I have this magical function which predicts the future?</p>
+<p>Say I have a killer exam tomorrow, and I have function which represents what mark I&rsquo;ll get depending on how much time I spend studying and how much time I spend sleeping. For the sake of the example, we&rsquo;ll say that I can spend a maximum of 10 hours doing either activity, and any time I don&rsquo;t spend doing either activity will be filled by normal day to day activities. The problem is I&rsquo;ll get burned out if I study too much, but I won&rsquo;t pass if I don&rsquo;t study enough. I could also be groggy during the exam I sleep too much, or be weary and slow if I don&rsquo;t sleep enough. How do I balance the time before the exam appropriately, given that I have this magical function which predicts the future?</p>
 
 <figure class="big">
   <figcaption>The problem space shown as a heat map.</figcaption>
@@ -195,30 +195,30 @@
 </figure>
 
 
-<p>To the left is a heat map showing where the best marks are earned. You&#8217;ll find the hours spent studying on the X axis and the hours spent sleeping on the Y axis, and the mark achieved encoded in the color at that point on the map. A white color represents 100%, and a black color represents a failing grade. You can see that around the edges of the map the colors are darker, indicating a poorer mark. There also appears to be a hotspot right in the middle at about 5 hours spent studying and 8 hours spent sleeping. This is easy for us to see because the data is laid out in such a way we can see the whole problem space at once, and see the exact range of marks earned just by looking at the colors. Us humans can identify a pattern of increasing marks by watching the colors get closer to white as the inputs approach that sweet spot.</p>
+<p>To the left is a heat map showing where the best marks are earned. You&rsquo;ll find the hours spent studying on the X axis and the hours spent sleeping on the Y axis, and the mark achieved encoded in the color at that point on the map. A white color represents 100%, and a black color represents a failing grade. You can see that around the edges of the map the colors are darker, indicating a poorer mark. There also appears to be a hotspot right in the middle at about 5 hours spent studying and 8 hours spent sleeping. This is easy for us to see because the data is laid out in such a way we can see the whole problem space at once, and see the exact range of marks earned just by looking at the colors. Us humans can identify a pattern of increasing marks by watching the colors get closer to white as the inputs approach that sweet spot.</p>
 
-<p>The task of an optimization algorithm is to do exactly what we do with our eyes on the heat map. It can also search non differentiable functions, or functions which few assumptions can be made. Also note that this exam example is a tad silly, because every input combination is represented in that heat map, so we could write a brute force program to just try them all and find the max pretty easily and quickly. To make it even worse, the source code for the relatively simple and continuous quality function is also in this page, so just applying some first year calculus we can find the global maximum. For computationally complex functions of many more variables, or non differentiable functions, these brute force and calculus approaches aren&#8217;t feasible, and we are left to find a better strategy.</p>
+<p>The task of an optimization algorithm is to do exactly what we do with our eyes on the heat map. It can also search non differentiable functions, or functions which few assumptions can be made. Also note that this exam example is a tad silly, because every input combination is represented in that heat map, so we could write a brute force program to just try them all and find the max pretty easily and quickly. To make it even worse, the source code for the relatively simple and continuous quality function is also in this page, so just applying some first year calculus we can find the global maximum. For computationally complex functions of many more variables, or non differentiable functions, these brute force and calculus approaches aren&rsquo;t feasible, and we are left to find a better strategy.</p>
 
 <h1 id="harmony_search">Enter Harmony Search</h1>
 
 
-<p>Harmony search is one such strategy for finding an optimal set of inputs to an often complicated quality function, among others like random search, simulated annealing, genetic algorithms, and tabu search. It works by imitating the activity of musicians while improvising. The choice of which note to play next while playing as part of a trio or quartet is something which takes years to learn to do effectively, because its hard to know what notes your accompaniment might play, and its hard to know what notes might sound good or great in tandem with the others. Musicians can be seen as trying to play some set of notes simultaneously to produce a <em>fantastic harmony</em>, although this is a somewhat naive take on the whole thing, so don&#8217;t let me ruin the magic for you.</p>
+<p>Harmony search is one such strategy for finding an optimal set of inputs to an often complicated quality function, among others like random search, simulated annealing, genetic algorithms, and tabu search. It works by imitating the activity of musicians while improvising. The choice of which note to play next while playing as part of a trio or quartet is something which takes years to learn to do effectively, because its hard to know what notes your accompaniment might play, and its hard to know what notes might sound good or great in tandem with the others. Musicians can be seen as trying to play some set of notes simultaneously to produce a <em>fantastic harmony</em>, although this is a somewhat naive take on the whole thing, so don&rsquo;t let me ruin the magic for you.</p>
 
-<p>Each musician in the ensemble is often faced with the problem of picking the next note. To do so they can reference their knowledge of the notes in the key they are playing in (what notes sound good in the context of the song), as well as the notes they&#8217;ve played previously (what notes sound good in the recent context). The notes they played recently most likely sounded alright, so often these are a good choice. Also, it can be wise to pick a particular note that the audience might expect and adjust the pitch of it away from the expected note to create an artistic effect and a new, potentially better, harmony.</p>
+<p>Each musician in the ensemble is often faced with the problem of picking the next note. To do so they can reference their knowledge of the notes in the key they are playing in (what notes sound good in the context of the song), as well as the notes they&rsquo;ve played previously (what notes sound good in the recent context). The notes they played recently most likely sounded alright, so often these are a good choice. Also, it can be wise to pick a particular note that the audience might expect and adjust the pitch of it away from the expected note to create an artistic effect and a new, potentially better, harmony.</p>
 
-<p>These decisions that said bland hypothetical musician makes correspond exactly to how harmony search works. Harmony search seeks an optimal combination of inputs, just as a musician seeks a fantastic harmony. Harmony search generates &#8220;harmonies&#8221; of inputs which it then evaluates for quality, and iterates this process until it finds the best one possible. The quality of a musical harmony is analogous to the quality of a particular solution, so you might say that harmony search is trying to achieve a <em>fantastic</em> combination of inputs, or that musicians are trying to <em>optimize</em> the note selection problem using their own heuristics.</p>
+<p>These decisions that said bland hypothetical musician makes correspond exactly to how harmony search works. Harmony search seeks an optimal combination of inputs, just as a musician seeks a fantastic harmony. Harmony search generates &ldquo;harmonies&rdquo; of inputs which it then evaluates for quality, and iterates this process until it finds the best one possible. The quality of a musical harmony is analogous to the quality of a particular solution, so you might say that harmony search is trying to achieve a <em>fantastic</em> combination of inputs, or that musicians are trying to <em>optimize</em> the note selection problem using their own heuristics.</p>
 
-<p>Each input to the problem is seen as a different instrument in an ensemble, each potential note one of those instruments could play corresponds to each potential value on of the inputs of the function might adopt. The musical harmony of notes is modeled as a programmatic harmony of values. We evaluate the former&#8217;s quality using our ears, and the latter&#8217;s using a quality function describing the problem.</p>
+<p>Each input to the problem is seen as a different instrument in an ensemble, each potential note one of those instruments could play corresponds to each potential value on of the inputs of the function might adopt. The musical harmony of notes is modeled as a programmatic harmony of values. We evaluate the former&rsquo;s quality using our ears, and the latter&rsquo;s using a quality function describing the problem.</p>
 
 <h2>Improvising New Solutions</h2>
 
-<p>Harmony search continues to use the musician metaphor to iteratively improve its solution. Each search iteration of the algorithm generates a new harmony to evaluate for quality. Using the note selection strategies mentioned previously, notes for each instrument, or values for each input, are selected. These inputs are fed to the quality function to determine the harmony&#8217;s quality. The notes are selected for each instrument by either randomly selecting a note from the range of playable notes, selecting a note from the set of recently played ones, and/or occasionally adjusting the pitch of a note up or down.</p>
+<p>Harmony search continues to use the musician metaphor to iteratively improve its solution. Each search iteration of the algorithm generates a new harmony to evaluate for quality. Using the note selection strategies mentioned previously, notes for each instrument, or values for each input, are selected. These inputs are fed to the quality function to determine the harmony&rsquo;s quality. The notes are selected for each instrument by either randomly selecting a note from the range of playable notes, selecting a note from the set of recently played ones, and/or occasionally adjusting the pitch of a note up or down.</p>
 
 <h2>Getting better</h2>
 
-<p>Each iteration a new harmony is generated, its quality is calculated, and if it makes the cut it&#8217;s &#8220;included&#8221; in the musician&#8217;s memory. This way, iteration by iteration, old, poor quality harmonies are kicked out and replaced by better ones. The average quality of the set of harmonies in this memory as a whole gradually increases as these new harmonies replace poor ones. The brilliance of the algorithm comes from this: the new harmonies that are generated, which you may recall often reference notes from the memory, start to use notes belonging to known high-quality harmonies. Thus, the newly generated harmonies use good notes, and often have higher qualities because of it. This process repeats, where the increasing the quality of individual harmonies generated increases the average quality of the memory, which increases the quality of the individual generated harmonies, and so on and so forth. At some point (it is hoped), the algorithm generates a harmony which meets the &#8220;fantastic&#8221; quality hoped for.</p>
+<p>Each iteration a new harmony is generated, its quality is calculated, and if it makes the cut it&rsquo;s &ldquo;included&rdquo; in the musician&rsquo;s memory. This way, iteration by iteration, old, poor quality harmonies are kicked out and replaced by better ones. The average quality of the set of harmonies in this memory as a whole gradually increases as these new harmonies replace poor ones. The brilliance of the algorithm comes from this: the new harmonies that are generated, which you may recall often reference notes from the memory, start to use notes belonging to known high-quality harmonies. Thus, the newly generated harmonies use good notes, and often have higher qualities because of it. This process repeats, where the increasing the quality of individual harmonies generated increases the average quality of the memory, which increases the quality of the individual generated harmonies, and so on and so forth. At some point (it is hoped), the algorithm generates a harmony which meets the &ldquo;fantastic&rdquo; quality hoped for.</p>
 
-<p>Thats it! Harmony search isn&#8217;t too complicated, but its a neat algorithm inspired by some everyday natural phenomena. Read on for the code and an example application.</p>
+<p>Thats it! Harmony search isn&rsquo;t too complicated, but its a neat algorithm inspired by some everyday natural phenomena. Read on for the code and an example application.</p>
 
 <h1>The Code</h1>
 
@@ -228,10 +228,10 @@
 <li><strong>Instrument</strong>: One of the inputs to the quality function.</li>
 <li><strong>Note</strong>: One of the possible values of an input.</li>
 <li><strong>Harmony</strong>: A combination of each instrument playing a particular note, or in reality the set of chosen inputs for each argument to the quality function.</li>
-<li><strong>Quality</strong>: A quantitative measure of a harmony&#8217;s desirability, how close or far it is from the <em>fantastic</em> harmony, or optimal solution.</li>
+<li><strong>Quality</strong>: A quantitative measure of a harmony&rsquo;s desirability, how close or far it is from the <em>fantastic</em> harmony, or optimal solution.</li>
 <li><strong>Harmony Memory</strong>: The collection of good harmonies, stored in memory for examination by the harmony generation algorithm.</li>
 <li><strong>Harmony Memory Consideration</strong>: The process of generating a new harmony using random notes from the harmony memory.</li>
-<li><strong>Pitch Adjustment</strong>: The process of moving a particular instrument&#8217;s note up or down</li>
+<li><strong>Pitch Adjustment</strong>: The process of moving a particular instrument&rsquo;s note up or down</li>
 </ul>
 
 
@@ -259,7 +259,7 @@
 
 <p>I chose to encapsulate the generator and the search algorithm into a <code>HarmonySearch</code> class, and to make the whole thing reusable by making a <code>Harmony</code> class which in a particular problem would be extended to implement the quality function.</p>
 
-<p>Next, we&#8217;ll define the formal parameters for the algorithm:</p>
+<p>Next, we&rsquo;ll define the formal parameters for the algorithm:</p>
 
 <ul>
 <li><strong>Harmony Memory Consideration Rate</strong> or HMCR: the probability that when generating notes for a new harmony, a note from the harmony memory will be picked, instead of just picking a random one out of the possible notes</li>
@@ -269,9 +269,9 @@
 
 <h2>The skeleton</h2>
 
-<p>Here&#8217;s the skeleton for the <code>HarmonySearch</code> class:</p>
+<p>Here&rsquo;s the skeleton for the <code>HarmonySearch</code> class:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -302,9 +302,9 @@
 
 <p>All this does is define the defaults for the algorithm.</p>
 
-<p>Here&#8217;s the basic, extendable <code>Harmony</code> class:</p>
+<p>Here&rsquo;s the basic, extendable <code>Harmony</code> class:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -341,13 +341,13 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>The above class manages the generic parts of the search. To apply it to a particular optimisation problem, we subclass <code>Harmony</code> and define a quality calculation which suits the problem at hand. Below we&#8217;ll apply it to the exam mark problem mentioned above, and then after a less trivial sudoku problem.</p>
+<p>The above class manages the generic parts of the search. To apply it to a particular optimisation problem, we subclass <code>Harmony</code> and define a quality calculation which suits the problem at hand. Below we&rsquo;ll apply it to the exam mark problem mentioned above, and then after a less trivial sudoku problem.</p>
 
 <h2>The Harmony Generator</h2>
 
 <p>This is the first component of the <code>HarmonySearch</code> class, responsible for spitting out new harmonies based upon those stored in the harmony memory, as well as the HMCR and the PAR.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -420,7 +420,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Hopefully all this secondary stuff isn&#8217;t too confusing, but if it is, the next section brings it all together and hopefully will make it all clear.</p>
+<p>Hopefully all this secondary stuff isn&rsquo;t too confusing, but if it is, the next section brings it all together and hopefully will make it all clear.</p>
 
 <p>Also note that each <code>Harmony</code> class stores both an array of notes and an array of note indices, which seems a tad odd. This is because in the above code the pitch adjustment portion needs access to the original index of the note in the array of possible notes, so it can find the next or previous index to adjust to. Thats why the <code>Harmony</code> class constructor accepts the <code>[[note, index], [note2, index2], ...]</code> style arguments, and the above accumulator returns <code>[note, noteIndex]</code>, instead of just doing arrays of notes.</p>
 
@@ -428,7 +428,7 @@
 
 <p>Below is the core of the search algorithm, which actually executes the whole search process by generating new harmonies and moving them into the harmony memory if they are better than the current worst.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -523,22 +523,22 @@ $ Exam.mark(10,10)
 # =&gt; 50
 </code></pre>
 
-<p>We&#8217;re trying to find the global optimum to this equation. To model this in harmony search, we ask how many instruments there are, what notes each of them can play, and how to determine the quality of the harmony produced.</p>
+<p>We&rsquo;re trying to find the global optimum to this equation. To model this in harmony search, we ask how many instruments there are, what notes each of them can play, and how to determine the quality of the harmony produced.</p>
 
-<p>In this case, the <code>Exam.mark</code> equation is the one we are trying to optimize. We model its input arguments as notes, and use harmonies composed of different combinations of times. There are two instruments, one for each argument to the function, and each instrument can &#8220;play&#8221; any number between 0 and 10, which are the bounds as outlined in the problem. A harmony&#8217;s quality is the mark achieved when the time is spent in it&#8217;s particular allotment, which we model as the evaluation of the <code>Exam.mark</code> function for the two notes.</p>
+<p>In this case, the <code>Exam.mark</code> equation is the one we are trying to optimize. We model its input arguments as notes, and use harmonies composed of different combinations of times. There are two instruments, one for each argument to the function, and each instrument can &ldquo;play&rdquo; any number between 0 and 10, which are the bounds as outlined in the problem. A harmony&rsquo;s quality is the mark achieved when the time is spent in it&rsquo;s particular allotment, which we model as the evaluation of the <code>Exam.mark</code> function for the two notes.</p>
 
-<p>The harmony class we&#8217;d use for this problem would look like this:</p>
+<p>The harmony class we&rsquo;d use for this problem would look like this:</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 </pre></td><td class='code'><pre><code class='coffeescript'><span class='line'>    <span class="k">class</span> <span class="nx">ExamHarmony</span> <span class="k">extends</span> <span class="nx">Harmony</span>
 </span><span class='line'>      <span class="nv">quality: </span><span class="nf">-&gt;</span> <span class="nx">Exam</span><span class="p">.</span><span class="nx">mark</span><span class="p">(</span><span class="nx">@notes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">@notes</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That&#8217;s not so bad right? We&#8217;d then run the search for some sufficiently large number of iterations and look at the output.</p>
+<p>That&rsquo;s not so bad right? We&rsquo;d then run the search for some sufficiently large number of iterations and look at the output.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -564,33 +564,33 @@ $ Exam.mark(10,10)
 <div id="examsearchVis"></div>
 
 
-<p>Harmony Search is run live to power the visualization above, as well as the one at the top of the page. Each wedge in the purple circle represents a harmony in the memory, and so the circle is the whole HM. Each wedge is labeled by its quality, and as harmonies grow closer to the target quality, the color of their wedges grow more purple. The best and worst harmonies are are also highlighted using a green or red border. Feel free to click on a harmony to see it&#8217;s location on the heat map, and judge how close it is to the optimal point. Also, notice how new harmonies are added at the top of the circle and progress clockwise as new ones are added and poor ones are removed. The best harmonies will travel all the way around the circle but not get bumped out, and end up at the back for a long period of time, contributing good quality notes to the new harmonies being generated.</p>
+<p>Harmony Search is run live to power the visualization above, as well as the one at the top of the page. Each wedge in the purple circle represents a harmony in the memory, and so the circle is the whole HM. Each wedge is labeled by its quality, and as harmonies grow closer to the target quality, the color of their wedges grow more purple. The best and worst harmonies are are also highlighted using a green or red border. Feel free to click on a harmony to see it&rsquo;s location on the heat map, and judge how close it is to the optimal point. Also, notice how new harmonies are added at the top of the circle and progress clockwise as new ones are added and poor ones are removed. The best harmonies will travel all the way around the circle but not get bumped out, and end up at the back for a long period of time, contributing good quality notes to the new harmonies being generated.</p>
 
-<p>The grid of numbers to the right represents the selection of the notes in each new harmony. The harmony at the top of the list (with all the lines stemming from it) is the most recent addition to the harmony memory, and each line below is a progressively older harmony in the memory. Each note in the 1st row is generated either by picking a note from the set of those previously chosen in the memory, or by picking one randomly from the set of possible notes. Those chosen from the memory are signified by a grey line pointing towards the harmony from which the note was chosen. If pitch adjustment is applied, the line becomes blue. Otherwise, the note is chosen randomly, which is signified by a purple line pointing upwards into the set of notes possible for each note in the harmony. You&#8217;ll only notice this in the Sudoku demo above, because there isn&#8217;t enough room to show all the possibilities with the exam example.</p>
+<p>The grid of numbers to the right represents the selection of the notes in each new harmony. The harmony at the top of the list (with all the lines stemming from it) is the most recent addition to the harmony memory, and each line below is a progressively older harmony in the memory. Each note in the 1st row is generated either by picking a note from the set of those previously chosen in the memory, or by picking one randomly from the set of possible notes. Those chosen from the memory are signified by a grey line pointing towards the harmony from which the note was chosen. If pitch adjustment is applied, the line becomes blue. Otherwise, the note is chosen randomly, which is signified by a purple line pointing upwards into the set of notes possible for each note in the harmony. You&rsquo;ll only notice this in the Sudoku demo above, because there isn&rsquo;t enough room to show all the possibilities with the exam example.</p>
 
 <h1 id="sudoku_example">Sudoku Example</h1>
 
 
-<p>Harmony search can be applied to more complex problems than simple functions like the above. Sudoku is a specific case of the graph coloring problem, one of <a href="http://en.wikipedia.org/wiki/Karp%E2%80%99s_21_NP-complete_problems">Karp&#8217;s 21 NP-complete problems</a>. In other words, its very time consuming to brute force the solution to a sudoku by just trying random numbers and seeing if they work. There are excellent algorithms that often run faster than harmony search or any of its metaheuristic brethren which solve the sudoku using intelligent, problem aware methods and guess when needed.</p>
+<p>Harmony search can be applied to more complex problems than simple functions like the above. Sudoku is a specific case of the graph coloring problem, one of <a href="http://en.wikipedia.org/wiki/Karp%E2%80%99s_21_NP-complete_problems">Karp&rsquo;s 21 NP-complete problems</a>. In other words, its very time consuming to brute force the solution to a sudoku by just trying random numbers and seeing if they work. There are excellent algorithms that often run faster than harmony search or any of its metaheuristic brethren which solve the sudoku using intelligent, problem aware methods and guess when needed.</p>
 
-<p>These &#8220;smart&#8221; solvers are I&#8217;m sure the algorithms employed by true Sudoku software, but they rely on intimate knowledge of the Sudoku solving process and an understanding of the techniques used. We have to encode our knowledge of how to solve sudokus into a program, implementing the guessing feature, the backtracking, and all the methods for eliminating possibilities for a particular cell. Instead of developing an algorithm like this, we can use a search method to find us a solution as long as we have a heuristic to tell the quality of a given solution. By solving them in this way, we don&#8217;t need to concern ourselves with finding a general method or exploring edge cases or algorithmic nuances, and we let the search algorithm figure these things out on its own. We are able to lift the burden of understanding the relationship between the input variables from our own shoulders, and instead allow the algorithm to explore these relationships itself.</p>
+<p>These &ldquo;smart&rdquo; solvers are I&rsquo;m sure the algorithms employed by true Sudoku software, but they rely on intimate knowledge of the Sudoku solving process and an understanding of the techniques used. We have to encode our knowledge of how to solve sudokus into a program, implementing the guessing feature, the backtracking, and all the methods for eliminating possibilities for a particular cell. Instead of developing an algorithm like this, we can use a search method to find us a solution as long as we have a heuristic to tell the quality of a given solution. By solving them in this way, we don&rsquo;t need to concern ourselves with finding a general method or exploring edge cases or algorithmic nuances, and we let the search algorithm figure these things out on its own. We are able to lift the burden of understanding the relationship between the input variables from our own shoulders, and instead allow the algorithm to explore these relationships itself.</p>
 
 <p>Hopefully you can see the advantage of using a search algorithm for problems where the smart, human written implementation is hard or impossible to create. If we have some measure of quality for a solution, and thus a way to tell when a solution is optimal, we can let the search algorithm, well, search.</p>
 
 <h2>The Sudoku Model</h2>
 
-<p>Let&#8217;s solve a particular Sudoku puzzle using harmony search. First, let us identify what the notes of a harmony are, and after, how to calculate the quality of one.</p>
+<p>Let&rsquo;s solve a particular Sudoku puzzle using harmony search. First, let us identify what the notes of a harmony are, and after, how to calculate the quality of one.</p>
 
 <p>First off, notice that for any solution to be considered as such, each cell must have a value. Some of the values are given by the puzzle, and some must be decided by us. We seek a choice for each cell such that there are no conflicts, or in other words, the optimal solution to a sudoku is one which has all the cells filled in and breaks no rules.</p>
 
-<p>We model the value of each one of the unknown cells as one note in a harmony, with the note&#8217;s value being an integer between 1 and 9. The harmony is the chord struck when we insert each of these choices into the puzzle, and the quality of the solution is how close to a valid filled-in puzzle this solution is. The order the array of notes is entered into the puzzle doesn&#8217;t really matter all that much, as long as it is consistent the algorithm will work just the same. The number of instruments is the count of unsolved cells.</p>
+<p>We model the value of each one of the unknown cells as one note in a harmony, with the note&rsquo;s value being an integer between 1 and 9. The harmony is the chord struck when we insert each of these choices into the puzzle, and the quality of the solution is how close to a valid filled-in puzzle this solution is. The order the array of notes is entered into the puzzle doesn&rsquo;t really matter all that much, as long as it is consistent the algorithm will work just the same. The number of instruments is the count of unsolved cells.</p>
 
 <figure><table class="sudoku_game"><tr><td class="violated">2</td><td class="fixed">5</td><td class="good">4</td><td class="fixed">3</td><td class="boring">1</td><td class="fixed">6</td><td class="good">8</td><td class="boring">9</td><td class="fixed">7</td></tr><tr><td class="good">7</td><td class="violated">6</td><td class="good">3</td><td class="good">9</td><td class="fixed">8</td><td class="fixed">5</td><td class="boring">1</td><td class="fixed">2</td><td class="fixed">4</td></tr><tr><td class="good">1</td><td class="fixed">9</td><td class="fixed">8</td><td class="fixed">4</td><td class="fixed">2</td><td class="good">7</td><td class="fixed">6</td><td class="boring">5</td><td class="fixed">3</td></tr><tr><td class="fixed">9</td><td class="good">8</td><td class="fixed">1</td><td class="violated">7</td><td class="violated">5</td><td class="fixed">3</td><td class="fixed">2</td><td class="violated">5</td><td class="fixed">6</td></tr><tr><td class="violated">2</td><td class="fixed">3</td><td class="violated">2</td><td class="violated">7</td><td class="good">4</td><td class="violated">8</td><td class="violated">7</td><td class="fixed">1</td><td class="boring">5</td></tr><tr><td class="fixed">5</td><td class="boring">4</td><td class="fixed">7</td><td class="fixed">2</td><td class="fixed">6</td><td class="boring">1</td><td class="fixed">9</td><td class="good">3</td><td class="fixed">8</td></tr><tr><td class="fixed">4</td><td class="violated">6</td><td class="fixed">5</td><td class="boring">6</td><td class="fixed">9</td><td class="boring">2</td><td class="fixed">3</td><td class="fixed">8</td><td class="boring">1</td></tr><tr><td class="good">3</td><td class="fixed">1</td><td class="violated">6</td><td class="fixed">5</td><td class="fixed">7</td><td class="boring">8</td><td class="boring">4</td><td class="violated">9</td><td class="fixed">2</td></tr><tr><td class="fixed">8</td><td class="good">2</td><td class="violated">6</td><td class="fixed">1</td><td class="boring">3</td><td class="fixed">4</td><td class="boring">5</td><td class="fixed">7</td><td class="violated">9</td></tr></table><figcaption>A sudoku puzzle in the process of being solved.</figcaption></figure>
 
 
 <p>To the left is an example solution proposed in an early iteration of harmony search.</p>
 
-<p> <ul class="sudoku_legend"><li><span class="good">Green</span> cells don&#8217;t violate any rules</li><li><span class="violated">Red</span> cells violate either row, column, or block rules</li><li><span class="boring">Grey</span> cells have only one possible value based on the clues</li><li><span class="clue">White</span> cells are given in the puzzle (a &#8220;clue&#8221; cell)</li></ul></p>
+<p> <ul class="sudoku_legend"><li><span class="good">Green</span> cells don&rsquo;t violate any rules</li><li><span class="violated">Red</span> cells violate either row, column, or block rules</li><li><span class="boring">Grey</span> cells have only one possible value based on the clues</li><li><span class="clue">White</span> cells are given in the puzzle (a &ldquo;clue&rdquo; cell)</li></ul></p>
 
 <p>The green, grey, and red cells represent the choices for all of the unknown cells.</p>
 
@@ -607,42 +607,38 @@ $ Exam.mark(10,10)
 </div>
 
 
-
-
-<br/>
-
-
-<p>The above heuristic gives a more detailed measure of a solutions quality. It works by taking the sum of each row and subtracting 45, which is the sum of the numbers from 1 to 9. If a particular row has two 1s instead of a 1 and a 2, the sum of the numbers in the row won&#8217;t be 45, and \( Q \) won&#8217;t be minimal. A correct solution for a sudoku would have \( Q = 0 \). As noted in [1], its important to see that the sum of a row may be 45 even though the numbers in it are not exactly the set from 1 to 9. The numbers in a row might just happen to sum to 45, for example \( sum\ \{ 1,2,2,5,5,6,7,8,9 \} = 45 \). However, if this case occurs in one row, then the sum for the columns passing through the row, or the sum for one of the boxes containing the row won&#8217;t be 45, moving the final value of \( Q \) away from 0, and thus denoting a sub optimal quality as desired. The only way to get a row, column, and box sum of 45 is to have precisely the set from 1 - 9 in each container.</p>
+<p><br/>
+The above heuristic gives a more detailed measure of a solutions quality. It works by taking the sum of each row and subtracting 45, which is the sum of the numbers from 1 to 9. If a particular row has two 1s instead of a 1 and a 2, the sum of the numbers in the row won&rsquo;t be 45, and \( Q \) won&rsquo;t be minimal. A correct solution for a sudoku would have \( Q = 0 \). As noted in [1], its important to see that the sum of a row may be 45 even though the numbers in it are not exactly the set from 1 to 9. The numbers in a row might just happen to sum to 45, for example \( sum\ \{ 1,2,2,5,5,6,7,8,9 \} = 45 \). However, if this case occurs in one row, then the sum for the columns passing through the row, or the sum for one of the boxes containing the row won&rsquo;t be 45, moving the final value of \( Q \) away from 0, and thus denoting a sub optimal quality as desired. The only way to get a row, column, and box sum of 45 is to have precisely the set from 1 - 9 in each container.</p>
 
 <p>In summary, the notes for a harmony are the set of values for the unknown cells, and the quality of the harmony is the evaluation of the function \( Q \) on the generated sudoku puzzle. With these two decisions made, we can now use harmony search to find a solution (if one exists) to a given sudoku puzzle.</p>
 
 <h2>Code</h2>
 
-<p>The code for the sudoku example is boring and unfortunately long, but you can see it on Github if you&#8217;d like. The same <code>HarmonySearch</code> class as defined above would be used to search the problem space, and a harmony&#8217;s quality would be calculated using the \( Q \) function above.</p>
+<p>The code for the sudoku example is boring and unfortunately long, but you can see it on Github if you&rsquo;d like. The same <code>HarmonySearch</code> class as defined above would be used to search the problem space, and a harmony&rsquo;s quality would be calculated using the \( Q \) function above.</p>
 
 <p>Also, a quick side note: the <code>HarmonySearch</code> class tries to <em>maximize</em> a given quality, whereas \( Q \) gets <em>smaller</em> as the input approaches a valid solution. Because of this, I used \( 135 - Q \) instead of just \( Q \) to calculate the quality of a harmony. As \( Q \) gets smaller, the quality of a harmony approaches 135, which we then define as the target quality.</p>
 
 <h2>Discussion</h2>
 
-<p>The demo at the very top of the page implements Harmony Search in an attempt to solve a sudoku. I tried quite hard to achieve similar results to those to Geem&#8217;s [1], but I was downright stumped. Geem managed to solve the default sudoku (the one called &#8216;geem&#8217; in my simulation) in &#8220;285 improvisations&#8221;, which to me is just absurdly low. It takes my implementation anywhere from 5000 to 50000 improvisations to find a valid solution, which is an awful lot more than 285. So I think I either made a serious mistake when implementing, a serious mistake when interpreting Geem&#8217;s results, or discovered some academic fraud. I trust the inventor of the algorithm to be better at implementing it than I am, so I am pretty sure I made a blunder at some point or another.</p>
+<p>The demo at the very top of the page implements Harmony Search in an attempt to solve a sudoku. I tried quite hard to achieve similar results to those to Geem&rsquo;s [1], but I was downright stumped. Geem managed to solve the default sudoku (the one called &lsquo;geem&rsquo; in my simulation) in &ldquo;285 improvisations&rdquo;, which to me is just absurdly low. It takes my implementation anywhere from 5000 to 50000 improvisations to find a valid solution, which is an awful lot more than 285. So I think I either made a serious mistake when implementing, a serious mistake when interpreting Geem&rsquo;s results, or discovered some academic fraud. I trust the inventor of the algorithm to be better at implementing it than I am, so I am pretty sure I made a blunder at some point or another.</p>
 
-<p><strong>Update Sept 28th 2015</strong>: Turns out that it may have indeed been academic fraud! Dennis Weyland has published some results which match mine here and contradict those in the original paper concerning Harmony Search&#8217;s efficency and novelty. A sad jazz trombone to you, Mr Geem. See them here: http://www.dennisweyland.net/blog/?p=12 , and thanks Dennis!</p>
+<p><strong>Update Sept 28th 2015</strong>: Turns out that it may have indeed been academic fraud! Dennis Weyland has published some results which match mine here and contradict those in the original paper concerning Harmony Search&rsquo;s efficency and novelty. A sad jazz trombone to you, Mr Geem. See them here: <a href="http://www.dennisweyland.net/blog/?p=12">http://www.dennisweyland.net/blog/?p=12</a> , and thanks Dennis!</p>
 
-<p>The puzzle in question has 41 unsolved cells, giving a search space with 9<sup>41</sup> different solutions. That number has 40 digits. Its big. It&#8217;s big enough that finding a solution after only 235 tries is really, really impressive. In an attempt to get my numbers down to at least the same order of magnitude, I tried precomputing the possible choices for each cell instead of letting each one be any number from 1 to 9. This is silly because it shows we don&#8217;t need to use HS to solve this problem at all, because the algorithm to determine the possible choices for each cell is one that we could use to just solve the puzzle. If we can get the possible choices for a cell using some algorithm, we can just pick one choice, see if the solution works,and if not, pick the next choice, and repeat. We are implementing only the first step of the smart solving algorithm in order to make the dumb one just a tad smarter. If its possible for us to come up with an algorithm which can solve a sudoku deterministically instead of using a heuristic to search, we should most probably take the former approach.</p>
+<p>The puzzle in question has 41 unsolved cells, giving a search space with 9<sup>41</sup> different solutions. That number has 40 digits. Its big. It&rsquo;s big enough that finding a solution after only 235 tries is really, really impressive. In an attempt to get my numbers down to at least the same order of magnitude, I tried precomputing the possible choices for each cell instead of letting each one be any number from 1 to 9. This is silly because it shows we don&rsquo;t need to use HS to solve this problem at all, because the algorithm to determine the possible choices for each cell is one that we could use to just solve the puzzle. If we can get the possible choices for a cell using some algorithm, we can just pick one choice, see if the solution works,and if not, pick the next choice, and repeat. We are implementing only the first step of the smart solving algorithm in order to make the dumb one just a tad smarter. If its possible for us to come up with an algorithm which can solve a sudoku deterministically instead of using a heuristic to search, we should most probably take the former approach.</p>
 
-<p>In any case, adding in this precomputation step got the numbers down as expected because it drastically reduces the size of the search space, but still no where close to Geems. I don&#8217;t know why this is the case, and I&#8217;ve spent an obscene amount of time trying to figure it out, but alas, I have been unable. If you can figure it out by looking at the code or just based on my (perhaps incorrect) description of the algorithm, do tell me so I can put this to rest.</p>
+<p>In any case, adding in this precomputation step got the numbers down as expected because it drastically reduces the size of the search space, but still no where close to Geems. I don&rsquo;t know why this is the case, and I&rsquo;ve spent an obscene amount of time trying to figure it out, but alas, I have been unable. If you can figure it out by looking at the code or just based on my (perhaps incorrect) description of the algorithm, do tell me so I can put this to rest.</p>
 
-<p>Lastly, the above issues demonstrate that sudoku isn&#8217;t really that good an example for a metaheuristic algorithms. We know that there are more efficient algorithms which solve them in itty bitty tiny amount of time, and unfortunately this solver algorithm isn&#8217;t really that far from the quality heuristic we already have to write for HS. I also included no real strategy for dealing with unsolvable sudokus, which is a whole other class of <a href="http://en.wikipedia.org/wiki/Halting_problem">problem</a>. Shame on me for not dealing with these, but with this class of algorithm in particular its extraordinarily difficult. When using HS, there is no way to know if a solution exists or not until all possible harmonies have been tried. This brute force search is what we&#8217;re trying to avoid by using a heuristic search. If our tries count reaches some user-defined ceiling, which is the stopping condition used in these demos, we wont know if a solution wasn&#8217;t found because it doesn&#8217;t exist, or because we just haven&#8217;t waited long enough. Since it&#8217;s so hard to know, we ask the algorithm to stop once its tried 10000000 harmonies, and assume that the solution doesn&#8217;t exist, even though the optimal solution could be the 10000001st harmony tried.</p>
+<p>Lastly, the above issues demonstrate that sudoku isn&rsquo;t really that good an example for a metaheuristic algorithms. We know that there are more efficient algorithms which solve them in itty bitty tiny amount of time, and unfortunately this solver algorithm isn&rsquo;t really that far from the quality heuristic we already have to write for HS. I also included no real strategy for dealing with unsolvable sudokus, which is a whole other class of <a href="http://en.wikipedia.org/wiki/Halting_problem">problem</a>. Shame on me for not dealing with these, but with this class of algorithm in particular its extraordinarily difficult. When using HS, there is no way to know if a solution exists or not until all possible harmonies have been tried. This brute force search is what we&rsquo;re trying to avoid by using a heuristic search. If our tries count reaches some user-defined ceiling, which is the stopping condition used in these demos, we wont know if a solution wasn&rsquo;t found because it doesn&rsquo;t exist, or because we just haven&rsquo;t waited long enough. Since it&rsquo;s so hard to know, we ask the algorithm to stop once its tried 10000000 harmonies, and assume that the solution doesn&rsquo;t exist, even though the optimal solution could be the 10000001st harmony tried.</p>
 
 <h1>Conclusion</h1>
 
 <p>Hopefully this has been an exciting journey through the world of metaheuristic optimisation algorithms, and you learned a thing or two. I sure did. The takeaways are:</p>
 
 <ul>
-<li>Metaheuristic optimisation algorithms are useful for finding the optimal solution to some function which describes its arguments&#8217; &#8220;quality&#8221; or &#8220;fitness&#8221;.</li>
+<li>Metaheuristic optimisation algorithms are useful for finding the optimal solution to some function which describes its arguments' &ldquo;quality&rdquo; or &ldquo;fitness&rdquo;.</li>
 <li>Harmony search is a neat example of these algorithms which attempts to optimize a solution based on the principles of jazz musicians</li>
 <li>HS and company are applicable to a very wide range of problems, including solving puzzles like sudoku.</li>
-<li>Sudoku however isn&#8217;t really a good testbed for these algorithms because its easy enough to write a solving algorithm, and you have to write most of that algorithm to apply HS to sudoku anyways.</li>
+<li>Sudoku however isn&rsquo;t really a good testbed for these algorithms because its easy enough to write a solving algorithm, and you have to write most of that algorithm to apply HS to sudoku anyways.</li>
 </ul>
 
 
@@ -685,7 +681,7 @@ $ Exam.mark(10,10)
 <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/1.1-latest/MathJax.js"></script>
 
 
-<script type="text/javascript" src="/assets/harmonics/sudoku-506d625247e95f0326cd0464365c63a2.js"></script>
+<script src="/assets/harmonics/sudoku-0cb71f33ccb3cbac17f7fe18585c7ddb.js"></script>
 
 
 <p><link href='/stylesheets/harmonics.css' rel='stylesheet' type='text/css' /></p>

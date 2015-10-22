@@ -99,7 +99,7 @@
 
 
 
-<time datetime="2011-05-11T12:41:00-04:00" pubdate data-updated="true">May 11<span>th</span>, 2011</time></span>
+<time datetime="2011-05-11T12:41:00-04:00" pubdate data-updated="true"></time></span>
           <h1 class="entry-title single-title" itemprop="headline">Converting from Jasmine to QUnit</h1>
         </header>
 
@@ -165,11 +165,11 @@
 %s\vbeforeEach \-\&gt;/setup: -&gt;/
 </code></pre>
 
-<p>We change <code>describe</code> calls to <code>module</code>, <code>it "..."</code> to <code>test "..."</code>, some basic expectations from Jasmine to the equivalents in QUnit, and then the <code>beforeEach</code> calls from Jasmine to <code>setup</code> options for the <code>module call</code>. This got me most of the way there, after running them I had to fix the indentation, ensure the <code>setup:</code> stuff was passed as an option to <code>module</code> (it was a function call before), and fix some brackets here and there. If you come up with more or better regexes please leave a comment and I&#8217;ll add them to the post!</p>
+<p>We change <code>describe</code> calls to <code>module</code>, <code>it "..."</code> to <code>test "..."</code>, some basic expectations from Jasmine to the equivalents in QUnit, and then the <code>beforeEach</code> calls from Jasmine to <code>setup</code> options for the <code>module call</code>. This got me most of the way there, after running them I had to fix the indentation, ensure the <code>setup:</code> stuff was passed as an option to <code>module</code> (it was a function call before), and fix some brackets here and there. If you come up with more or better regexes please leave a comment and I&rsquo;ll add them to the post!</p>
 
 <p>Next, I ripped out a very simple version of the <a href="https://github.com/pivotal/jasmine/wiki/Spies"><code>jasmine.Spy</code></a> object which I started to really miss in QUnit. This is my super basic copy of the Jasmine implementation, suitable for both command line execution through <a href="https://github.com/kof/node-qunit">node-qunit</a> or the in browser test runner.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>

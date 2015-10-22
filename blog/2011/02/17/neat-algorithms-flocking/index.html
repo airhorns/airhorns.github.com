@@ -99,7 +99,7 @@
 
 
 
-<time datetime="2011-02-17T12:41:00-05:00" pubdate data-updated="true">Feb 17<span>th</span>, 2011</time></span>
+<time datetime="2011-02-17T12:41:00-05:00" pubdate data-updated="true"></time></span>
           <h1 class="entry-title single-title" itemprop="headline">Neat Algorithms - Flocking</h1>
         </header>
 
@@ -149,7 +149,7 @@
           </div>
 
           <div id="post-content">
-            <p>In this post I&#8217;ll explain and demonstrate an algorithm that simulates a group of entities grouping together, illustrating something called &#8220;flocking&#8221;. I think it&#8217;s quite neat because the flock exhibits some complex collective intelligence when just a few simple governing rules are applied to each entity.</p>
+            <p>In this post I&rsquo;ll explain and demonstrate an algorithm that simulates a group of entities grouping together, illustrating something called &ldquo;flocking&rdquo;. I think it&rsquo;s quite neat because the flock exhibits some complex collective intelligence when just a few simple governing rules are applied to each entity.</p>
 
 <!--more-->
 
@@ -158,13 +158,13 @@
 
 <ul>
 <li>Computer animation. <a href="http://www.imdb.com/title/tt0103776/awards" title="Batman Returns (1992) Awards list">Batman Returns (1992)</a> is widely quoted as having been nominated for an Oscar for its bat swarms which were procedurally generated using algorithms similar to these.</li>
-<li>Social network simulation and modeling opinion flow. After choosing humans as the entities in the flock, the overall direction of the flock can be estimated using the rules that apply to the simple flock model, and people&#8217;s future opinions can be predicted. See <a href="http://www.gamasutra.com/view/feature/1815/modeling_opinion_flow_in_humans_.php" title="Modeling opinion flow using Boid algorithms at Gamasutra">Gamasutra</a>&#8217;s stupendous article on the subject.</li>
+<li>Social network simulation and modeling opinion flow. After choosing humans as the entities in the flock, the overall direction of the flock can be estimated using the rules that apply to the simple flock model, and people&rsquo;s future opinions can be predicted. See <a href="http://www.gamasutra.com/view/feature/1815/modeling_opinion_flow_in_humans_.php" title="Modeling opinion flow using Boid algorithms at Gamasutra">Gamasutra</a>&rsquo;s stupendous article on the subject.</li>
 <li>Aerospace engineering. By sending <a href="http://en.wikipedia.org/wiki/Unmanned_aerial_vehicle">UAV</a>s on missions in flocks they are able to more effectively complete their missions and react to enemy events. See <a href="http://ieeexplore.ieee.org/xpl/freeabs_all.jsp?arnumber=1470734" title="Paper from the ACC in 2005 describing the performance of UAV flock missions">one paper</a> and <a href="http://ieeexplore.ieee.org/Xplore/login.jsp?url=http://ieeexplore.ieee.org/iel5/5351161/5356514/05356552.pdf%3Farnumber%3D5356552&amp;authDecision=-203" title="Paper from the ACC in 2005 describing the performance of UAV flock missions">another</a> on the subject.</li>
 <li>Distributed systems analysis, search, and optimization. By modeling things like spacial data, network traffic, or solutions to an optimization problem as entities, the direction of the flock can be used to find <a href="http://www.springerlink.com/content/c7t0fb6a54flkrw8/" title="Paper on performant parallel spacial clustering from 2002">clusters</a>, where to push traffic, or <a href="http://www.engr.iupui.edu/~shi/pso.html" title="Page on particle swarm optimization with references.">optimal solutions</a>.</li>
 </ul>
 
 
-<p>Here&#8217;s the full algorithm in action:</p>
+<p>Here&rsquo;s the full algorithm in action:</p>
 
 <div class="flock" id="prettyDemo"></div>
 
@@ -173,19 +173,19 @@
 
 <h2>How it Works</h2>
 
-<p>Each entity on the map, which we&#8217;ll now refer to as a &#8220;boid&#8221;, moves around while being governed by a few simple rules. Each boid starts out at the center of the map with a random velocity, and for each frame of the simulation, a new velocity is calculated using the flocking algorithm. For each boid, the algorithm uses the boid&#8217;s current velocity, its neighbours&#8217; velocities, and its position relative to its neighbours to calculate this new velocity. There are three components to it: the <em>alignment</em>, the <em>cohesion</em>, and the <em>separation</em>, which when used in combination display the full blown flocking behaviour.</p>
+<p>Each entity on the map, which we&rsquo;ll now refer to as a &ldquo;boid&rdquo;, moves around while being governed by a few simple rules. Each boid starts out at the center of the map with a random velocity, and for each frame of the simulation, a new velocity is calculated using the flocking algorithm. For each boid, the algorithm uses the boid&rsquo;s current velocity, its neighbours' velocities, and its position relative to its neighbours to calculate this new velocity. There are three components to it: the <em>alignment</em>, the <em>cohesion</em>, and the <em>separation</em>, which when used in combination display the full blown flocking behaviour.</p>
 
 <h2>About this page</h2>
 
-<p>At any time you can click on any of the demos to stop or start the boid&#8217;s movement. The lower ones also have buttons allowing you to control the speed at which the boids move. When the movement is stopped you can hover your mouse over a boid to inspect the components of its velocity, as generated by the flocking algorithm. The boids also have an elephantine weakness: they are afraid of mice. Feel free to perturb the flock using your mouse while the boids are moving, and watch them try and regroup.</p>
+<p>At any time you can click on any of the demos to stop or start the boid&rsquo;s movement. The lower ones also have buttons allowing you to control the speed at which the boids move. When the movement is stopped you can hover your mouse over a boid to inspect the components of its velocity, as generated by the flocking algorithm. The boids also have an elephantine weakness: they are afraid of mice. Feel free to perturb the flock using your mouse while the boids are moving, and watch them try and regroup.</p>
 
-<p>All the demos are running the same algorithm, just with random start positions and random start velocities. The code running the demos as well as the example code on the page is done in <a href="http://coffeescript.org/">Coffeescript</a>. If you haven&#8217;t seen it before, it shouldn&#8217;t be too hard to pick up, but visit that page if you want a quick primer on the syntax. Also, the example code on this page is the distilled version of the running code, algorithmically complete but missing a lot of the boring nuances arising from actual implementation, such as a lot of the code to render the boids, wrap them around the edges of the map, and display the indicators. The code running the actual demos can be found <a href="https://github.com/hornairs/blog/tree/master/assets/coffeescripts/flocking">here</a>, and isn&#8217;t really all that interesting.</p>
+<p>All the demos are running the same algorithm, just with random start positions and random start velocities. The code running the demos as well as the example code on the page is done in <a href="http://coffeescript.org/">Coffeescript</a>. If you haven&rsquo;t seen it before, it shouldn&rsquo;t be too hard to pick up, but visit that page if you want a quick primer on the syntax. Also, the example code on this page is the distilled version of the running code, algorithmically complete but missing a lot of the boring nuances arising from actual implementation, such as a lot of the code to render the boids, wrap them around the edges of the map, and display the indicators. The code running the actual demos can be found <a href="https://github.com/hornairs/blog/tree/master/assets/coffeescripts/flocking">here</a>, and isn&rsquo;t really all that interesting.</p>
 
 <h3>The code &amp; components</h3>
 
-<p>Heres the essence of the Coffeescript class modeling the boid. Each boid has a <code>location</code> and a <code>velocity</code>, which are represented as <code>Vector</code> objects (<a href="https://github.com/hornairs/blog/blob/master/assets/coffeescripts/flocking/vector.coffee">source</a>). Each frame calls the <code>step</code> method on each boid, which calculates an acceleration based on the 3 components. This acceleration is added to the velocity, which is then limited to a maxmium magnitude so the boid can&#8217;t go too fast. The new velocity is added to the location to translate the boid on the map.</p>
+<p>Heres the essence of the Coffeescript class modeling the boid. Each boid has a <code>location</code> and a <code>velocity</code>, which are represented as <code>Vector</code> objects (<a href="https://github.com/hornairs/blog/blob/master/assets/coffeescripts/flocking/vector.coffee">source</a>). Each frame calls the <code>step</code> method on each boid, which calculates an acceleration based on the 3 components. This acceleration is added to the velocity, which is then limited to a maxmium magnitude so the boid can&rsquo;t go too fast. The new velocity is added to the location to translate the boid on the map.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -253,15 +253,15 @@
 
 <p>A flock is defined as a group of boids all staying close to each together, and the <em>cohesion</em> component of the algorithm is mainly responsible for the togetherness aspect of this. Every frame, each boid looks at the position of each other boid to see if it is within a specified <code>NEIGHBOUR_RADIUS</code>, that is, it checks to see which other boids are close enough to be considered flockmates. The positions of the qualifying neighbours are averaged and the boid steers to towards that position. This way, each boid is trying to steer towards the center of the flock, resulting in them all staying close together.</p>
 
-<p>The example on the right shows how the cohesion component of the algorithm works. The pink boid&#8217;s <code>NEIGHBOUR_RADIUS</code> is drawn as the green circle around it, and boids inside it (neighbours) are drawn as green instead of blue when they are inside it. Their locations (the dark purple vectors) are summed up to find the center of the flock. The light pink vector points to this center point which the pink boid is trying to reach. The blue vector shows the path by which the boid steers towards this center point. This steering vector looks a tad odd, but have a look at the code to see why it is necessary.</p>
+<p>The example on the right shows how the cohesion component of the algorithm works. The pink boid&rsquo;s <code>NEIGHBOUR_RADIUS</code> is drawn as the green circle around it, and boids inside it (neighbours) are drawn as green instead of blue when they are inside it. Their locations (the dark purple vectors) are summed up to find the center of the flock. The light pink vector points to this center point which the pink boid is trying to reach. The blue vector shows the path by which the boid steers towards this center point. This steering vector looks a tad odd, but have a look at the code to see why it is necessary.</p>
 
-<p>Also note that if a boid has only one neighbour, the center of its neighbouring flock is exactly its neighbour&#8217;s location. In this case the dark purple vector has a zero magnitude (it starts and ends at the same point), and the light purple vector points to the position of that neighbour.</p>
+<p>Also note that if a boid has only one neighbour, the center of its neighbouring flock is exactly its neighbour&rsquo;s location. In this case the dark purple vector has a zero magnitude (it starts and ends at the same point), and the light purple vector points to the position of that neighbour.</p>
 
 <h4>Code</h4>
 
 <p>The cohesion component is calculated by averaging the location of all the neighbours within the <code>NEIGHBOUR_RADIUS</code>. Note that the returned value is the result of calling <code>steer_to</code> on the average position. The <code>steer_to</code> method implements some basic easing towards a target so the boids turn towards fellow flock members at reasonable speeds instead of instantly switching direction. You can also see this as an implementation of friction and reaction speeds.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -359,13 +359,13 @@
 
 <p>Each boid in a flock tries to head in the same direction as the rest of the flock, which is the responsibility of the <em>alignment</em> portion of the algorithm. Each frame, each boid looks at the heading in which it is travelling in comparison to the headings of all its neighbours, and realigns itself to match their heading. The velocity vectors of each boid within the <code>NEIGHBOUR_RADIUS</code> are averaged and the resulting vector points in the average direction of the flock, which the boid then tried to head in.</p>
 
-<p>In the example on the left, the neighbouring boids are highlighted in green, and their velocities are shown in light green. Each of those velocities is averaged to find the average heading the pink boid should head in. This new heading is shown as the bright green vector coming from the pink boid. You can also see the pink boid&#8217;s velocity as the black vector, and notice how if the angle between the current velocity in black and the average alignment of the neighbours in bright green is large, it gradually decreases as the boid adopts the new heading.</p>
+<p>In the example on the left, the neighbouring boids are highlighted in green, and their velocities are shown in light green. Each of those velocities is averaged to find the average heading the pink boid should head in. This new heading is shown as the bright green vector coming from the pink boid. You can also see the pink boid&rsquo;s velocity as the black vector, and notice how if the angle between the current velocity in black and the average alignment of the neighbours in bright green is large, it gradually decreases as the boid adopts the new heading.</p>
 
 <h4>Code</h4>
 
-<p>The alignment is calculated by averaging the velocities of the neighbours within the <code>NEIGHBOUR_RADIUS</code>. The return value is also <code>limited</code> to exert no more than the maximum force. This is so that the alignment component can&#8217;t overpower the others, which can happen if there is a big difference between the current boid and its neighbours&#8217; velocities.</p>
+<p>The alignment is calculated by averaging the velocities of the neighbours within the <code>NEIGHBOUR_RADIUS</code>. The return value is also <code>limited</code> to exert no more than the maximum force. This is so that the alignment component can&rsquo;t overpower the others, which can happen if there is a big difference between the current boid and its neighbours' velocities.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -403,13 +403,13 @@
 
 <p>While in a flock, each boid tries not to run into each other one in the flock. They try to remain <em>separate</em> by keeping a specified amount of space in between themselves. Each boid checks all the other boids on the map to see if the distance between them is too small, and if so, adds an inversely proportional amount to its velocity in the opposite direction.</p>
 
-<p>In the example on the right you can see the red circle which indicates the desired separation around the pink boid. If a boid enters this radius, the pink boid tries to navigate away. Boids which violate the pink boid&#8217;s desired separation are also highlighted in red. The red arrow pointing out of the pink boid is the separation component of the algorithm, pointing away from any boids that are too close. Note that right at the start, all the boids are too close to the pink one, so they are all highlighted in red.</p>
+<p>In the example on the right you can see the red circle which indicates the desired separation around the pink boid. If a boid enters this radius, the pink boid tries to navigate away. Boids which violate the pink boid&rsquo;s desired separation are also highlighted in red. The red arrow pointing out of the pink boid is the separation component of the algorithm, pointing away from any boids that are too close. Note that right at the start, all the boids are too close to the pink one, so they are all highlighted in red.</p>
 
 <h4>Code</h4>
 
 <p>The code loops through the neighbours as the other methods do while checking each neighbour to see if the distance to it is less than the <code>DESIRED_SEPARATION</code>. If it is, the vector going between the two boids is found such that it is pointing away from the uncomfortably close boid. This vector is normalized, and then scaled up proportionally to how close the boid is. If the foreign boid is closer, the vector is larger, and the current boid will move away faster.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -444,9 +444,9 @@
 
 <h2>Bringing it all together</h2>
 
-<p>Once the component accelerations have been calculated, the weighted sum can be taken, and the final acceleration can be applied to the boid&#8217;s velocity, as is shown at the beginning of the post. A small script like the one below is needed to manage each boid and <code>step</code> each one in sequence. To render this whole thing, I used <a href="http://processingjs.org/">Processing.js</a>, which was an absolute joy. The code (which has nothing to do with the flocking algorithm) to render the boid is below. For more on the Processing part of this page, I encourage you to check out the source for this page on <a href="https://github.com/hornairs/blog/blob/master/assets/coffeescripts/flocking/flock.coffee">Github</a>.</p>
+<p>Once the component accelerations have been calculated, the weighted sum can be taken, and the final acceleration can be applied to the boid&rsquo;s velocity, as is shown at the beginning of the post. A small script like the one below is needed to manage each boid and <code>step</code> each one in sequence. To render this whole thing, I used <a href="http://processingjs.org/">Processing.js</a>, which was an absolute joy. The code (which has nothing to do with the flocking algorithm) to render the boid is below. For more on the Processing part of this page, I encourage you to check out the source for this page on <a href="https://github.com/hornairs/blog/blob/master/assets/coffeescripts/flocking/flock.coffee">Github</a>.</p>
 
-<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -521,7 +521,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>That&#8217;s it! You can now stir up your own flocks of tiny little dudes to watch and herd about.</p>
+<p>That&rsquo;s it! You can now stir up your own flocks of tiny little dudes to watch and herd about.</p>
 
 <h2>Wrap Up</h2>
 
@@ -529,14 +529,14 @@
 
 <h3>Thanks</h3>
 
-<p>Thanks to Craig Reynolds for coming up with the algorithm and Daniel Shiffman for the initial port to Processing. Daniel is working on a new, free book called &#8220;The Nature of Code&#8221;, exploring what properties of nature we can find and use while coding. He&#8217;s publishing the draft chapters for anyone who helps fund the project on Kickstarter, so if you like this kind of thing you could help contribute to it on <a href="https://www.kickstarter.com/projects/shiffman/the-nature-of-code-book-project">Kickstarter</a>.</p>
+<p>Thanks to Craig Reynolds for coming up with the algorithm and Daniel Shiffman for the initial port to Processing. Daniel is working on a new, free book called &ldquo;The Nature of Code&rdquo;, exploring what properties of nature we can find and use while coding. He&rsquo;s publishing the draft chapters for anyone who helps fund the project on Kickstarter, so if you like this kind of thing you could help contribute to it on <a href="https://www.kickstarter.com/projects/shiffman/the-nature-of-code-book-project">Kickstarter</a>.</p>
 
 <p>Also, thanks to <a href="http://fustat.org/">Mo</a> for helping edit.</p>
 
-<script type="text/javascript" src="/assets/flocking/flocking-1453ca1613dd5510c745fde22713fd8d.js"></script>
+<script src="/assets/flocking/flocking-f0fe0199b1533c6996fe876bb1982469.js"></script>
 
 
-<p><link rel="stylesheet" type="text/css" href="/assets/flocking-4f959f7c75765cb382ac9bc77d3d689e.css"></p>
+<p><link rel="stylesheet" href="/assets/flocking-e3ea43befd4dabf41388802712fd8632.css"></p>
 
           </div>
         </section>

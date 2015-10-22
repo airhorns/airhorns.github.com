@@ -11018,7 +11018,6 @@
 /*global setTimeout: false, console: false */
 (function(){var a={},b=this,c=b.async;typeof module!="undefined"&&module.exports?module.exports=a:b.async=a,a.noConflict=function(){return b.async=c,a};var d=function(a,b){if(a.forEach)return a.forEach(b);for(var c=0;c<a.length;c+=1)b(a[c],c,a)},e=function(a,b){if(a.map)return a.map(b);var c=[];return d(a,function(a,d,e){c.push(b(a,d,e))}),c},f=function(a,b,c){return a.reduce?a.reduce(b,c):(d(a,function(a,d,e){c=b(c,a,d,e)}),c)},g=function(a){if(Object.keys)return Object.keys(a);var b=[];for(var c in a)a.hasOwnProperty(c)&&b.push(c);return b};typeof process=="undefined"||!process.nextTick?a.nextTick=function(a){setTimeout(a,0)}:a.nextTick=process.nextTick,a.forEach=function(a,b,c){c=c||function(){};if(!a.length)return c();var e=0;d(a,function(d){b(d,function(b){b?(c(b),c=function(){}):(e+=1,e===a.length&&c(null))})})},a.forEachSeries=function(a,b,c){c=c||function(){};if(!a.length)return c();var d=0,e=function(){b(a[d],function(b){b?(c(b),c=function(){}):(d+=1,d===a.length?c(null):e())})};e()},a.forEachLimit=function(a,b,c,d){d=d||function(){};if(!a.length||b<=0)return d();var e=0,f=0,g=0;(function h(){if(e===a.length)return d();while(g<b&&f<a.length)f+=1,g+=1,c(a[f-1],function(b){b?(d(b),d=function(){}):(e+=1,g-=1,e===a.length?d():h())})})()};var h=function(b){return function(){var c=Array.prototype.slice.call(arguments);return b.apply(null,[a.forEach].concat(c))}},i=function(b){return function(){var c=Array.prototype.slice.call(arguments);return b.apply(null,[a.forEachSeries].concat(c))}},j=function(a,b,c,d){var f=[];b=e(b,function(a,b){return{index:b,value:a}}),a(b,function(a,b){c(a.value,function(c,d){f[a.index]=d,b(c)})},function(a){d(a,f)})};a.map=h(j),a.mapSeries=i(j),a.reduce=function(b,c,d,e){a.forEachSeries(b,function(a,b){d(c,a,function(a,d){c=d,b(a)})},function(a){e(a,c)})},a.inject=a.reduce,a.foldl=a.reduce,a.reduceRight=function(b,c,d,f){var g=e(b,function(a){return a}).reverse();a.reduce(g,c,d,f)},a.foldr=a.reduceRight;var k=function(a,b,c,d){var f=[];b=e(b,function(a,b){return{index:b,value:a}}),a(b,function(a,b){c(a.value,function(c){c&&f.push(a),b()})},function(a){d(e(f.sort(function(a,b){return a.index-b.index}),function(a){return a.value}))})};a.filter=h(k),a.filterSeries=i(k),a.select=a.filter,a.selectSeries=a.filterSeries;var l=function(a,b,c,d){var f=[];b=e(b,function(a,b){return{index:b,value:a}}),a(b,function(a,b){c(a.value,function(c){c||f.push(a),b()})},function(a){d(e(f.sort(function(a,b){return a.index-b.index}),function(a){return a.value}))})};a.reject=h(l),a.rejectSeries=i(l);var m=function(a,b,c,d){a(b,function(a,b){c(a,function(c){c?(d(a),d=function(){}):b()})},function(a){d()})};a.detect=h(m),a.detectSeries=i(m),a.some=function(b,c,d){a.forEach(b,function(a,b){c(a,function(a){a&&(d(!0),d=function(){}),b()})},function(a){d(!1)})},a.any=a.some,a.every=function(b,c,d){a.forEach(b,function(a,b){c(a,function(a){a||(d(!1),d=function(){}),b()})},function(a){d(!0)})},a.all=a.every,a.sortBy=function(b,c,d){a.map(b,function(a,b){c(a,function(c,d){c?b(c):b(null,{value:a,criteria:d})})},function(a,b){if(a)return d(a);var c=function(a,b){var c=a.criteria,d=b.criteria;return c<d?-1:c>d?1:0};d(null,e(b.sort(c),function(a){return a.value}))})},a.auto=function(a,b){b=b||function(){};var c=g(a);if(!c.length)return b(null);var e={},h=[],i=function(a){h.unshift(a)},j=function(a){for(var b=0;b<h.length;b+=1)if(h[b]===a){h.splice(b,1);return}},k=function(){d(h.slice(0),function(a){a()})};i(function(){g(e).length===c.length&&(b(null,e),b=function(){})}),d(c,function(c){var d=a[c]instanceof Function?[a[c]]:a[c],g=function(a){if(a)b(a),b=function(){};else{var d=Array.prototype.slice.call(arguments,1);d.length<=1&&(d=d[0]),e[c]=d,k()}},h=d.slice(0,Math.abs(d.length-1))||[],l=function(){return f(h,function(a,b){return a&&e.hasOwnProperty(b)},!0)&&!e.hasOwnProperty(c)};if(l())d[d.length-1](g,e);else{var m=function(){l()&&(j(m),d[d.length-1](g,e))};i(m)}})},a.waterfall=function(b,c){c=c||function(){};if(!b.length)return c();var d=function(b){return function(e){if(e)c(e),c=function(){};else{var f=Array.prototype.slice.call(arguments,1),g=b.next();g?f.push(d(g)):f.push(c),a.nextTick(function(){b.apply(null,f)})}}};d(a.iterator(b))()},a.parallel=function(b,c){c=c||function(){};if(b.constructor===Array)a.map(b,function(a,b){a&&a(function(a){var c=Array.prototype.slice.call(arguments,1);c.length<=1&&(c=c[0]),b.call(null,a,c)})},c);else{var d={};a.forEach(g(b),function(a,c){b[a](function(b){var e=Array.prototype.slice.call(arguments,1);e.length<=1&&(e=e[0]),d[a]=e,c(b)})},function(a){c(a,d)})}},a.series=function(b,c){c=c||function(){};if(b.constructor===Array)a.mapSeries(b,function(a,b){a&&a(function(a){var c=Array.prototype.slice.call(arguments,1);c.length<=1&&(c=c[0]),b.call(null,a,c)})},c);else{var d={};a.forEachSeries(g(b),function(a,c){b[a](function(b){var e=Array.prototype.slice.call(arguments,1);e.length<=1&&(e=e[0]),d[a]=e,c(b)})},function(a){c(a,d)})}},a.iterator=function(a){var b=function(c){var d=function(){return a.length&&a[c].apply(null,arguments),d.next()};return d.next=function(){return c<a.length-1?b(c+1):null},d};return b(0)},a.apply=function(a){var b=Array.prototype.slice.call(arguments,1);return function(){return a.apply(null,b.concat(Array.prototype.slice.call(arguments)))}};var n=function(a,b,c,d){var e=[];a(b,function(a,b){c(a,function(a,c){e=e.concat(c||[]),b(a)})},function(a){d(a,e)})};a.concat=h(n),a.concatSeries=i(n),a.whilst=function(b,c,d){b()?c(function(e){if(e)return d(e);a.whilst(b,c,d)}):d()},a.until=function(b,c,d){b()?d():c(function(e){if(e)return d(e);a.until(b,c,d)})},a.queue=function(b,c){var e=0,f={tasks:[],concurrency:c,saturated:null,empty:null,drain:null,push:function(b,e){b.constructor!==Array&&(b=[b]),d(b,function(b){f.tasks.push({data:b,callback:typeof e=="function"?e:null}),f.saturated&&f.tasks.length==c&&f.saturated(),a.nextTick(f.process)})},process:function(){if(e<f.concurrency&&f.tasks.length){var a=f.tasks.shift();f.empty&&f.tasks.length==0&&f.empty(),e+=1,b(a.data,function(){e-=1,a.callback&&a.callback.apply(a,arguments),f.drain&&f.tasks.length+e==0&&f.drain(),f.process()})}},length:function(){return f.tasks.length},running:function(){return e}};return f};var o=function(a){return function(b){var c=Array.prototype.slice.call(arguments,1);b.apply(null,c.concat([function(b){var c=Array.prototype.slice.call(arguments,1);typeof console!="undefined"&&(b?console.error&&console.error(b):console[a]&&d(c,function(b){console[a](b)}))}]))}};a.log=o("log"),a.dir=o("dir"),a.memoize=function(a,b){var c={},d={};b=b||function(a){return a};var e=function(){var e=Array.prototype.slice.call(arguments),f=e.pop(),g=b.apply(null,e);g in c?f.apply(null,c[g]):g in d?d[g].push(f):(d[g]=[f],a.apply(null,e.concat([function(){c[g]=arguments;var a=d[g];delete d[g];for(var b=0,e=a.length;b<e;b++)a[b].apply(null,arguments)}])))};return e.unmemoized=a,e},a.unmemoize=function(a){return function(){return(a.unmemoized||a).apply(null,arguments)}}})();
 (function() {
-
   Harry.NetworkMember = {
     sendMessage: function(destinationID, message) {
       return this.network.sendMessage(this.id, destinationID, this.prepareMessage(message));
@@ -11040,17 +11039,16 @@
 
 }).call(this);
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
-  Harry.Client = (function(_super) {
-
-    __extends(Client, _super);
+  Harry.Client = (function(superClass) {
+    extend(Client, superClass);
 
     Client.prototype.mixin(Harry.NetworkMember);
 
-    function Client(id, network) {
-      this.id = id;
+    function Client(id1, network) {
+      this.id = id1;
       this.network = network;
       Client.__super__.constructor.call(this);
     }
@@ -11061,18 +11059,18 @@
     };
 
     Client.prototype.read = function(callback) {
-      var replica, _i, _len, _ref, _results;
+      var i, len, ref, replica, results;
       this.readAttempt = {
         count: 0,
         values: {}
       };
-      _ref = this.network.replicas;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        replica = _ref[_i];
-        _results.push(this.sendMessage(replica.id, new Harry.QueryMessage()));
+      ref = this.network.replicas;
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        replica = ref[i];
+        results.push(this.sendMessage(replica.id, new Harry.QueryMessage()));
       }
-      return _results;
+      return results;
     };
 
     Client.prototype.processMessage = function(message) {
@@ -11085,7 +11083,7 @@
     Client.prototype.replicaIDForMessages = function() {
       var id;
       id = Math.floor(Math.random() * this.network.replicas.length) + 1;
-      console.log("" + this.id + " sending to replica " + id);
+      console.log(this.id + " sending to replica " + id);
       return id;
     };
 
@@ -11105,18 +11103,17 @@
 
 }).call(this);
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var hasProp = {}.hasOwnProperty,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   Harry.AbstractMessage = (function() {
-
     function AbstractMessage() {}
 
     AbstractMessage.prototype.clone = function() {
       var clone, k, v;
       clone = new this.constructor;
       for (k in this) {
-        if (!__hasProp.call(this, k)) continue;
+        if (!hasProp.call(this, k)) continue;
         v = this[k];
         clone[k] = v;
       }
@@ -11127,9 +11124,8 @@
 
   })();
 
-  Harry.PrepareMessage = (function(_super) {
-
-    __extends(PrepareMessage, _super);
+  Harry.PrepareMessage = (function(superClass) {
+    extend(PrepareMessage, superClass);
 
     function PrepareMessage(sequenceNumber, value) {
       this.sequenceNumber = sequenceNumber;
@@ -11143,9 +11139,8 @@
 
   })(Harry.AbstractMessage);
 
-  Harry.PromiseMessage = (function(_super) {
-
-    __extends(PromiseMessage, _super);
+  Harry.PromiseMessage = (function(superClass) {
+    extend(PromiseMessage, superClass);
 
     function PromiseMessage(value) {
       this.value = value;
@@ -11158,9 +11153,8 @@
 
   })(Harry.AbstractMessage);
 
-  Harry.RejectProposalMessage = (function(_super) {
-
-    __extends(RejectProposalMessage, _super);
+  Harry.RejectProposalMessage = (function(superClass) {
+    extend(RejectProposalMessage, superClass);
 
     function RejectProposalMessage(highestSeenSequenceNumber) {
       RejectProposalMessage.__super__.constructor.apply(this, arguments);
@@ -11172,9 +11166,8 @@
 
   })(Harry.AbstractMessage);
 
-  Harry.AcceptMessage = (function(_super) {
-
-    __extends(AcceptMessage, _super);
+  Harry.AcceptMessage = (function(superClass) {
+    extend(AcceptMessage, superClass);
 
     function AcceptMessage(sequenceNumber, value) {
       this.sequenceNumber = sequenceNumber;
@@ -11188,9 +11181,8 @@
 
   })(Harry.AbstractMessage);
 
-  Harry.QueryMessage = (function(_super) {
-
-    __extends(QueryMessage, _super);
+  Harry.QueryMessage = (function(superClass) {
+    extend(QueryMessage, superClass);
 
     function QueryMessage() {
       return QueryMessage.__super__.constructor.apply(this, arguments);
@@ -11202,9 +11194,8 @@
 
   })(Harry.AbstractMessage);
 
-  Harry.QueryResponseMessage = (function(_super) {
-
-    __extends(QueryResponseMessage, _super);
+  Harry.QueryResponseMessage = (function(superClass) {
+    extend(QueryResponseMessage, superClass);
 
     function QueryResponseMessage(value) {
       this.value = value;
@@ -11217,9 +11208,8 @@
 
   })(Harry.AbstractMessage);
 
-  Harry.SetValueMessage = (function(_super) {
-
-    __extends(SetValueMessage, _super);
+  Harry.SetValueMessage = (function(superClass) {
+    extend(SetValueMessage, superClass);
 
     function SetValueMessage(value) {
       this.value = value;
@@ -11232,9 +11222,8 @@
 
   })(Harry.AbstractMessage);
 
-  Harry.SetValueResultMessage = (function(_super) {
-
-    __extends(SetValueResultMessage, _super);
+  Harry.SetValueResultMessage = (function(superClass) {
+    extend(SetValueResultMessage, superClass);
 
     function SetValueResultMessage(error) {
       this.error = error;
@@ -11249,12 +11238,11 @@
 
 }).call(this);
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
-  Harry.Replica = (function(_super) {
-
-    __extends(Replica, _super);
+  Harry.Replica = (function(superClass) {
+    extend(Replica, superClass);
 
     Replica.transitions({
       startSet: {
@@ -11319,10 +11307,11 @@
     };
 
     Replica.prototype.setRequestReceived = function(message) {
-      var _this = this;
-      return this.setValue(message.value, function(error) {
-        return _this.sendMessage(message.sender, new Harry.SetValueResultMessage(error));
-      });
+      return this.setValue(message.value, (function(_this) {
+        return function(error) {
+          return _this.sendMessage(message.sender, new Harry.SetValueResultMessage(error));
+        };
+      })(this));
     };
 
     Replica.prototype.queryReceived = function(message) {
@@ -11365,13 +11354,14 @@
     };
 
     Replica.prototype.on('startSet', function() {
-      var _this = this;
       this.broadcastMessage(new Harry.PrepareMessage(this.roundAttempt.sequenceNumber, this.roundAttempt.value));
-      return this.timeout = setTimeout(function() {
-        if (_this.get('isAwaiting-promises')) {
-          return _this.startTransition('proposalFailed');
-        }
-      }, this.replyTimeout);
+      return this.timeout = setTimeout((function(_this) {
+        return function() {
+          if (_this.get('isAwaiting-promises')) {
+            return _this.startTransition('proposalFailed');
+          }
+        };
+      })(this), this.replyTimeout);
     });
 
     Replica.prototype.on('proposalSucceeded', function() {
@@ -11439,9 +11429,8 @@
 
   })(Batman.StateMachine);
 
-  Harry.TimePrecedenceReplica = (function(_super) {
-
-    __extends(TimePrecedenceReplica, _super);
+  Harry.TimePrecedenceReplica = (function(superClass) {
+    extend(TimePrecedenceReplica, superClass);
 
     function TimePrecedenceReplica() {
       return TimePrecedenceReplica.__super__.constructor.apply(this, arguments);
@@ -11463,12 +11452,11 @@
 
 }).call(this);
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
-  Harry.Network = (function(_super) {
-
-    __extends(Network, _super);
+  Harry.Network = (function(superClass) {
+    extend(Network, superClass);
 
     Network.prototype.baseNetworkDelay = 1000;
 
@@ -11485,7 +11473,7 @@
     Network.prototype.replicaClass = Harry.Replica;
 
     function Network(optionsOrReplicaCount) {
-      var i, _ref, _ref1;
+      var i;
       if (Batman.typeOf(optionsOrReplicaCount) === 'Number') {
         Network.__super__.constructor.call(this, {
           replicaCount: optionsOrReplicaCount
@@ -11493,28 +11481,28 @@
       } else {
         Network.__super__.constructor.call(this, optionsOrReplicaCount);
       }
-      if ((_ref = this.quorum) == null) {
+      if (this.quorum == null) {
         this.quorum = Math.ceil(this.replicaCount / 2);
       }
-      if ((_ref1 = this.maxAdditionalNetworkDelay) == null) {
+      if (this.maxAdditionalNetworkDelay == null) {
         this.maxAdditionalNetworkDelay = this.networkDelayVariability * this.baseNetworkDelay;
       }
       this.nextMessageID = 0;
       this.replicas = (function() {
-        var _i, _ref2, _results;
-        _results = [];
-        for (i = _i = 1, _ref2 = this.replicaCount; 1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 1 <= _ref2 ? ++_i : --_i) {
-          _results.push(new this.replicaClass(i, this.quorum, this));
+        var j, ref, results;
+        results = [];
+        for (i = j = 1, ref = this.replicaCount; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
+          results.push(new this.replicaClass(i, this.quorum, this));
         }
-        return _results;
+        return results;
       }).call(this);
       this.clients = (function() {
-        var _i, _ref2, _results;
-        _results = [];
-        for (i = _i = 1, _ref2 = this.clientCount; 1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 1 <= _ref2 ? ++_i : --_i) {
-          _results.push(new Harry.Client(-1 * i, this));
+        var j, ref, results;
+        results = [];
+        for (i = j = 1, ref = this.clientCount; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
+          results.push(new Harry.Client(-1 * i, this));
         }
-        return _results;
+        return results;
       }).call(this);
       this.entitiesById = this.replicas.concat(this.clients).reduce(function(acc, entity) {
         acc[entity.id] = entity;
@@ -11524,16 +11512,16 @@
     }
 
     Network.prototype.startNewRound = function() {
-      var client, replica, _i, _j, _len, _len1, _ref, _ref1;
+      var client, j, k, len, len1, ref, ref1, replica;
       this.roundNumber += 1;
-      _ref = this.clients;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        client = _ref[_i];
+      ref = this.clients;
+      for (j = 0, len = ref.length; j < len; j++) {
+        client = ref[j];
         client.startNewRound(this.roundNumber);
       }
-      _ref1 = this.replicas;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        replica = _ref1[_j];
+      ref1 = this.replicas;
+      for (k = 0, len1 = ref1.length; k < len1; k++) {
+        replica = ref1[k];
         replica.startNewRound(this.roundNumber);
       }
     };
@@ -11548,16 +11536,16 @@
     };
 
     Network.prototype.broadcastMessage = function(originID, message) {
-      var replica, _i, _len, _ref, _results;
-      _ref = this.replicas;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        replica = _ref[_i];
+      var j, len, ref, replica, results;
+      ref = this.replicas;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        replica = ref[j];
         if (replica.id !== originID) {
-          _results.push(this.sendMessage(originID, replica.id, message.clone()));
+          results.push(this.sendMessage(originID, replica.id, message.clone()));
         }
       }
-      return _results;
+      return results;
     };
 
     Network.prototype.canSend = function(originID, destinationID) {
@@ -11581,10 +11569,9 @@
 
 }).call(this);
 (function() {
-  var _this = this;
+  var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   Harry.NetworkVisualizer = (function() {
-
     NetworkVisualizer.prototype.width = 720;
 
     NetworkVisualizer.prototype.height = 620;
@@ -11610,25 +11597,14 @@
     NetworkVisualizer.prototype.maxVelocity = 1;
 
     function NetworkVisualizer() {
-      var option, propose, _i, _len, _ref,
-        _this = this;
-      this.entityY = function(id) {
-        return NetworkVisualizer.prototype.entityY.apply(_this, arguments);
-      };
-      this.entityX = function(id) {
-        return NetworkVisualizer.prototype.entityX.apply(_this, arguments);
-      };
-      this.collideMessages = function(alpha) {
-        return NetworkVisualizer.prototype.collideMessages.apply(_this, arguments);
-      };
-      this.messageSent = function(message) {
-        return NetworkVisualizer.prototype.messageSent.apply(_this, arguments);
-      };
-      this.messageSending = function(message) {
-        return NetworkVisualizer.prototype.messageSending.apply(_this, arguments);
-      };
-      for (_i = 0, _len = arguments.length; _i < _len; _i++) {
-        option = arguments[_i];
+      this.entityY = bind(this.entityY, this);
+      this.entityX = bind(this.entityX, this);
+      this.collideMessages = bind(this.collideMessages, this);
+      this.messageSent = bind(this.messageSent, this);
+      this.messageSending = bind(this.messageSending, this);
+      var j, len, option, propose;
+      for (j = 0, len = arguments.length; j < len; j++) {
+        option = arguments[j];
         Batman.extend(this, option);
       }
       this.count = this.network.length;
@@ -11639,17 +11615,21 @@
       this.replicaMargin = this.replicaWidth + 10;
       this.replicaXScale = d3.scale.linear().domain([-1, 1]).range([this.replicaMargin + (this.clientMargin * 2 + 20), this.width - this.replicaMargin]);
       this.replicaYScale = d3.scale.linear().domain([-1, 1]).range([this.replicaMargin, this.height - this.replicaMargin]);
-      this.clientXScale = function() {
-        return 20 + _this.clientMargin;
-      };
+      this.clientXScale = (function(_this) {
+        return function() {
+          return 20 + _this.clientMargin;
+        };
+      })(this);
       if (this.network.clients.length > 1) {
         this.clientYScale = d3.scale.linear().domain([this.network.clients[0].id, this.network.clients[this.network.clients.length - 1].id]).range([60 + this.clientMargin, this.height - (60 + this.clientMargin)]);
       } else {
-        this.clientYScale = function() {
-          return _this.height / 2 - 10;
-        };
+        this.clientYScale = (function(_this) {
+          return function() {
+            return _this.height / 2 - 10;
+          };
+        })(this);
       }
-      if ((_ref = this.valueColorScale) == null) {
+      if (this.valueColorScale == null) {
         this.valueColorScale = d3.scale.ordinal().range(["#B3EECC", "#ecb3ee", "#eecbb3"]);
       }
       this.holdingLinkLength = (this.valueWidth / 2) + (this.replicaWidth / 2) * 1.07;
@@ -11665,81 +11645,99 @@
         this.onStart(this, this.network);
       }
       this.setupInitialValues();
-      propose = function() {
-        if (_this.newRoundsOnPropose) {
-          _this.network.startNewRound();
-        }
-        if (typeof _this.onPropose === "function") {
-          _this.onPropose(_this, _this.network);
-        }
-        _this.drawFlyingStuff();
-        if (_this.autoPropose) {
-          return _this.network.clients[Math.floor(Math.random() * _this.network.clients.length)].propose();
-        }
-      };
+      propose = (function(_this) {
+        return function() {
+          if (_this.newRoundsOnPropose) {
+            _this.network.startNewRound();
+          }
+          if (typeof _this.onPropose === "function") {
+            _this.onPropose(_this, _this.network);
+          }
+          _this.drawFlyingStuff();
+          if (_this.autoPropose) {
+            return _this.network.clients[Math.floor(Math.random() * _this.network.clients.length)].propose();
+          }
+        };
+      })(this);
       setInterval(propose, this.proposeEvery);
       propose();
     }
 
     NetworkVisualizer.prototype.drawReplicas = function() {
-      var replica, _i, _len, _ref,
-        _this = this;
-      _ref = this.network.replicas;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        replica = _ref[_i];
+      var j, len, ref, replica;
+      ref = this.network.replicas;
+      for (j = 0, len = ref.length; j < len; j++) {
+        replica = ref[j];
         replica.x = this.entityX(replica.id);
         replica.y = this.entityY(replica.id);
         replica.radius = this.replicaWidth / 2;
         replica.fixed = true;
       }
-      return this.replicaCircles = this.svg.selectAll("circle.replica").data(this.network.replicas).enter().append("svg:circle").attr("fill", "#00ADA7").attr("class", "replica").attr("r", function(replica) {
-        return replica.radius;
-      }).attr("cx", function(replica) {
-        return replica.x;
-      }).attr("cy", function(replica) {
-        return replica.y;
-      });
+      return this.replicaCircles = this.svg.selectAll("circle.replica").data(this.network.replicas).enter().append("svg:circle").attr("fill", "#00ADA7").attr("class", "replica").attr("r", (function(_this) {
+        return function(replica) {
+          return replica.radius;
+        };
+      })(this)).attr("cx", (function(_this) {
+        return function(replica) {
+          return replica.x;
+        };
+      })(this)).attr("cy", (function(_this) {
+        return function(replica) {
+          return replica.y;
+        };
+      })(this));
     };
 
     NetworkVisualizer.prototype.drawReplicaLabels = function() {
-      var _this = this;
       if (!this.labels) {
         return;
       }
       this.sequenceNumberLabels = this.svg.selectAll("text.sequence-number-label").data(this.network.replicas).text(function(replica) {
         return replica.highestSeenSequenceNumber;
-      }).enter().append("svg:text").attr("class", "replica-label sequence-number-label").attr("x", function(replica) {
-        return replica.x + 23;
-      }).attr("y", function(replica) {
-        return replica.y - 8;
-      }).text(function(replica) {
+      }).enter().append("svg:text").attr("class", "replica-label sequence-number-label").attr("x", (function(_this) {
+        return function(replica) {
+          return replica.x + 23;
+        };
+      })(this)).attr("y", (function(_this) {
+        return function(replica) {
+          return replica.y - 8;
+        };
+      })(this)).text(function(replica) {
         return replica.highestSeenSequenceNumber;
       });
       this.valueLabels = this.svg.selectAll("text.value-label").data(this.network.replicas).text(function(replica) {
         return replica.get('value');
-      }).enter().append("svg:text").attr("class", "replica-label value-label").attr("x", function(replica) {
-        return _this.entityX(replica.id) + 23;
-      }).attr("y", function(replica) {
-        return _this.entityY(replica.id) + 4;
-      }).text(function(replica) {
+      }).enter().append("svg:text").attr("class", "replica-label value-label").attr("x", (function(_this) {
+        return function(replica) {
+          return _this.entityX(replica.id) + 23;
+        };
+      })(this)).attr("y", (function(_this) {
+        return function(replica) {
+          return _this.entityY(replica.id) + 4;
+        };
+      })(this)).text(function(replica) {
         return replica.get('value');
       });
       return this.stateLabels = this.svg.selectAll("text.state-label").data(this.network.replicas).text(function(replica) {
         return replica.get('state');
-      }).enter().append("svg:text").attr("class", "replica-label state-label").attr("x", function(replica) {
-        return _this.entityX(replica.id) + 23;
-      }).attr("y", function(replica) {
-        return _this.entityY(replica.id) + 16;
-      }).text(function(replica) {
+      }).enter().append("svg:text").attr("class", "replica-label state-label").attr("x", (function(_this) {
+        return function(replica) {
+          return _this.entityX(replica.id) + 23;
+        };
+      })(this)).attr("y", (function(_this) {
+        return function(replica) {
+          return _this.entityY(replica.id) + 16;
+        };
+      })(this)).text(function(replica) {
         return replica.get('state');
       });
     };
 
     NetworkVisualizer.prototype.drawClients = function() {
-      var client, _i, _len, _ref;
-      _ref = this.network.clients;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        client = _ref[_i];
+      var client, j, len, ref;
+      ref = this.network.clients;
+      for (j = 0, len = ref.length; j < len; j++) {
+        client = ref[j];
         client.x = this.entityX(client.id);
         client.y = this.entityY(client.id);
         client.radius = this.replicaWidth / 2;
@@ -11755,7 +11753,6 @@
     };
 
     NetworkVisualizer.prototype.drawValues = function() {
-      var _this = this;
       this.valueCircles = this.svg.selectAll("circle.value").data(this.nodes.filter(function(n) {
         return n instanceof Harry.Value;
       })).attr("cx", function(d) {
@@ -11763,9 +11760,11 @@
       }).attr("cy", function(d) {
         return d.y;
       });
-      this.valueCircles.enter().append("svg:circle").attr("class", "value").attr("r", this.valueWidth / 2).attr("fill", function(d) {
-        return _this.valueColorScale(d.value);
-      }).attr("cx", function(d) {
+      this.valueCircles.enter().append("svg:circle").attr("class", "value").attr("r", this.valueWidth / 2).attr("fill", (function(_this) {
+        return function(d) {
+          return _this.valueColorScale(d.value);
+        };
+      })(this)).attr("cx", function(d) {
         return d.x;
       }).attr("cy", function(d) {
         return d.y;
@@ -11791,11 +11790,11 @@
     };
 
     NetworkVisualizer.prototype.setupInitialValues = function() {
-      var replica, value, _i, _len, _ref, _results;
-      _ref = this.network.replicas;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        replica = _ref[_i];
+      var j, len, ref, replica, results, value;
+      ref = this.network.replicas;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        replica = ref[j];
         if (!(replica.value != null)) {
           continue;
         }
@@ -11807,9 +11806,9 @@
           target: replica,
           holding: false
         };
-        _results.push(this.links.push(replica.valueLink));
+        results.push(this.links.push(replica.valueLink));
       }
-      return _results;
+      return results;
     };
 
     NetworkVisualizer.prototype.attachMessageHandlers = function() {
@@ -11817,8 +11816,7 @@
     };
 
     NetworkVisualizer.prototype.messageSending = function(message) {
-      var _ref,
-        _this = this;
+      var ref;
       message.radius = this.messageWidth / 2;
       message.x = this.network.entitiesById[message.sender].x;
       message.y = this.network.entitiesById[message.sender].y;
@@ -11828,17 +11826,19 @@
       };
       this.links.push(message.link);
       this.nodes.push(message);
-      this.messageReceivedCallbacks[message.id] = function() {
-        return _this.network._processArrival(message);
-      };
-      if ((_ref = message.constructor) === Harry.SetValueMessage || _ref === Harry.PrepareMessage || _ref === Harry.QueryResponseMessage) {
+      this.messageReceivedCallbacks[message.id] = (function(_this) {
+        return function() {
+          return _this.network._processArrival(message);
+        };
+      })(this);
+      if ((ref = message.constructor) === Harry.SetValueMessage || ref === Harry.PrepareMessage || ref === Harry.QueryResponseMessage) {
         this.animateSendValue(message);
       }
       return this.updateForceItems();
     };
 
     NetworkVisualizer.prototype.messageSent = function(message) {
-      var destination, shouldStageValue, value, _ref;
+      var destination, ref, shouldStageValue, value;
       this.nodes.splice(this.nodes.indexOf(message), 1);
       this.links.splice(this.links.indexOf(message.link), 1);
       if (message.valueLink != null) {
@@ -11857,7 +11857,7 @@
           if (shouldStageValue) {
             this.animateQueryResponse(destination);
           }
-          if (value = (_ref = message.valueLink) != null ? _ref.source : void 0) {
+          if (value = (ref = message.valueLink) != null ? ref.source : void 0) {
             this.nodes.splice(this.nodes.indexOf(value), 1);
           }
       }
@@ -11917,33 +11917,36 @@
     };
 
     NetworkVisualizer.prototype.attachValueHandlers = function() {
-      var redraw,
-        _this = this;
-      redraw = function() {
-        _this.drawReplicas();
-        _this.drawReplicaLabels();
-        return _this.updateForceItems();
-      };
-      return this.network.replicas.forEach(function(replica) {
-        var key, _i, _len, _ref;
-        _ref = ['state', 'highestSeenSequenceNumber'];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          key = _ref[_i];
-          replica.observe(key, redraw);
-        }
-        return replica.observe('value', function(newValue) {
-          redraw();
-          if (newValue !== null) {
-            _this.emitValueChange(replica);
-            return _this.animateAcceptValue(replica, newValue);
+      var redraw;
+      redraw = (function(_this) {
+        return function() {
+          _this.drawReplicas();
+          _this.drawReplicaLabels();
+          return _this.updateForceItems();
+        };
+      })(this);
+      return this.network.replicas.forEach((function(_this) {
+        return function(replica) {
+          var j, key, len, ref;
+          ref = ['state', 'highestSeenSequenceNumber'];
+          for (j = 0, len = ref.length; j < len; j++) {
+            key = ref[j];
+            replica.observe(key, redraw);
           }
-        });
-      });
+          return replica.observe('value', function(newValue) {
+            redraw();
+            if (newValue !== null) {
+              _this.emitValueChange(replica);
+              return _this.animateAcceptValue(replica, newValue);
+            }
+          });
+        };
+      })(this));
     };
 
     NetworkVisualizer.prototype.emitReplicaOrb = function(replica, klass, fill) {
       var orb;
-      return orb = this.svg.selectAll("circle." + klass + ".replica-" + replica.id).data([1]).enter().insert("svg:circle", ":first-child").attr("fill", fill).attr("class", "" + klass + " replica-" + replica.id).attr("r", 17).attr("opacity", 0.6).attr("cx", this.entityX(replica.id)).attr("cy", this.entityY(replica.id)).transition().duration(1000).attr("r", 40).attr("opacity", 0).remove().ease();
+      return orb = this.svg.selectAll("circle." + klass + ".replica-" + replica.id).data([1]).enter().insert("svg:circle", ":first-child").attr("fill", fill).attr("class", klass + " replica-" + replica.id).attr("r", 17).attr("opacity", 0.6).attr("cx", this.entityX(replica.id)).attr("cy", this.entityY(replica.id)).transition().duration(1000).attr("r", 40).attr("opacity", 0).remove().ease();
     };
 
     NetworkVisualizer.prototype.emitValueChange = function(replica) {
@@ -11990,7 +11993,6 @@
     };
 
     NetworkVisualizer.prototype.setupForceLayout = function() {
-      var _this = this;
       this.nodes = this.network.replicas.concat(this.network.clients);
       this.links = [];
       if (this.force != null) {
@@ -12003,22 +12005,26 @@
         } else {
           return -10;
         }
-      }).friction(0.89).linkDistance(function(d, i) {
-        if ((d.target instanceof Harry.Replica || d.target instanceof Harry.Client) && d.source instanceof Harry.AbstractMessage) {
-          return 0;
-        } else if (d.source instanceof Harry.Value && d.target instanceof Harry.Replica) {
-          if (d.holding) {
-            return _this.holdingLinkLength;
-          } else {
+      }).friction(0.89).linkDistance((function(_this) {
+        return function(d, i) {
+          if ((d.target instanceof Harry.Replica || d.target instanceof Harry.Client) && d.source instanceof Harry.AbstractMessage) {
             return 0;
+          } else if (d.source instanceof Harry.Value && d.target instanceof Harry.Replica) {
+            if (d.holding) {
+              return _this.holdingLinkLength;
+            } else {
+              return 0;
+            }
+          } else {
+            return _this.messageLinkLength;
           }
-        } else {
-          return _this.messageLinkLength;
-        }
-      }).nodes(this.nodes).links(this.links).on('tick', function(e) {
-        _this.collideMessages(e.alpha);
-        return _this.drawFlyingStuff();
-      });
+        };
+      })(this)).nodes(this.nodes).links(this.links).on('tick', (function(_this) {
+        return function(e) {
+          _this.collideMessages(e.alpha);
+          return _this.drawFlyingStuff();
+        };
+      })(this));
       return this.updateForceItems();
     };
 
@@ -12027,11 +12033,11 @@
     };
 
     NetworkVisualizer.prototype.collideMessages = function(alpha) {
-      var angle, destination, distance, maxVelocity, node, velocity, x, y, _i, _len, _ref, _results;
-      _ref = this.nodes.slice();
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        node = _ref[_i];
+      var angle, destination, distance, j, len, maxVelocity, node, ref, results, velocity, x, y;
+      ref = this.nodes.slice();
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        node = ref[j];
         if (!(node instanceof Harry.AbstractMessage)) {
           continue;
         }
@@ -12049,30 +12055,31 @@
           node.y = node.py + Math.sin(angle) * maxVelocity;
         }
         if (distance < 10 && velocity < 2) {
-          _results.push(this.messageSent(node));
+          results.push(this.messageSent(node));
         } else {
-          _results.push(void 0);
+          results.push(void 0);
         }
       }
-      return _results;
+      return results;
     };
 
     NetworkVisualizer.prototype.startVisualGC = function() {
-      var maxEntitySize, xBound, yBound,
-        _this = this;
+      var maxEntitySize, xBound, yBound;
       maxEntitySize = Math.max(this.valueWidth, this.messageWidth, this.replicaWidth);
       xBound = [-1 * maxEntitySize, this.width + maxEntitySize];
       yBound = [-1 * maxEntitySize, this.height + maxEntitySize];
-      return setInterval(function() {
-        return _this.svg.selectAll("circle.value").filter(function(value) {
-          var x, y;
-          x = parseFloat(this.getAttribute('cx'));
-          y = parseFloat(this.getAttribute('cy'));
-          return x < xBound[0] || x > xBound[1] || y < yBound[0] || y > yBound[1];
-        }).each(function(value) {
-          return _this.nodes.splice(_this.nodes.indexOf(value), 1);
-        }).remove();
-      }, 1000);
+      return setInterval((function(_this) {
+        return function() {
+          return _this.svg.selectAll("circle.value").filter(function(value) {
+            var x, y;
+            x = parseFloat(this.getAttribute('cx'));
+            y = parseFloat(this.getAttribute('cy'));
+            return x < xBound[0] || x > xBound[1] || y < yBound[0] || y > yBound[1];
+          }).each(function(value) {
+            return _this.nodes.splice(_this.nodes.indexOf(value), 1);
+          }).remove();
+        };
+      })(this), 1000);
     };
 
     NetworkVisualizer.prototype.entityX = function(id) {
@@ -12097,9 +12104,7 @@
 
 }).call(this);
 (function() {
-
   Harry.Value = (function() {
-
     Value.prototype.obsolete = false;
 
     function Value(value) {
@@ -12115,13 +12120,13 @@
   var acceptVisualization, clientOnlyVisualization, prepareCompareOptions, prepareNetwork, prepareOnlyVisualization, prepareRightVisualization, prepareWrongVisualization, promiseVisualization, readOnlyVisualization, removeValues;
 
   removeValues = function(visualization) {
-    var i, node, _i, _len, _ref;
+    var i, j, len, node, ref;
     while (visualization.nodes.filter(function(node) {
         return node instanceof Harry.Value || node instanceof Harry.AbstractMessage;
       }).length !== 0) {
-      _ref = visualization.nodes;
-      for (i = _i = 0, _len = _ref.length; _i < _len; i = ++_i) {
-        node = _ref[i];
+      ref = visualization.nodes;
+      for (i = j = 0, len = ref.length; j < len; i = ++j) {
+        node = ref[i];
         if (node instanceof Harry.Value || node instanceof Harry.AbstractMessage) {
           visualization.nodes.splice(i, 1);
         }
@@ -12166,14 +12171,14 @@
     proposeEvery: 4500,
     newRoundsOnPropose: false,
     onStart: function(visualization, network) {
-      var replica, _i, _len, _ref, _results;
-      _ref = network.replicas;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        replica = _ref[_i];
-        _results.push(replica.value = 1);
+      var j, len, ref, replica, results;
+      ref = network.replicas;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        replica = ref[j];
+        results.push(replica.value = 1);
       }
-      return _results;
+      return results;
     },
     onPropose: function(visualization, network) {
       var client, index, value;
@@ -12202,14 +12207,14 @@
     }),
     proposeEvery: 3000,
     onStart: function(visualization, network) {
-      var replica, _i, _len, _ref, _results;
-      _ref = network.replicas;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        replica = _ref[_i];
-        _results.push(replica.startTransition('mute'));
+      var j, len, ref, replica, results;
+      ref = network.replicas;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        replica = ref[j];
+        results.push(replica.startTransition('mute'));
       }
-      return _results;
+      return results;
     },
     onPropose: function(visualization, network) {
       return removeValues(visualization);
@@ -12231,20 +12236,20 @@
     }),
     proposeEvery: 3000,
     onStart: function(visualization, network) {
-      var firstReplica, replica, _i, _len, _ref, _results;
+      var firstReplica, j, len, ref, replica, results;
       firstReplica = network.replicas[0];
       network.clients[0].replicaIDForMessages = function() {
         return firstReplica.id;
       };
-      _ref = network.replicas;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        replica = _ref[_i];
+      ref = network.replicas;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        replica = ref[j];
         if (replica.id !== firstReplica.id) {
-          _results.push(replica.startTransition('mute'));
+          results.push(replica.startTransition('mute'));
         }
       }
-      return _results;
+      return results;
     }
   });
 
@@ -12265,7 +12270,7 @@
     autoPropose: false,
     newRoundsOnPropose: false,
     onStart: function(visualization, network) {
-      var bottomReplica, replica, topReplica, _i, _len, _ref, _results;
+      var bottomReplica, j, len, ref, replica, results, topReplica;
       topReplica = network.replicas[4];
       console.log(topReplica);
       bottomReplica = network.replicas[9];
@@ -12275,15 +12280,15 @@
       network.clients[1].replicaIDForMessages = function() {
         return bottomReplica.id;
       };
-      _ref = network.replicas;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        replica = _ref[_i];
+      ref = network.replicas;
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        replica = ref[j];
         if (replica.id !== topReplica.id && replica.id !== bottomReplica.id) {
-          _results.push(replica.startTransition('mute'));
+          results.push(replica.startTransition('mute'));
         }
       }
-      return _results;
+      return results;
     },
     onPropose: function(visualization, network) {
       network.clients[0].propose();
@@ -12356,10 +12361,10 @@
     }),
     proposeEvery: 5000,
     onStart: function(visualization, network) {
-      var firstReplica, replica, _i, _len, _ref;
-      _ref = network.replicas;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        replica = _ref[_i];
+      var firstReplica, j, len, ref, replica;
+      ref = network.replicas;
+      for (j = 0, len = ref.length; j < len; j++) {
+        replica = ref[j];
         replica.acceptReceived = function(message) {
           if (message.sequenceNumber >= this.get('highestSeenSequenceNumber')) {
             this.set('highestSeenSequenceNumber', message.sequenceNumber);

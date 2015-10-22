@@ -18013,23 +18013,22 @@
 
 }());
 (function() {
-
   Harry.Vector = (function() {
-    var name, _fn, _i, _len, _ref;
+    var fn, i, len, name, ref;
 
-    _ref = ['add', 'subtract', 'multiply', 'divide'];
-    _fn = function(name) {
+    ref = ['add', 'subtract', 'multiply', 'divide'];
+    fn = function(name) {
       return Vector[name] = function(a, b) {
         return a.copy()[name](b);
       };
     };
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      name = _ref[_i];
-      _fn(name);
+    for (i = 0, len = ref.length; i < len; i++) {
+      name = ref[i];
+      fn(name);
     }
 
     function Vector(x, y, z) {
-      var _ref1;
+      var ref1;
       if (x == null) {
         x = 0;
       }
@@ -18039,7 +18038,7 @@
       if (z == null) {
         z = 0;
       }
-      _ref1 = [x, y, z], this.x = _ref1[0], this.y = _ref1[1], this.z = _ref1[2];
+      ref1 = [x, y, z], this.x = ref1[0], this.y = ref1[1], this.z = ref1[2];
     }
 
     Vector.prototype.copy = function() {
@@ -18110,14 +18109,14 @@
     };
 
     Vector.prototype.divide = function(n) {
-      var _ref1;
-      _ref1 = [this.x / n, this.y / n, this.z / n], this.x = _ref1[0], this.y = _ref1[1], this.z = _ref1[2];
+      var ref1;
+      ref1 = [this.x / n, this.y / n, this.z / n], this.x = ref1[0], this.y = ref1[1], this.z = ref1[2];
       return this;
     };
 
     Vector.prototype.multiply = function(n) {
-      var _ref1;
-      _ref1 = [this.x * n, this.y * n, this.z * n], this.x = _ref1[0], this.y = _ref1[1], this.z = _ref1[2];
+      var ref1;
+      ref1 = [this.x * n, this.y * n, this.z * n], this.x = ref1[0], this.y = ref1[1], this.z = ref1[2];
       return this;
     };
 
@@ -18130,14 +18129,14 @@
     };
 
     Vector.prototype.wrapRelativeTo = function(location, dimensions) {
-      var a, d, key, map_d, v, _ref1;
+      var a, d, key, map_d, ref1, v;
       v = this.copy();
-      _ref1 = {
+      ref1 = {
         x: "width",
         y: "height"
       };
-      for (a in _ref1) {
-        key = _ref1[a];
+      for (a in ref1) {
+        key = ref1[a];
         d = this[a] - location[a];
         map_d = dimensions[key];
         if (Math.abs(d) > map_d / 2) {
@@ -18161,9 +18160,7 @@
 
 }).call(this);
 (function() {
-
   Harry.Boid = (function() {
-
     Boid.prototype.location = false;
 
     Boid.prototype.velocity = false;
@@ -18282,15 +18279,15 @@
     };
 
     Boid.prototype._flock = function(neighbours) {
-      var alignment_count, alignment_mean, boid, cohesion_count, cohesion_direction, cohesion_mean, d, separation_count, separation_mean, _i, _len;
+      var alignment_count, alignment_mean, boid, cohesion_count, cohesion_direction, cohesion_mean, d, i, len, separation_count, separation_mean;
       separation_mean = new Harry.Vector;
       alignment_mean = new Harry.Vector;
       cohesion_mean = new Harry.Vector;
       separation_count = 0;
       alignment_count = 0;
       cohesion_count = 0;
-      for (_i = 0, _len = neighbours.length; _i < _len; _i++) {
-        boid = neighbours[_i];
+      for (i = 0, len = neighbours.length; i < len; i++) {
+        boid = neighbours[i];
         if (boid === this) {
           continue;
         }
@@ -18376,7 +18373,7 @@
     };
 
     Boid.prototype.render = function(neighbours) {
-      var boid, d, _i, _len, _results;
+      var boid, d, i, len, results;
       if (this.inspecting()) {
         this.p.pushMatrix();
         this.p.translate(this.location.x, this.location.y);
@@ -18393,9 +18390,9 @@
         this.p.popMatrix();
         this._renderSelfWithIndicators(neighbours);
         if (this.indicators.neighbours) {
-          _results = [];
-          for (_i = 0, _len = neighbours.length; _i < _len; _i++) {
-            boid = neighbours[_i];
+          results = [];
+          for (i = 0, len = neighbours.length; i < len; i++) {
+            boid = neighbours[i];
             if (boid === this) {
               continue;
             }
@@ -18408,12 +18405,12 @@
                 this.p.fill(0, 100, 0);
                 this.p.stroke(0, 100, 0);
               }
-              _results.push(boid._renderSelf(true));
+              results.push(boid._renderSelf(true));
             } else {
-              _results.push(void 0);
+              results.push(void 0);
             }
           }
-          return _results;
+          return results;
         }
       } else {
         this.p.fill(70);
@@ -18452,7 +18449,7 @@
     };
 
     Boid.prototype._renderSelfWithIndicators = function(neighbours, translate) {
-      var boid, d, spot, _i, _j, _len, _len1;
+      var boid, d, i, j, len, len1, spot;
       if (translate == null) {
         translate = true;
       }
@@ -18481,8 +18478,8 @@
       if (this.indicators.alignmentNeighbours) {
         this.p.stroke(0, 175, 0);
         this.p.fill(0, 175, 0);
-        for (_i = 0, _len = neighbours.length; _i < _len; _i++) {
-          boid = neighbours[_i];
+        for (i = 0, len = neighbours.length; i < len; i++) {
+          boid = neighbours[i];
           if (boid === this) {
             continue;
           }
@@ -18512,8 +18509,8 @@
         this.p.pushMatrix();
         spot = this._cohesionMean.copy().add(this.location);
         this.p.translate(this._cohesionMean.x, this._cohesionMean.y);
-        for (_j = 0, _len1 = neighbours.length; _j < _len1; _j++) {
-          boid = neighbours[_j];
+        for (j = 0, len1 = neighbours.length; j < len1; j++) {
+          boid = neighbours[j];
           if (boid === this) {
             continue;
           }
@@ -18553,7 +18550,7 @@
 }).call(this);
 (function() {
   var font,
-    _this = this;
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   font = false;
 
@@ -18585,80 +18582,80 @@
     everStarted = false;
 
     function Flock(canvas, options) {
-      var _this = this;
-      this.run = function(processing) {
-        return Flock.prototype.run.apply(_this, arguments);
-      };
+      this.run = bind(this.run, this);
       this.options = jQuery.extend({}, Flock.defaults, options);
       this.processing = new Processing(canvas, this.run);
     }
 
     Flock.prototype.run = function(processing) {
-      var boids, inspectorGadget, timeRunning,
-        _this = this;
+      var boids, inspectorGadget, timeRunning;
       processing.frameRate(this.options.frameRate);
       processing.scaledHeight = processing.height / this.options.scale;
       processing.scaledWidth = processing.width / this.options.scale;
       timeRunning = this.options.startOnPageLoad;
       this.boids = boids = this._getBoids(processing);
       inspectorGadget = boids[boids.length - 1];
-      processing.draw = function() {
-        var boid, _i, _j, _k, _len, _len1, _len2;
-        processing.pushMatrix();
-        processing.scale(_this.options.scale);
-        Harry.Mouse = new Harry.Vector(processing.mouseX / _this.options.scale, processing.mouseY / _this.options.scale);
-        processing.background(255);
-        for (_i = 0, _len = boids.length; _i < _len; _i++) {
-          boid = boids[_i];
-          boid.renderedThisStep = false;
-        }
-        if (timeRunning) {
-          _this.everStarted = true;
-          for (_j = 0, _len1 = boids.length; _j < _len1; _j++) {
-            boid = boids[_j];
-            boid.step(boids);
+      processing.draw = (function(_this) {
+        return function() {
+          var boid, j, k, len, len1, len2, m;
+          processing.pushMatrix();
+          processing.scale(_this.options.scale);
+          Harry.Mouse = new Harry.Vector(processing.mouseX / _this.options.scale, processing.mouseY / _this.options.scale);
+          processing.background(255);
+          for (j = 0, len = boids.length; j < len; j++) {
+            boid = boids[j];
+            boid.renderedThisStep = false;
           }
-        }
-        for (_k = 0, _len2 = boids.length; _k < _len2; _k++) {
-          boid = boids[_k];
-          boid.render(boids);
-        }
-        processing.popMatrix();
-        inspectorGadget.forceInspection = _this.options.inspectOne;
-        if (_this.options.inspectOneMagnification && _this.options.inspectOne) {
-          _this._drawInspector(inspectorGadget, processing);
-        }
-        if (_this.options.startNotification && !_this.everStarted) {
-          _this._drawStartNotification(processing);
-        }
-        if (_this.options.legend) {
-          font || (font = processing.loadFont('/fonts/aller_rg-webfont'));
-          _this._drawLegend(processing);
-        }
-        if (_this.options.border) {
-          processing.stroke(0);
-          processing.noFill();
-          processing.rect(0, 0, processing.width - 1, processing.height - 1);
-        }
-        return true;
-      };
-      if (this.options.clickToStop) {
-        return processing.mouseClicked = function() {
-          var boid, _i, _len;
-          for (_i = 0, _len = boids.length; _i < _len; _i++) {
-            boid = boids[_i];
-            boid.inspectable = timeRunning;
+          if (timeRunning) {
+            _this.everStarted = true;
+            for (k = 0, len1 = boids.length; k < len1; k++) {
+              boid = boids[k];
+              boid.step(boids);
+            }
           }
-          timeRunning = !timeRunning;
-          if (_this.clicked != null) {
-            return _this.clicked.call(_this, timeRunning);
+          for (m = 0, len2 = boids.length; m < len2; m++) {
+            boid = boids[m];
+            boid.render(boids);
           }
+          processing.popMatrix();
+          inspectorGadget.forceInspection = _this.options.inspectOne;
+          if (_this.options.inspectOneMagnification && _this.options.inspectOne) {
+            _this._drawInspector(inspectorGadget, processing);
+          }
+          if (_this.options.startNotification && !_this.everStarted) {
+            _this._drawStartNotification(processing);
+          }
+          if (_this.options.legend) {
+            font || (font = processing.loadFont('/fonts/aller_rg-webfont'));
+            _this._drawLegend(processing);
+          }
+          if (_this.options.border) {
+            processing.stroke(0);
+            processing.noFill();
+            processing.rect(0, 0, processing.width - 1, processing.height - 1);
+          }
+          return true;
         };
+      })(this);
+      if (this.options.clickToStop) {
+        return processing.mouseClicked = (function(_this) {
+          return function() {
+            var boid, j, len;
+            for (j = 0, len = boids.length; j < len; j++) {
+              boid = boids[j];
+              boid.inspectable = timeRunning;
+            }
+            timeRunning = !timeRunning;
+            if (_this.clicked != null) {
+              return _this.clicked.call(_this, timeRunning);
+            }
+          };
+        })(this);
       }
     };
 
     Flock.prototype._getBoids = function(processing) {
-      var i, options, start, startPosition, velocity, _i, _ref, _results;
+      var i, j, options, ref, results, start, startPosition, velocity;
       if (this.options.boids.call != null) {
         this.options.boids(processing);
       } else {
@@ -18670,20 +18667,20 @@
       options = jQuery.extend(true, {
         processing: processing
       }, this.options.boid);
-      _results = [];
-      for (i = _i = 1, _ref = this.options.boids; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+      results = [];
+      for (i = j = 1, ref = this.options.boids; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
         velocity = new Harry.Vector(Math.random() * 2 - 1, Math.random() * 2 - 1);
         startPosition = start;
-        _results.push(new Harry.Boid(jQuery.extend(options, {
+        results.push(new Harry.Boid(jQuery.extend(options, {
           velocity: velocity,
           startPosition: startPosition
         })));
       }
-      return _results;
+      return results;
     };
 
     Flock.prototype._drawLegend = function(processing) {
-      var ctx, demo, l, legends, _i, _len;
+      var ctx, demo, j, l, legends, len;
       processing.fill(230);
       processing.stroke(0);
       processing.strokeWeight(1);
@@ -18724,8 +18721,8 @@
       processing.pushMatrix();
       processing.strokeWeight(2);
       processing.textFont(font, 12);
-      for (_i = 0, _len = legends.length; _i < _len; _i++) {
-        l = legends[_i];
+      for (j = 0, len = legends.length; j < len; j++) {
+        l = legends[j];
         processing.translate(0, 20);
         processing.stroke(l.r, l.g, l.b);
         processing.fill(l.r, l.g, l.b);
@@ -18853,34 +18850,34 @@
   };
 
   jQuery(function() {
-    var canvas, decorations, div, flock, name, options, _fn;
-    _fn = function(flock) {
-      var s, start, _i, _len, _ref, _results;
+    var canvas, decorations, div, flock, fn, name, options;
+    fn = function(flock) {
+      var i, len, ref, results, s, start;
       if (flock.options.controls) {
         start = $('<button></button').addClass('awesome').html('Start');
         flock.clicked = function(timeRunning) {
           return start.html(timeRunning ? "Stop" : "Start");
         };
         start.appendTo(div).click(flock.processing.mouseClicked);
-        _ref = [10, 50, 100, 200];
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          s = _ref[_i];
-          _results.push((function(s) {
+        ref = [10, 50, 100, 200];
+        results = [];
+        for (i = 0, len = ref.length; i < len; i++) {
+          s = ref[i];
+          results.push((function(s) {
             var btn;
-            return btn = $('<button></button>').addClass('awesome').appendTo(div).html("" + s + "%").click(function() {
-              var boid, _j, _len1, _ref1, _results1;
-              _ref1 = flock.boids;
-              _results1 = [];
-              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                boid = _ref1[_j];
-                _results1.push(boid.maxSpeed = s / 100 * 2);
+            return btn = $('<button></button>').addClass('awesome').appendTo(div).html(s + "%").click(function() {
+              var boid, j, len1, ref1, results1;
+              ref1 = flock.boids;
+              results1 = [];
+              for (j = 0, len1 = ref1.length; j < len1; j++) {
+                boid = ref1[j];
+                results1.push(boid.maxSpeed = s / 100 * 2);
               }
-              return _results1;
+              return results1;
             });
           })(s));
         }
-        return _results;
+        return results;
       }
     };
     for (name in Flocks) {
@@ -18888,25 +18885,25 @@
       div = $("#" + name);
       canvas = $('<canvas></canvas>').attr('width', options.width).attr('height', options.height).appendTo(div)[0];
       options.flock = flock = new Harry.Flock(canvas, options);
-      _fn(flock);
+      fn(flock);
     }
     options = Flocks.prettyDemo.flock.options;
     decorations = true;
     return $('#decorateDemo').click(function(e) {
-      var _i, _len, _ref, _results;
+      var i, len, ref, results;
       if (decorations) {
         e.target.innerHTML = "Decorate";
       } else {
         e.target.innerHTML = "Undecorate";
       }
       decorations = !decorations;
-      _ref = ['legend', 'inspectOne', 'inspectOneMagnification'];
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        name = _ref[_i];
-        _results.push(options[name] = decorations);
+      ref = ['legend', 'inspectOne', 'inspectOneMagnification'];
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        name = ref[i];
+        results.push(options[name] = decorations);
       }
-      return _results;
+      return results;
     }).trigger('click');
   });
 

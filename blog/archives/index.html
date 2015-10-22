@@ -93,9 +93,9 @@
     </h1>
   </header> <!-- end article header -->
   <section class="entry-content clearfix">
-    <p><link rel="stylesheet" type="text/css" href="/assets/paxos-4474147507d80d37d97f0e84dec6f36f.css"></p>
+    <p><link rel="stylesheet" href="/assets/paxos-b8344ea2a0bc2491f6b6331d1df9c108.css"></p>
 
-<p>This is an explanation and demonstration of an extraordinarily neat algorithm called Paxos. Paxos is a family of algorithms for teaching a whole bunch of decidedly unreliable processes to reliably decide on stuff. More formally: it allows a group of unreliable processors to deterministically and safely reach consensus if some certain conditions can be met, while ensuring the group remains consistent if the conditions can&#8217;t be met.</p>
+<p>This is an explanation and demonstration of an extraordinarily neat algorithm called Paxos. Paxos is a family of algorithms for teaching a whole bunch of decidedly unreliable processes to reliably decide on stuff. More formally: it allows a group of unreliable processors to deterministically and safely reach consensus if some certain conditions can be met, while ensuring the group remains consistent if the conditions can&rsquo;t be met.</p>
 
 <p>The demo below demonstrates a live version of Paxos implemented in Javascript. Two different clients propose new values to random nodes in the system, and depending on what nodes are contacted and in what order, consensus is reached on one of the two proposed values and the clients informed.</p>
 
@@ -104,17 +104,17 @@
 
 <h1>Paxos: something we can agree on.</h1>
 
-<p>Paxos is an algorithm to solve the <a href="http://harry.me/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/">consensus problem</a>. Honest-to-goodness real-life implementations of Paxos can be found at the heart of world class software like Cassandra, Google&#8217;s magnificent Spanner database, and also their distributed locking service Chubby. A system governed by Paxos is usually talked about in terms of the value, or state, it tracks. The system is built to allow many processes to store and report this value even if some fail, which is handy for building highly available and strongly consistent systems. To restate, a majority of the members of the system must agree that a particular value is in fact &#8220;the one true&#8221; value to then report it as such. Conversely, it means that one rogue process which has an out of date idea of the world can&#8217;t report something that isn&#8217;t &#8220;the one true&#8221; thing.</p>
+<p>Paxos is an algorithm to solve the <a href="http://harry.me/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/">consensus problem</a>. Honest-to-goodness real-life implementations of Paxos can be found at the heart of world class software like Cassandra, Google&rsquo;s magnificent Spanner database, and also their distributed locking service Chubby. A system governed by Paxos is usually talked about in terms of the value, or state, it tracks. The system is built to allow many processes to store and report this value even if some fail, which is handy for building highly available and strongly consistent systems. To restate, a majority of the members of the system must agree that a particular value is in fact &ldquo;the one true&rdquo; value to then report it as such. Conversely, it means that one rogue process which has an out of date idea of the world can&rsquo;t report something that isn&rsquo;t &ldquo;the one true&rdquo; thing.</p>
 
-<p>Let&#8217;s get some definitions out of the way for upcoming explanation:</p>
+<p>Let&rsquo;s get some definitions out of the way for upcoming explanation:</p>
 
 <ul>
 <li>A <code>process</code> is one of the computers in the system. Lots of people use the word replica or node for this as well.</li>
-<li>A <code>client</code> is a computer who isn&#8217;t a member of the system, but is asking the system what the value is, or asking the system to take on a new value.</li>
+<li>A <code>client</code> is a computer who isn&rsquo;t a member of the system, but is asking the system what the value is, or asking the system to take on a new value.</li>
 </ul>
 
 
-<p>Paxos is only a small piece of building a distributed database: it only implements the process to write exactly one new thing to the system. Processes governed by an instance of Paxos can either fail, and not learn anything, or by the end of it have a majority having learned the same value such that there is consensus. Paxos doesn&#8217;t really tell us how to use this to build a database or anything like that, it is just the process which governs the individual communications between nodes as they execute one instance of deciding on one new value. So, for our purposes here, the thing we build with Paxos is a datumbase which can store exactly one value, and only once, such that you can&#8217;t change it after you&#8217;ve set it the first time.</p>
+<p>Paxos is only a small piece of building a distributed database: it only implements the process to write exactly one new thing to the system. Processes governed by an instance of Paxos can either fail, and not learn anything, or by the end of it have a majority having learned the same value such that there is consensus. Paxos doesn&rsquo;t really tell us how to use this to build a database or anything like that, it is just the process which governs the individual communications between nodes as they execute one instance of deciding on one new value. So, for our purposes here, the thing we build with Paxos is a datumbase which can store exactly one value, and only once, such that you can&rsquo;t change it after you&rsquo;ve set it the first time.</p>
 
 <h1>The read guts</h1>
 
@@ -123,38 +123,37 @@
 
 <p>To read a value from the basic Paxos system, a client asks all the processes in the system what they have stored for the current value, and then takes the value that the majority of the processes in the system hold. If there is no majority or if not enough processes respond, the read fails. To the left you can see a client asking the nodes what their value is, and them returning the value to the client. When the client gets a majority of responses agreeing on a value, it has successfully read it and keeps it handy.</p>
 
-<br class="break" />
+<p><br class="break" /></p>
 
-
-<p>This is weird compared to single node systems. In both places, the client needs to make an observation on the system to determine the state, but in non-distributed systems like MySQL or one memcached process, the software only needs to ask the one canonical place where that state is stored. In simple Paxos, the client needs to observe the state the same way, but there is no canonical place where it is stored. It needs to ask all the members, so that it can be sure that there is actually only one value reported, and that it is in fact held by a majority of nodes. If the client just asked one node, it could be asking a process which is out of date, and get the &#8220;wrong&#8221; value. Processes can be out of date for all sorts of reasons: messages to them might have been dropped by unreliable networks, they might have failed and recovered with an out of date state, or the algorithm could still be underway and the process could have just not gotten it&#8217;s messages quite yet. It is important to note that this is &#8220;naïve&#8221; Paxos: there are much better ways of doing reads when implementing a system using Paxos that don&#8217;t require contacting every node for every read, but they extend beyond the original Paxos algorithm.</p>
+<p>This is weird compared to single node systems. In both places, the client needs to make an observation on the system to determine the state, but in non-distributed systems like MySQL or one memcached process, the software only needs to ask the one canonical place where that state is stored. In simple Paxos, the client needs to observe the state the same way, but there is no canonical place where it is stored. It needs to ask all the members, so that it can be sure that there is actually only one value reported, and that it is in fact held by a majority of nodes. If the client just asked one node, it could be asking a process which is out of date, and get the &ldquo;wrong&rdquo; value. Processes can be out of date for all sorts of reasons: messages to them might have been dropped by unreliable networks, they might have failed and recovered with an out of date state, or the algorithm could still be underway and the process could have just not gotten it&rsquo;s messages quite yet. It is important to note that this is &ldquo;naïve&rdquo; Paxos: there are much better ways of doing reads when implementing a system using Paxos that don&rsquo;t require contacting every node for every read, but they extend beyond the original Paxos algorithm.</p>
 
 <h1>The write guts</h1>
 
-<p>Let&#8217;s examine what Paxos makes our cluster of processes do when a client asks that a new value be written. The following procedure is all to get only one value written. Eventually we can use this process as a primitive to allow many values to be set one after another, but the basic Paxos algorithm governs the flow for the writing of just one new value, which is then repeated to make the thing actually useful.</p>
+<p>Let&rsquo;s examine what Paxos makes our cluster of processes do when a client asks that a new value be written. The following procedure is all to get only one value written. Eventually we can use this process as a primitive to allow many values to be set one after another, but the basic Paxos algorithm governs the flow for the writing of just one new value, which is then repeated to make the thing actually useful.</p>
 
 <div id="client_demo"></div>
 
 
-<p>The process starts with a client of the Paxos governed system asks that a new value be set. The client here shows up as the red circle, and the processes show up as the teal circles. Paxos makes a guarantee that clients can send their write requests to any member of the Paxos cluster, so for the demos here the client picks one of the processes at random. This property is important and neat: it means that there is no single point of failure, which means our Paxos governed system can continue to be online (and useful) when <em>any</em> node goes down for whatever unfortunate yet unavoidable reason. If we designated one particular node as &#8220;the proposer&#8221;, or &#8220;the master&#8221; or what have you, then the whole system would grind to a halt if that node failed.</p>
+<p>The process starts with a client of the Paxos governed system asks that a new value be set. The client here shows up as the red circle, and the processes show up as the teal circles. Paxos makes a guarantee that clients can send their write requests to any member of the Paxos cluster, so for the demos here the client picks one of the processes at random. This property is important and neat: it means that there is no single point of failure, which means our Paxos governed system can continue to be online (and useful) when <em>any</em> node goes down for whatever unfortunate yet unavoidable reason. If we designated one particular node as &ldquo;the proposer&rdquo;, or &ldquo;the master&rdquo; or what have you, then the whole system would grind to a halt if that node failed.</p>
 
-<p>When this write request is received, the Paxos process that receives the write request &#8220;proposes&#8221; this new value to the system. &#8220;Proposition&#8221; is in fact a formalized idea in Paxos: proposals to a system governed by Paxos can succeed or fail, and are a required step to ensure consensus is maintained. This proposal is sent to the whole system by way of a <code>prepare</code> message from the process the client contacted to all the other processes it knows of.</p>
+<p>When this write request is received, the Paxos process that receives the write request &ldquo;proposes&rdquo; this new value to the system. &ldquo;Proposition&rdquo; is in fact a formalized idea in Paxos: proposals to a system governed by Paxos can succeed or fail, and are a required step to ensure consensus is maintained. This proposal is sent to the whole system by way of a <code>prepare</code> message from the process the client contacted to all the other processes it knows of.</p>
 
 <h3>Sequence Numbers</h3>
 
-<p>This <code>prepare</code> message holds inside it the value being proposed, as well as what&#8217;s called a <em>sequence number</em> inside it. The sequence number is generated by the proposing process, and it declares that the receiving process should prepare to accept a proposal with that sequence number. This sequence number is key: it allows processes to differentiate between newer and older proposals. If two processes are trying to get a value set, Paxos says that value proposed last should take precedence, so this lets processes figure out which one is last, and thus who is trying to set the most recent value.</p>
+<p>This <code>prepare</code> message holds inside it the value being proposed, as well as what&rsquo;s called a <em>sequence number</em> inside it. The sequence number is generated by the proposing process, and it declares that the receiving process should prepare to accept a proposal with that sequence number. This sequence number is key: it allows processes to differentiate between newer and older proposals. If two processes are trying to get a value set, Paxos says that value proposed last should take precedence, so this lets processes figure out which one is last, and thus who is trying to set the most recent value.</p>
 
 <div id="prepare_demo"></div>
 
 
-<p>These receiving processes are able to make a critical check in the system: is the sequence number on an incoming <code>prepare</code> message the highest I&#8217;ve ever seen? If it is, then cool, I can prepare to accept this incoming value, and disregard any others I have heard of before. You can see this happening to in the demo on the right: the client proposes a new value every so often to one process, that process sends <code>prepare</code> messages to the other processes, and then those processes note that these successively higher sequence numbers trump the older ones, and let go of those old proposals.</p>
+<p>These receiving processes are able to make a critical check in the system: is the sequence number on an incoming <code>prepare</code> message the highest I&rsquo;ve ever seen? If it is, then cool, I can prepare to accept this incoming value, and disregard any others I have heard of before. You can see this happening to in the demo on the right: the client proposes a new value every so often to one process, that process sends <code>prepare</code> messages to the other processes, and then those processes note that these successively higher sequence numbers trump the older ones, and let go of those old proposals.</p>
 
-<p>This little ordering idea is what lets any member of the system issue proposal to avoid the single point of failure associated with a designated &#8220;proposer&#8221; node mentioned above. Without this ordering, members of the Paxos system would have no way to figure out which proposal is the one they should prepare to accept with confidence.</p>
+<p>This little ordering idea is what lets any member of the system issue proposal to avoid the single point of failure associated with a designated &ldquo;proposer&rdquo; node mentioned above. Without this ordering, members of the Paxos system would have no way to figure out which proposal is the one they should prepare to accept with confidence.</p>
 
-<p>We could imagine a different consensus algorithm which didn&#8217;t do this step of sending a first message to ask the other processes to make sure the value trying to be set is the most recent one. Although being way simpler, this would no longer satisfy the consensus algorithm safety requirements. If two processes started proposing different values right around the same time (like in the demos below), the universe could conspire against us and align the packets such that each dueling proposer convinces one half the processes to accept their own maybe-right-maybe-wrong value. The system could end up in a stalemate! There would exist two evenly sized groups having staged different value, which would lead to no value being accepted by a majority group. This stalemate is avoided by the first Paxos message exchange with sequence numbers that allow the processes to all resolve which proposal they should accept. With Paxos&#8217; sequence numbers, one of the dueling proposals would have a lower number than the other, and thus upon proposal receipt processes will have a way to unambiguously pick the most recent one. They&#8217;d either get the higher number one first, and later receive the lower number one and reject it, or they&#8217;d get higher numbered one second and thus replace the lower numbered one with it. Paxos solves the problem of consensus over time by taking hold of time itself with sequence numbers to apply temporal precedence.</p>
+<p>We could imagine a different consensus algorithm which didn&rsquo;t do this step of sending a first message to ask the other processes to make sure the value trying to be set is the most recent one. Although being way simpler, this would no longer satisfy the consensus algorithm safety requirements. If two processes started proposing different values right around the same time (like in the demos below), the universe could conspire against us and align the packets such that each dueling proposer convinces one half the processes to accept their own maybe-right-maybe-wrong value. The system could end up in a stalemate! There would exist two evenly sized groups having staged different value, which would lead to no value being accepted by a majority group. This stalemate is avoided by the first Paxos message exchange with sequence numbers that allow the processes to all resolve which proposal they should accept. With Paxos' sequence numbers, one of the dueling proposals would have a lower number than the other, and thus upon proposal receipt processes will have a way to unambiguously pick the most recent one. They&rsquo;d either get the higher number one first, and later receive the lower number one and reject it, or they&rsquo;d get higher numbered one second and thus replace the lower numbered one with it. Paxos solves the problem of consensus over time by taking hold of time itself with sequence numbers to apply temporal precedence.</p>
 
 <div id="prepare_wrong_demo">
   <div class="viz"></div>
-  <i>The above demo uses processes which just accept the most recent message as the &#8220;truth&#8221;, instead of using sequence numbers. Because the clients send at the same time, we end up with a split brain where some process get one message last, and others get a different one. Consensus can&#8217;t be reached!</i>
+  <i>The above demo uses processes which just accept the most recent message as the "truth", instead of using sequence numbers. Because the clients send at the same time, we end up with a split brain where some process get one message last, and others get a different one. Consensus can't be reached!</i>
 </div>
 
 
@@ -166,40 +165,37 @@
 </div>
 
 
+<p><br class="break" /></p>
 
-
-<br class="break" />
-
-
-<p>Side note: it&#8217;s important that no two proposers ever use the same sequence number, and that they are sortable, so that they truly reference only one proposal, and precedence between proposals can be decided using a simple comparison. When implementing Paxos, these globally unique and sortable sequence numbers are usually derivatives of precise system time and node number in the cluster so they grow over time and are never the same.</p>
+<p>Side note: it&rsquo;s important that no two proposers ever use the same sequence number, and that they are sortable, so that they truly reference only one proposal, and precedence between proposals can be decided using a simple comparison. When implementing Paxos, these globally unique and sortable sequence numbers are usually derivatives of precise system time and node number in the cluster so they grow over time and are never the same.</p>
 
 <h3>Promises</h3>
 
 <div id="promise_demo"></div>
 
 
-<p>So, after the proposing process has sent out it&#8217;s proposal, the processes check the proposal&#8217;s sequence number against the highest they&#8217;ve ever seen, and if it is the highest, they can make a promise to not accept any proposals older than this new threshold sequence number. This promise is returned as a message sent from the promising process to the one that is proposing a new value, as thing a <code>promise</code> message. This gives the proposing process the information it needs to count how many processes have sent their promises, and thus the basis to establish if it has reached a majority or not. If a majority of processes have agreed to accept this proposal or a higher sequenced one, the proposing process can know it &#8220;has the floor&#8221;, so to speak, and that progress is possible in the algorithm. If for whatever reason the proposer can&#8217;t extract a majority of promises from the other processes, progress is impossible, since consensus couldn&#8217;t be reached, so the proposal is aborted and the client is informed that the write failed.</p>
+<p>So, after the proposing process has sent out it&rsquo;s proposal, the processes check the proposal&rsquo;s sequence number against the highest they&rsquo;ve ever seen, and if it is the highest, they can make a promise to not accept any proposals older than this new threshold sequence number. This promise is returned as a message sent from the promising process to the one that is proposing a new value, as thing a <code>promise</code> message. This gives the proposing process the information it needs to count how many processes have sent their promises, and thus the basis to establish if it has reached a majority or not. If a majority of processes have agreed to accept this proposal or a higher sequenced one, the proposing process can know it &ldquo;has the floor&rdquo;, so to speak, and that progress is possible in the algorithm. If for whatever reason the proposer can&rsquo;t extract a majority of promises from the other processes, progress is impossible, since consensus couldn&rsquo;t be reached, so the proposal is aborted and the client is informed that the write failed.</p>
 
-<p>To decide if a proposal has extracted enough promises, proposers simply count the number of <code>promise</code> messages they receive and compare against the total number of processes in the system. &#8220;Enough&#8221; promises here means promises from a majority (N/2 + 1) of processes in the system are received before a certain timeout. The simplest reason for this might be that more than half of the processes in the system have failed completely, so they wouldn&#8217;t return <code>promise</code> messages ever. This means Paxos could never get the proposed value committed a majority of processes, and thus could never satisfy the majority requirements in the read algorithm described above, and thus couldn&#8217;t reach consensus, so the proposal should be aborted. Other failure modes which would prevent a majority of promises being returned include things like a network partition preventing a proposer from contacting enough nodes, or more interestingly, a competing proposal having extracted <code>promise</code>s with a higher sequence number already.</p>
+<p>To decide if a proposal has extracted enough promises, proposers simply count the number of <code>promise</code> messages they receive and compare against the total number of processes in the system. &ldquo;Enough&rdquo; promises here means promises from a majority (N/2 + 1) of processes in the system are received before a certain timeout. The simplest reason for this might be that more than half of the processes in the system have failed completely, so they wouldn&rsquo;t return <code>promise</code> messages ever. This means Paxos could never get the proposed value committed a majority of processes, and thus could never satisfy the majority requirements in the read algorithm described above, and thus couldn&rsquo;t reach consensus, so the proposal should be aborted. Other failure modes which would prevent a majority of promises being returned include things like a network partition preventing a proposer from contacting enough nodes, or more interestingly, a competing proposal having extracted <code>promise</code>s with a higher sequence number already.</p>
 
 <h2>Acceptance</h2>
 
 <div id="accept_demo"></div>
 
 
-<p>Once a proposer has extracted promises from a majority of other processes, it asks the promising processes to &#8220;accept&#8221; the value they promised to before. This is the &#8220;commit&#8221; phase of the algorithm where progress is actually made. If there are no dueling proposals, failures, or partitions, then the proposal will be accepted by all nodes, and Paxos is complete! You can see this is the demo to the right when the second round of messages from the proposer, called the <code>accept</code> messages, cause the promised values to be taken on (sucked in) by all processes.</p>
+<p>Once a proposer has extracted promises from a majority of other processes, it asks the promising processes to &ldquo;accept&rdquo; the value they promised to before. This is the &ldquo;commit&rdquo; phase of the algorithm where progress is actually made. If there are no dueling proposals, failures, or partitions, then the proposal will be accepted by all nodes, and Paxos is complete! You can see this is the demo to the right when the second round of messages from the proposer, called the <code>accept</code> messages, cause the promised values to be taken on (sucked in) by all processes.</p>
 
-<p>Acceptance of a particular process can fail however: if enough processes fail right after replying with a <code>promise</code> message, but before they receive the <code>accept</code> message, then the acceptance could only happen on a minority of nodes instead of a majority. In this case, the Paxos round is now in a weird state where some processes have accepted a value, but not all. This state, while undesirable, is actually &#8220;consistent&#8221; due to the read logic described far above: a client trying to read from the system must receive agreement from a majority of nodes on what the value actually is, so if it managed to contact all the nodes, different, conflicting values would be reported by different minorities of nodes. This would cause the read to fail, which sucks, but Paxos has remained consistent, and hasn&#8217;t allowed a write to take place without consensus. This bad state is often corrected in real implementations by either repeating the accept phase to get more nodes and eventually a majority.</p>
+<p>Acceptance of a particular process can fail however: if enough processes fail right after replying with a <code>promise</code> message, but before they receive the <code>accept</code> message, then the acceptance could only happen on a minority of nodes instead of a majority. In this case, the Paxos round is now in a weird state where some processes have accepted a value, but not all. This state, while undesirable, is actually &ldquo;consistent&rdquo; due to the read logic described far above: a client trying to read from the system must receive agreement from a majority of nodes on what the value actually is, so if it managed to contact all the nodes, different, conflicting values would be reported by different minorities of nodes. This would cause the read to fail, which sucks, but Paxos has remained consistent, and hasn&rsquo;t allowed a write to take place without consensus. This bad state is often corrected in real implementations by either repeating the accept phase to get more nodes and eventually a majority.</p>
 
 <h3>Dueling Proposals</h3>
 
-<p>Acceptance can also fail because of dueling proposals: the promise that promisers reply with is a contract to accept proposals with that proposal&#8217;s sequence number, or higher. This means that a second proposal could come around after a first with a higher sequence number, and extract new promises from all the processes where they would no longer accept the first, earlier proposal. The first proposer however might not find out about this second proposal, and continue happily along in the Paxos algorithm, and send out it&#8217;s <code>accept</code> messages. Upon receipt of those <code>accept</code> messages, the promising processes would note the lower sequence number than their second promises to the second proposer, and simply reject the <code>accept</code> messages. This is correct: the first proposal sadly hasn&#8217;t made progress, but no value was accepted without consensus, and Paxos remains consistent. This kind of situation could easily arise if clients cause two different processes to start proposals at the same time, which you can see above.</p>
+<p>Acceptance can also fail because of dueling proposals: the promise that promisers reply with is a contract to accept proposals with that proposal&rsquo;s sequence number, or higher. This means that a second proposal could come around after a first with a higher sequence number, and extract new promises from all the processes where they would no longer accept the first, earlier proposal. The first proposer however might not find out about this second proposal, and continue happily along in the Paxos algorithm, and send out it&rsquo;s <code>accept</code> messages. Upon receipt of those <code>accept</code> messages, the promising processes would note the lower sequence number than their second promises to the second proposer, and simply reject the <code>accept</code> messages. This is correct: the first proposal sadly hasn&rsquo;t made progress, but no value was accepted without consensus, and Paxos remains consistent. This kind of situation could easily arise if clients cause two different processes to start proposals at the same time, which you can see above.</p>
 
-<p>The failure case here gets even more complicated if the second proposal comes around <em>after</em> acceptance has happened on some nodes for an earlier proposal. This is a Danger Zone for Paxos: if different processes have accepted different values, and especially if the groups of processes change which value they have accepted over time, reads of the system could return different values at different times for the same round of Paxos! That violates the consensus algorithm safety property that only one value can be reported by the system, so let&#8217;s examine how Paxos handles successive proposals and acceptances.</p>
+<p>The failure case here gets even more complicated if the second proposal comes around <em>after</em> acceptance has happened on some nodes for an earlier proposal. This is a Danger Zone for Paxos: if different processes have accepted different values, and especially if the groups of processes change which value they have accepted over time, reads of the system could return different values at different times for the same round of Paxos! That violates the consensus algorithm safety property that only one value can be reported by the system, so let&rsquo;s examine how Paxos handles successive proposals and acceptances.</p>
 
-<p>Let&#8217;s say that a second proposer recovers from a network partition and tries to propose a new value after a first proposer has already proposed a value, and already had that value accepted by a majority of processes. Paxos has &#8220;completed&#8221;, in that if the read algorithm was run, the first proposer&#8217;s value would be reported as the value for the system. That said, this second proposer is allowed by Paxos despite the completed state, because it declares all stages repeatable to allow for failure correction. So, this second proposer can run, but it must not change what value has been accepted, to keep consensus in tact as described above.</p>
+<p>Let&rsquo;s say that a second proposer recovers from a network partition and tries to propose a new value after a first proposer has already proposed a value, and already had that value accepted by a majority of processes. Paxos has &ldquo;completed&rdquo;, in that if the read algorithm was run, the first proposer&rsquo;s value would be reported as the value for the system. That said, this second proposer is allowed by Paxos despite the completed state, because it declares all stages repeatable to allow for failure correction. So, this second proposer can run, but it must not change what value has been accepted, to keep consensus in tact as described above.</p>
 
-<p>To prevent these later proposals from changing the accepted value, Paxos adds a little doohickey to prevents proposal from having a different value than the first one. If any processes have already accepted a value, Paxos forces <em>any</em> proposal that comes after that to also have that same already-accepted value. Freaky, but this maintains consensus, because now the value can never change after acceptance has started. The way this is implemented is that the <code>promise</code> messages returned by processes which have already accepted a value also carry along what value has already been accepted, and can tell the proposer about old values that have been accepted. The proposer can then detect if a majority of nodes have already accepted an old value, and change it&#8217;s proposal to match that value, or not run it at all. In a way, Paxos piggybacks a read operation on top of the promise phase to make sure that a proposal is in fact free to change the value of the system.</p>
+<p>To prevent these later proposals from changing the accepted value, Paxos adds a little doohickey to prevents proposal from having a different value than the first one. If any processes have already accepted a value, Paxos forces <em>any</em> proposal that comes after that to also have that same already-accepted value. Freaky, but this maintains consensus, because now the value can never change after acceptance has started. The way this is implemented is that the <code>promise</code> messages returned by processes which have already accepted a value also carry along what value has already been accepted, and can tell the proposer about old values that have been accepted. The proposer can then detect if a majority of nodes have already accepted an old value, and change it&rsquo;s proposal to match that value, or not run it at all. In a way, Paxos piggybacks a read operation on top of the promise phase to make sure that a proposal is in fact free to change the value of the system.</p>
 
 <h3>Datumbase</h3>
 
@@ -208,20 +204,20 @@
 <h3>More Resources</h3>
 
 <ul>
-<li>The Part Time Parliment (the original Paxos paper) by Leslie Lamport: http://research.microsoft.com/en-us/um/people/lamport/pubs/lamport-paxos.pdf</li>
-<li>Paxos Made Simple: another attempt at explaining Paxos by the original author by &#8220;deriving&#8221; the algorithm using the invariants of the consensus problem http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf</li>
-<li>Paxos Made Live: an amazing paper from Google describing the challenges of their Paxos implementation in Chubby: http://static.googleusercontent.com/media/research.google.com/en//archive/paxos_made_live.pdf</li>
-<li>A Quora thread explaining Paxos in a few different ways: https://www.quora.com/Distributed-Systems/What-is-a-simple-explanation-of-the-Paxos-algorithm</li>
-<li>Raft - An Understandable Consensus Algorithm. Raft is another conensus algorithm designed for humans to understand, which if you can tell from the above wall of text might be a problem with Paxos. https://ramcloud.stanford.edu/raft.pdf</li>
+<li>The Part Time Parliment (the original Paxos paper) by Leslie Lamport: <a href="http://research.microsoft.com/en-us/um/people/lamport/pubs/lamport-paxos.pdf">http://research.microsoft.com/en-us/um/people/lamport/pubs/lamport-paxos.pdf</a></li>
+<li>Paxos Made Simple: another attempt at explaining Paxos by the original author by &ldquo;deriving&rdquo; the algorithm using the invariants of the consensus problem <a href="http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf">http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf</a></li>
+<li>Paxos Made Live: an amazing paper from Google describing the challenges of their Paxos implementation in Chubby: <a href="http://static.googleusercontent.com/media/research.google.com/en//archive/paxos_made_live.pdf">http://static.googleusercontent.com/media/research.google.com/en//archive/paxos_made_live.pdf</a></li>
+<li>A Quora thread explaining Paxos in a few different ways: <a href="https://www.quora.com/Distributed-Systems/What-is-a-simple-explanation-of-the-Paxos-algorithm">https://www.quora.com/Distributed-Systems/What-is-a-simple-explanation-of-the-Paxos-algorithm</a></li>
+<li>Raft - An Understandable Consensus Algorithm. Raft is another conensus algorithm designed for humans to understand, which if you can tell from the above wall of text might be a problem with Paxos. <a href="https://ramcloud.stanford.edu/raft.pdf">https://ramcloud.stanford.edu/raft.pdf</a></li>
 </ul>
 
 
-<script type="text/javascript" src="/assets/paxos/paxos-b5d89c62e1ac20f3c797b4372958c1b8.js"></script>
+<script src="/assets/paxos/paxos-0a2fdb0709bc3b199adb503478fb2f56.js"></script>
 
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2014/12/27/neat-algorithms-paxos/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2014/12/27/neat-algorithms-paxos/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
@@ -242,7 +238,7 @@
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2014/08/16/on-software-development-metrics/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2014/08/16/on-software-development-metrics/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
@@ -254,16 +250,16 @@
       <time datetime="2013-07-07T14:32:00-04:00" pubdate><span class='month'>Jul</span> <span class='day'>07</span> <span class='year'>2013</span></time>
     </span>
     <h1 class="search-title">
-      <a href="/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/" rel="bookmark">I&#8217;d like to have an argument: A primer on consensus</a>
+      <a href="/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/" rel="bookmark">I'd like to have an argument: A primer on consensus</a>
     </h1>
   </header> <!-- end article header -->
   <section class="entry-content clearfix">
-    <p>If you are, say, a piece of e-commerce software, and, say, you want a record of when your customers buy stuff, how might you ensure that you get a record of each transaction every single time one happens? Money is changing hands, and people aren&#8217;t very fond of losing money without any gain in return, so having a correct ledger for transactions sure is important.</p>
+    <p>If you are, say, a piece of e-commerce software, and, say, you want a record of when your customers buy stuff, how might you ensure that you get a record of each transaction every single time one happens? Money is changing hands, and people aren&rsquo;t very fond of losing money without any gain in return, so having a correct ledger for transactions sure is important.</p>
 
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
@@ -279,11 +275,11 @@
     </h1>
   </header> <!-- end article header -->
   <section class="entry-content clearfix">
-    <p>Yep. That&#8217;s all. This is a test post, and secretly an attempt at making this blog look a bit more loved, whoopee!</p>
+    <p>Yep. That&rsquo;s all. This is a test post, and secretly an attempt at making this blog look a bit more loved, whoopee!</p>
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2013/05/12/reinvigoration-really-just-a-new-theme/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2013/05/12/reinvigoration-really-just-a-new-theme/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
@@ -301,12 +297,12 @@
   <section class="entry-content clearfix">
     <p>I want to use your JavaScript library. I really do.</p>
 
-<p>Unfortunately, a lot of you are bad at documenting it, so I can&#8217;t figure out how to use it before I give up and find something easier to learn.</p>
+<p>Unfortunately, a lot of you are bad at documenting it, so I can&rsquo;t figure out how to use it before I give up and find something easier to learn.</p>
 
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2012/01/22/javascript-documentation-sucks/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2012/01/22/javascript-documentation-sucks/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
@@ -322,14 +318,14 @@
     </h1>
   </header> <!-- end article header -->
   <section class="entry-content clearfix">
-    <p><a href="http://batmanjs.org/">Batman.js</a> is <a href="http://shopify.com">Shopify</a>&#8217;s new open source CoffeeScript framework, and I&#8217;m absolutely elated to introduce it to the world after spending so much time on it. Find Batman on GitHub <a href="https://github.com/Shopify/batman">here</a>.</p>
+    <p><a href="http://batmanjs.org/">Batman.js</a> is <a href="http://shopify.com">Shopify</a>&rsquo;s new open source CoffeeScript framework, and I&rsquo;m absolutely elated to introduce it to the world after spending so much time on it. Find Batman on GitHub <a href="https://github.com/Shopify/batman">here</a>.</p>
 
-<p>Batman emerges into a world populated with extraordinary frameworks being used to great effect. With the incredible stuff being pushed out in projects like <a href="http://www.sproutcore.com/about/">Sproutcore 2.0</a> and <a href="http://documentcloud.github.com/backbone/">Backbone.js</a>, how is a developer to know what to use when? There&#8217;s only so much time to play with cool new stuff, so I&#8217;d like to give a quick tour of what makes Batman different and why you might want to use it instead of the other amazing frameworks available today.</p>
+<p>Batman emerges into a world populated with extraordinary frameworks being used to great effect. With the incredible stuff being pushed out in projects like <a href="http://www.sproutcore.com/about/">Sproutcore 2.0</a> and <a href="http://documentcloud.github.com/backbone/">Backbone.js</a>, how is a developer to know what to use when? There&rsquo;s only so much time to play with cool new stuff, so I&rsquo;d like to give a quick tour of what makes Batman different and why you might want to use it instead of the other amazing frameworks available today.</p>
 
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2011/09/19/why-batman/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2011/09/19/why-batman/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
@@ -345,14 +341,14 @@
     </h1>
   </header> <!-- end article header -->
   <section class="entry-content clearfix">
-    <p>Here I&#8217;ll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles. <strong>Update Sept 28th 2015</strong>: Turns out this algorithm is ballyhoo and I don&#8217;t like it any more, use something else. Kind of a fun idea though. See <a href="http://www.dennisweyland.net/blog/?p=12">http://www.dennisweyland.net/blog/?p=12</a>.</p>
+    <p>Here I&rsquo;ll try and demonstrate a neat optimization algorithm based on the principles of performing jazz musicians by applying it to solve Sudoku puzzles. <strong>Update Sept 28th 2015</strong>: Turns out this algorithm is ballyhoo and I don&rsquo;t like it any more, use something else. Kind of a fun idea though. See <a href="http://www.dennisweyland.net/blog/?p=12">http://www.dennisweyland.net/blog/?p=12</a>.</p>
 
-<p>Harmony Search (often abbreviated HS) is a <a href="http://en.wikipedia.org/wiki/Metaheuristic">metaheuristic optimization</a> algorithm pioneered by <a href="https://sites.google.com/a/hydroteq.com/www/">Dr Zong Woo Geem</a>. Metaheuristic algorithms like harmony search attempt to find the optimal input to some objecting measure of quality, or in other words, find the &#8220;best&#8221; solution to a given problem. Harmony search has been successfully applied to a vast array of such problems, such as the Travelling Salesman problem, water network design, and actual algorithmic music generation.</p>
+<p>Harmony Search (often abbreviated HS) is a <a href="http://en.wikipedia.org/wiki/Metaheuristic">metaheuristic optimization</a> algorithm pioneered by <a href="https://sites.google.com/a/hydroteq.com/www/">Dr Zong Woo Geem</a>. Metaheuristic algorithms like harmony search attempt to find the optimal input to some objecting measure of quality, or in other words, find the &ldquo;best&rdquo; solution to a given problem. Harmony search has been successfully applied to a vast array of such problems, such as the Travelling Salesman problem, water network design, and actual algorithmic music generation.</p>
 
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2011/07/05/neat-algorithms-harmony-search/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2011/07/05/neat-algorithms-harmony-search/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
@@ -373,7 +369,7 @@
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2011/05/11/converting-from-jasmine-to-qunit/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2011/05/11/converting-from-jasmine-to-qunit/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
@@ -389,12 +385,12 @@
     </h1>
   </header> <!-- end article header -->
   <section class="entry-content clearfix">
-    <p>In this post I&#8217;ll explain and demonstrate an algorithm that simulates a group of entities grouping together, illustrating something called &#8220;flocking&#8221;. I think it&#8217;s quite neat because the flock exhibits some complex collective intelligence when just a few simple governing rules are applied to each entity.</p>
+    <p>In this post I&rsquo;ll explain and demonstrate an algorithm that simulates a group of entities grouping together, illustrating something called &ldquo;flocking&rdquo;. I think it&rsquo;s quite neat because the flock exhibits some complex collective intelligence when just a few simple governing rules are applied to each entity.</p>
 
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2011/02/17/neat-algorithms-flocking/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2011/02/17/neat-algorithms-flocking/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
@@ -412,14 +408,14 @@
   <section class="entry-content clearfix">
     <p>It seems clear to me that today, web development sucks.</p>
 
-<p>It&#8217;s hairy, scary, maybe even downright abominable. Here I&#8217;ll try and explain why I think our current tool chains are inadequate, and where I think we should be going to fix it.</p>
+<p>It&rsquo;s hairy, scary, maybe even downright abominable. Here I&rsquo;ll try and explain why I think our current tool chains are inadequate, and where I think we should be going to fix it.</p>
 
 <p>The core of the problem revolves around the most exciting domain in web application development today: Javascript. The explosion of Javascript has given rise to amazing applications of stellar quality for quite some time now, but I see them coming only from teams with gobs of time and expertise.</p>
 
 
   </section> <!-- end article section -->
   <footer class="article-footer">
-    <a rel="full-article" class="read-more" href="/blog/2011/01/27/today-web-development-sucks/">Read more &#8230;</a>
+    <a rel="full-article" class="read-more" href="/blog/2011/01/27/today-web-development-sucks/">Read on ...</a>
   </footer>
 </article> <!-- end article -->
 
