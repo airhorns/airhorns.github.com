@@ -1,12 +1,11 @@
-<p class="share">
-  {% if site.facebook_like %}
-  <span class="facebook">
-    <span class="facebook"><a href="http://www.facebook.com/sharer.php?u={{ site.url }}{{ page.url }}&t={{ page.title }}" target="blank"><i class="icon-facebook"></i> Share on Facebook</a>
-  </span>
-  {% endif %}
+<div class="sharing">
   {% if site.twitter_tweet_button %}
-  <span class="twitter">
-    <a href="http://twitter.com/share" class="twitter-share-button" data-url="{{ site.url }}{{ page.url }}" data-via="{{ site.twitter_user }}" data-counturl="{{ site.url }}{{ page.url }}" ><i class="icon-twitter"></i> Tweet</a>
-  </span>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="{{ site.url }}{{ page.url }}" data-via="{{ site.twitter_user }}" data-counturl="{{ site.url }}{{ page.url }}" >Tweet</a>
   {% endif %}
-</p>
+  {% if site.google_plus_one %}
+  <div class="g-plusone" data-size="{{ site.google_plus_one_size }}"></div>
+  {% endif %}
+  {% if site.facebook_like %}
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  {% endif %}
+</div>
