@@ -4,6 +4,8 @@ title: "Draw a Circle Around It"
 date: 2015-11-24 19:36
 comments: true
 categories: ['unsolicited advice']
+featured_image: "/images/headers/swiss.jpg"
+photo_credit: "<a href=\"http://analogromance.tumblr.com/\">Carter Brundage</a>"
 ---
 
 In my world as an engineer, the objective is to minimize the cost of creating and maintaining a thing, while maximizing the effectiveness of the thing towards some cool goal. [Shopify](http://www.shopify.com) is one such thing that experiences this tension: its goal of making selling stuff really really easy is well on it's way to accomplished, but it has taken a sizable army of software developers to get and keep it there. The main cost we're afraid of is that as the system gets bigger and more complicated we will be immobilized by all the complexity we've introduced, which means we couldn't stay competitive as the markets around us change. So, I'd like to share a principle that serves our value of building maintainable, low-service-cost things at Shopify. It's something I call _drawing circles_.
