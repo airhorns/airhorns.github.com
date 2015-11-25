@@ -86,6 +86,54 @@
   <article class="clearfix post type-post" role="article">
   <header class="article-header">
     <span class="published">
+      <time datetime="2015-11-24T19:36:00-05:00" pubdate><span class='month'>Nov</span> <span class='day'>24</span> <span class='year'>2015</span></time>
+    </span>
+    <h1 class="search-title">
+      <a href="/blog/2015/11/24/draw-a-circle-around-it/" rel="bookmark">Draw a Circle Around It</a>
+    </h1>
+  </header> <!-- end article header -->
+  <section class="entry-content clearfix">
+    <p>In my world as an engineer, the objective is to minimize the cost of creating and maintaining a thing, while maximizing the effectiveness of the thing towards some cool goal. <a href="http://www.shopify.com">Shopify</a> is one such thing that experiences this tension: its goal of making selling stuff really really easy is well on it&rsquo;s way to accomplished, but it has taken a sizable army of software developers to get and keep it there. The main cost we&rsquo;re afraid of is that as the system gets bigger and more complicated we will be immobilized by all the complexity we&rsquo;ve introduced, which means we couldn&rsquo;t stay competitive as the markets around us change. So, I&rsquo;d like to share a principle that serves our value of building maintainable, low-service-cost things at Shopify. It&rsquo;s something I call <em>drawing circles</em>.</p>
+
+<p>The most annoyingly complex requirements very rarely add that much value to the actual goal of the system. Much cost often centers around compliance or security: without these &ldquo;annoyances&rdquo;, we could make things work in a much simpler, easier way. Satisfying these requirements is necessary in that I get to keep my job, and our product doesn&rsquo;t get shut down by the big bad government man, but these things aren&rsquo;t the most important aspects of the system. It&rsquo;s just a cost of building.</p>
+
+<p>Implementing PCI compliance for credit card data is an example: we need to adhere to strict processes around how we store sensitive credit card data. We need to encrypt the data in transmission and at rest, implement cumbersome (read: effective) procedures around data access and code deployment, and prepare for all sorts of audits and attacks. Storing a credit card number would be much easier if we didn&rsquo;t care about any of this, but we do because we want to protect our customers. Another example is implementing <a href="https://en.wikipedia.org/wiki/Right_to_be_forgotten">The Right To Be Forgotten</a> in a data warehouse. It&rsquo;d be easiest and most valuable to a business to keep all of everyone&rsquo;s  data around forever, but that&rsquo;s a violation of people&rsquo;s privacy as defined by law, so purge functionality for personally identifiable information is required. Warehouses often process raw data in multiple, ever expanding layers of transformations, so if you want to remove something at the source you also need to propagate purges through any downstream transforms that used the now-tainted information. This is a terribly complicating design constraint that results in a whole lot of extra implementation and maintenance once more.</p>
+
+<p>It is very easy to accidentally let these complexity-generating requirements dictate a complex design of the whole system. In the case of PCI Level 3 certification, the cumbersome requirements it imposes are reasonable requirements for something storing credit card data, but Shopify is a full featured content management system for much less sensitive data as well! It powers a simple blogging system, a theme engine and a product catalog. PCI compliance dictates that every code change be audited and documented by two other developers that the author, and the deployed by yet another party. Do we really need each developer to write a document for every single code change request and have it audited by a third party before shipping said change? Do we really need someone other than the author to deploy the code every single time?</p>
+
+<p>If we foolishly built only one system to store all of Shopify&rsquo;s data regardless of sensitivity, then every Shopify developer would be required to conform to the most restrictive set of requirements of any piece of data we capture. What we should instead do is not let the most complex requirements govern the design of the entire system, but draw a circle around this complexity. We should spin complexity off it into it&rsquo;s own system where that complexity is contained, and the system remaining can be simple. The part of the product that necessitates the complexity PCI imposes should be the <em>only</em> part burdened by it.</p>
+
+<p>The same principle applies to the data warehousing example. Shopify uses Hadoop to store its data which is much less amenable to deletes than one might hope<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>, but because we&rsquo;re required to implement deletes in order to not break the law, we are presented with a design challenge. If we were goons and added this requirement to every data pipeline anyone wrote, everyone would need to teach the system how to purge data long after it hoped to have &ldquo;finally&rdquo; processed it. Every subsequent pipeline stage would need to comply with upstream purge demands and track which data that it produced depends on what from the upstream so that it can implement this propagation. This does not sound like minimizing the cost.</p>
+
+<p>Again, this requirement of our system doesn&rsquo;t really add much value to the business use case for it: analysts and data scientists want to make the business smarter, not spend all day deleting data. Instead, we should create a second system off to the side to contain this complexity with a nice little circle around it. We map out the data that could conceivably need to be purged from our system, store it exclusively over in this second area, and then make a rule that data pipelines may not be built on top of this sensitive data. Users of this sensitive data must instead depend on a token which references it, and propagate that sucker to the end of any pipeline. Then, in our &ldquo;final destination&rdquo; analytics database we make the sensitive information available from the side location, and join it in at the very last moment using the token. Now, only the tiny few tables in the second system need to implement any kind of purging or deleting, which is way less work and might even allow for a different implementation<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>. We&rsquo;re also able to swap whatever pieces of the design we need to to make that easy over there, while still reaping the benefits of the original design for the vast majority of the other impact we want to make.</p>
+
+<p>The main drawback I hear to this technique is that there are now two systems instead of one, and if the one just did what we needed, you wouldn&rsquo;t have to maintain two. I say ballyhoo: the idea that one system should do it all is misguided because the overall complexity add is rarely worth it. Nor is what I am suggesting actually just moving and obscuring the maintenance cost with semantics. The complexity that should be in a circle has the opportunity to make <em>everything</em> worse, not just some things. The generated complexity will seep into every process and every bit of code if not managed effectively: why pay the cost for the 90% of code that doesn&rsquo;t need to care?</p>
+
+<p>The boundary between the system inside the circle and the system beside it also has benefits. If it turns out the two different problems are in fact more different than you thought, maybe completely different tech stacks, or teams, or approaches make sense! It&rsquo;s exciting to service-ize such that the implementation of in-circle requirements is decoupled from the rest.</p>
+
+<p>If you see a particular requirement generating a whole lot of complexity, try to not let it govern the whole system, and instead, draw a circle around it such that the rest of the system doesn&rsquo;t have to care.</p>
+<div class="footnotes">
+<hr/>
+<ol>
+<li id="fn:1">
+<p>Hadoop stores stuff in big, immutable blocks of data, and block operations aren&rsquo;t as cheap as a standard filesystem. Excising individual rows from each block is incredibly annoying and non-performan because the target record (usually just a line in the file) needs to be found among all the blocks, and then the entire block needs to be rewritten to get rid of it.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
+<li id="fn:2">
+<p>The second side system is likely has a whole order of magnitude lower data volume too, which means we might be able to get away with not even doing any purge on it at all, and instead just copy whatever source data we need from scratch every day! Horray for circles being different!<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
+</ol>
+</div>
+
+
+  </section> <!-- end article section -->
+  <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="/blog/2015/11/24/draw-a-circle-around-it/">Read on ...</a>
+  </footer>
+</article> <!-- end article -->
+
+
+
+  <article class="clearfix post type-post" role="article">
+  <header class="article-header">
+    <span class="published">
       <time datetime="2014-12-27T12:42:00-05:00" pubdate><span class='month'>Dec</span> <span class='day'>27</span> <span class='year'>2014</span></time>
     </span>
     <h1 class="search-title">
