@@ -4,7 +4,7 @@
   <title><![CDATA[Category: neat algos | Will You Harry Me]]></title>
   <link href="http://harry.me/blog/categories/neat-algos/atom.xml" rel="self"/>
   <link href="http://harry.me/"/>
-  <updated>2015-11-24T19:42:40-05:00</updated>
+  <updated>2015-11-25T23:11:14-05:00</updated>
   <id>http://harry.me/</id>
   <author>
     <name><![CDATA[Harry Brundage]]></name>
@@ -21,6 +21,9 @@
     <content type="html"><![CDATA[<p><link rel="stylesheet" href="/assets/paxos-b8344ea2a0bc2491f6b6331d1df9c108.css"></p>
 
 <p>This is an explanation and demonstration of an extraordinarily neat algorithm called Paxos. Paxos is a family of algorithms for teaching a whole bunch of decidedly unreliable processes to reliably decide on stuff. More formally: it allows a group of unreliable processors to deterministically and safely reach consensus if some certain conditions can be met, while ensuring the group remains consistent if the conditions can&rsquo;t be met.</p>
+
+<!--more-->
+
 
 <p>The demo below demonstrates a live version of Paxos implemented in Javascript. Two different clients propose new values to random nodes in the system, and depending on what nodes are contacted and in what order, consensus is reached on one of the two proposed values and the clients informed.</p>
 

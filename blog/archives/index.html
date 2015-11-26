@@ -95,33 +95,6 @@
   <section class="entry-content clearfix">
     <p>In my world as an engineer, the objective is to minimize the cost of creating and maintaining a thing, while maximizing the effectiveness of the thing towards some cool goal. <a href="http://www.shopify.com">Shopify</a> is one such thing that experiences this tension: its goal of making selling stuff really really easy is well on it&rsquo;s way to accomplished, but it has taken a sizable army of software developers to get and keep it there. The main cost we&rsquo;re afraid of is that as the system gets bigger and more complicated we will be immobilized by all the complexity we&rsquo;ve introduced, which means we couldn&rsquo;t stay competitive as the markets around us change. So, I&rsquo;d like to share a principle that serves our value of building maintainable, low-service-cost things at Shopify. It&rsquo;s something I call <em>drawing circles</em>.</p>
 
-<p>The most annoyingly complex requirements very rarely add that much value to the actual goal of the system. Much cost often centers around compliance or security: without these &ldquo;annoyances&rdquo;, we could make things work in a much simpler, easier way. Satisfying these requirements is necessary in that I get to keep my job, and our product doesn&rsquo;t get shut down by the big bad government man, but these things aren&rsquo;t the most important aspects of the system. It&rsquo;s just a cost of building.</p>
-
-<p>Implementing PCI compliance for credit card data is an example: we need to adhere to strict processes around how we store sensitive credit card data. We need to encrypt the data in transmission and at rest, implement cumbersome (read: effective) procedures around data access and code deployment, and prepare for all sorts of audits and attacks. Storing a credit card number would be much easier if we didn&rsquo;t care about any of this, but we do because we want to protect our customers. Another example is implementing <a href="https://en.wikipedia.org/wiki/Right_to_be_forgotten">The Right To Be Forgotten</a> in a data warehouse. It&rsquo;d be easiest and most valuable to a business to keep all of everyone&rsquo;s  data around forever, but that&rsquo;s a violation of people&rsquo;s privacy as defined by law, so purge functionality for personally identifiable information is required. Warehouses often process raw data in multiple, ever expanding layers of transformations, so if you want to remove something at the source you also need to propagate purges through any downstream transforms that used the now-tainted information. This is a terribly complicating design constraint that results in a whole lot of extra implementation and maintenance once more.</p>
-
-<p>It is very easy to accidentally let these complexity-generating requirements dictate a complex design of the whole system. In the case of PCI Level 3 certification, the cumbersome requirements it imposes are reasonable requirements for something storing credit card data, but Shopify is a full featured content management system for much less sensitive data as well! It powers a simple blogging system, a theme engine and a product catalog. PCI compliance dictates that every code change be audited and documented by two other developers that the author, and the deployed by yet another party. Do we really need each developer to write a document for every single code change request and have it audited by a third party before shipping said change? Do we really need someone other than the author to deploy the code every single time?</p>
-
-<p>If we foolishly built only one system to store all of Shopify&rsquo;s data regardless of sensitivity, then every Shopify developer would be required to conform to the most restrictive set of requirements of any piece of data we capture. What we should instead do is not let the most complex requirements govern the design of the entire system, but draw a circle around this complexity. We should spin complexity off it into it&rsquo;s own system where that complexity is contained, and the system remaining can be simple. The part of the product that necessitates the complexity PCI imposes should be the <em>only</em> part burdened by it.</p>
-
-<p>The same principle applies to the data warehousing example. Shopify uses Hadoop to store its data which is much less amenable to deletes than one might hope<sup id="fnref:1"><a href="#fn:1" rel="footnote">1</a></sup>, but because we&rsquo;re required to implement deletes in order to not break the law, we are presented with a design challenge. If we were goons and added this requirement to every data pipeline anyone wrote, everyone would need to teach the system how to purge data long after it hoped to have &ldquo;finally&rdquo; processed it. Every subsequent pipeline stage would need to comply with upstream purge demands and track which data that it produced depends on what from the upstream so that it can implement this propagation. This does not sound like minimizing the cost.</p>
-
-<p>Again, this requirement of our system doesn&rsquo;t really add much value to the business use case for it: analysts and data scientists want to make the business smarter, not spend all day deleting data. Instead, we should create a second system off to the side to contain this complexity with a nice little circle around it. We map out the data that could conceivably need to be purged from our system, store it exclusively over in this second area, and then make a rule that data pipelines may not be built on top of this sensitive data. Users of this sensitive data must instead depend on a token which references it, and propagate that sucker to the end of any pipeline. Then, in our &ldquo;final destination&rdquo; analytics database we make the sensitive information available from the side location, and join it in at the very last moment using the token. Now, only the tiny few tables in the second system need to implement any kind of purging or deleting, which is way less work and might even allow for a different implementation<sup id="fnref:2"><a href="#fn:2" rel="footnote">2</a></sup>. We&rsquo;re also able to swap whatever pieces of the design we need to to make that easy over there, while still reaping the benefits of the original design for the vast majority of the other impact we want to make.</p>
-
-<p>The main drawback I hear to this technique is that there are now two systems instead of one, and if the one just did what we needed, you wouldn&rsquo;t have to maintain two. I say ballyhoo: the idea that one system should do it all is misguided because the overall complexity add is rarely worth it. Nor is what I am suggesting actually just moving and obscuring the maintenance cost with semantics. The complexity that should be in a circle has the opportunity to make <em>everything</em> worse, not just some things. The generated complexity will seep into every process and every bit of code if not managed effectively: why pay the cost for the 90% of code that doesn&rsquo;t need to care?</p>
-
-<p>The boundary between the system inside the circle and the system beside it also has benefits. If it turns out the two different problems are in fact more different than you thought, maybe completely different tech stacks, or teams, or approaches make sense! It&rsquo;s exciting to service-ize such that the implementation of in-circle requirements is decoupled from the rest.</p>
-
-<p>If you see a particular requirement generating a whole lot of complexity, try to not let it govern the whole system, and instead, draw a circle around it such that the rest of the system doesn&rsquo;t have to care.</p>
-<div class="footnotes">
-<hr/>
-<ol>
-<li id="fn:1">
-<p>Hadoop stores stuff in big, immutable blocks of data, and block operations aren&rsquo;t as cheap as a standard filesystem. Excising individual rows from each block is incredibly annoying and non-performan because the target record (usually just a line in the file) needs to be found among all the blocks, and then the entire block needs to be rewritten to get rid of it.<a href="#fnref:1" rev="footnote">&#8617;</a></p></li>
-<li id="fn:2">
-<p>The second side system is likely has a whole order of magnitude lower data volume too, which means we might be able to get away with not even doing any purge on it at all, and instead just copy whatever source data we need from scratch every day! Horray for circles being different!<a href="#fnref:2" rev="footnote">&#8617;</a></p></li>
-</ol>
-</div>
-
 
   </section> <!-- end article section -->
   <footer class="article-footer">
@@ -144,123 +117,6 @@
     <p><link rel="stylesheet" href="/assets/paxos-b8344ea2a0bc2491f6b6331d1df9c108.css"></p>
 
 <p>This is an explanation and demonstration of an extraordinarily neat algorithm called Paxos. Paxos is a family of algorithms for teaching a whole bunch of decidedly unreliable processes to reliably decide on stuff. More formally: it allows a group of unreliable processors to deterministically and safely reach consensus if some certain conditions can be met, while ensuring the group remains consistent if the conditions can&rsquo;t be met.</p>
-
-<p>The demo below demonstrates a live version of Paxos implemented in Javascript. Two different clients propose new values to random nodes in the system, and depending on what nodes are contacted and in what order, consensus is reached on one of the two proposed values and the clients informed.</p>
-
-<div id="main_demo"></div>
-
-
-<h1>Paxos: something we can agree on.</h1>
-
-<p>Paxos is an algorithm to solve the <a href="http://harry.me/blog/2013/07/07/id-like-to-have-an-argument-a-primer-on-consensus/">consensus problem</a>. Honest-to-goodness real-life implementations of Paxos can be found at the heart of world class software like Cassandra, Google&rsquo;s magnificent Spanner database, and also their distributed locking service Chubby. A system governed by Paxos is usually talked about in terms of the value, or state, it tracks. The system is built to allow many processes to store and report this value even if some fail, which is handy for building highly available and strongly consistent systems. To restate, a majority of the members of the system must agree that a particular value is in fact &ldquo;the one true&rdquo; value to then report it as such. Conversely, it means that one rogue process which has an out of date idea of the world can&rsquo;t report something that isn&rsquo;t &ldquo;the one true&rdquo; thing.</p>
-
-<p>Let&rsquo;s get some definitions out of the way for upcoming explanation:</p>
-
-<ul>
-<li>A <code>process</code> is one of the computers in the system. Lots of people use the word replica or node for this as well.</li>
-<li>A <code>client</code> is a computer who isn&rsquo;t a member of the system, but is asking the system what the value is, or asking the system to take on a new value.</li>
-</ul>
-
-
-<p>Paxos is only a small piece of building a distributed database: it only implements the process to write exactly one new thing to the system. Processes governed by an instance of Paxos can either fail, and not learn anything, or by the end of it have a majority having learned the same value such that there is consensus. Paxos doesn&rsquo;t really tell us how to use this to build a database or anything like that, it is just the process which governs the individual communications between nodes as they execute one instance of deciding on one new value. So, for our purposes here, the thing we build with Paxos is a datumbase which can store exactly one value, and only once, such that you can&rsquo;t change it after you&rsquo;ve set it the first time.</p>
-
-<h1>The read guts</h1>
-
-<div id="read_demo"></div>
-
-
-<p>To read a value from the basic Paxos system, a client asks all the processes in the system what they have stored for the current value, and then takes the value that the majority of the processes in the system hold. If there is no majority or if not enough processes respond, the read fails. To the left you can see a client asking the nodes what their value is, and them returning the value to the client. When the client gets a majority of responses agreeing on a value, it has successfully read it and keeps it handy.</p>
-
-<p><br class="break" /></p>
-
-<p>This is weird compared to single node systems. In both places, the client needs to make an observation on the system to determine the state, but in non-distributed systems like MySQL or one memcached process, the software only needs to ask the one canonical place where that state is stored. In simple Paxos, the client needs to observe the state the same way, but there is no canonical place where it is stored. It needs to ask all the members, so that it can be sure that there is actually only one value reported, and that it is in fact held by a majority of nodes. If the client just asked one node, it could be asking a process which is out of date, and get the &ldquo;wrong&rdquo; value. Processes can be out of date for all sorts of reasons: messages to them might have been dropped by unreliable networks, they might have failed and recovered with an out of date state, or the algorithm could still be underway and the process could have just not gotten it&rsquo;s messages quite yet. It is important to note that this is &ldquo;naïve&rdquo; Paxos: there are much better ways of doing reads when implementing a system using Paxos that don&rsquo;t require contacting every node for every read, but they extend beyond the original Paxos algorithm.</p>
-
-<h1>The write guts</h1>
-
-<p>Let&rsquo;s examine what Paxos makes our cluster of processes do when a client asks that a new value be written. The following procedure is all to get only one value written. Eventually we can use this process as a primitive to allow many values to be set one after another, but the basic Paxos algorithm governs the flow for the writing of just one new value, which is then repeated to make the thing actually useful.</p>
-
-<div id="client_demo"></div>
-
-
-<p>The process starts with a client of the Paxos governed system asks that a new value be set. The client here shows up as the red circle, and the processes show up as the teal circles. Paxos makes a guarantee that clients can send their write requests to any member of the Paxos cluster, so for the demos here the client picks one of the processes at random. This property is important and neat: it means that there is no single point of failure, which means our Paxos governed system can continue to be online (and useful) when <em>any</em> node goes down for whatever unfortunate yet unavoidable reason. If we designated one particular node as &ldquo;the proposer&rdquo;, or &ldquo;the master&rdquo; or what have you, then the whole system would grind to a halt if that node failed.</p>
-
-<p>When this write request is received, the Paxos process that receives the write request &ldquo;proposes&rdquo; this new value to the system. &ldquo;Proposition&rdquo; is in fact a formalized idea in Paxos: proposals to a system governed by Paxos can succeed or fail, and are a required step to ensure consensus is maintained. This proposal is sent to the whole system by way of a <code>prepare</code> message from the process the client contacted to all the other processes it knows of.</p>
-
-<h3>Sequence Numbers</h3>
-
-<p>This <code>prepare</code> message holds inside it the value being proposed, as well as what&rsquo;s called a <em>sequence number</em> inside it. The sequence number is generated by the proposing process, and it declares that the receiving process should prepare to accept a proposal with that sequence number. This sequence number is key: it allows processes to differentiate between newer and older proposals. If two processes are trying to get a value set, Paxos says that value proposed last should take precedence, so this lets processes figure out which one is last, and thus who is trying to set the most recent value.</p>
-
-<div id="prepare_demo"></div>
-
-
-<p>These receiving processes are able to make a critical check in the system: is the sequence number on an incoming <code>prepare</code> message the highest I&rsquo;ve ever seen? If it is, then cool, I can prepare to accept this incoming value, and disregard any others I have heard of before. You can see this happening to in the demo on the right: the client proposes a new value every so often to one process, that process sends <code>prepare</code> messages to the other processes, and then those processes note that these successively higher sequence numbers trump the older ones, and let go of those old proposals.</p>
-
-<p>This little ordering idea is what lets any member of the system issue proposal to avoid the single point of failure associated with a designated &ldquo;proposer&rdquo; node mentioned above. Without this ordering, members of the Paxos system would have no way to figure out which proposal is the one they should prepare to accept with confidence.</p>
-
-<p>We could imagine a different consensus algorithm which didn&rsquo;t do this step of sending a first message to ask the other processes to make sure the value trying to be set is the most recent one. Although being way simpler, this would no longer satisfy the consensus algorithm safety requirements. If two processes started proposing different values right around the same time (like in the demos below), the universe could conspire against us and align the packets such that each dueling proposer convinces one half the processes to accept their own maybe-right-maybe-wrong value. The system could end up in a stalemate! There would exist two evenly sized groups having staged different value, which would lead to no value being accepted by a majority group. This stalemate is avoided by the first Paxos message exchange with sequence numbers that allow the processes to all resolve which proposal they should accept. With Paxos' sequence numbers, one of the dueling proposals would have a lower number than the other, and thus upon proposal receipt processes will have a way to unambiguously pick the most recent one. They&rsquo;d either get the higher number one first, and later receive the lower number one and reject it, or they&rsquo;d get higher numbered one second and thus replace the lower numbered one with it. Paxos solves the problem of consensus over time by taking hold of time itself with sequence numbers to apply temporal precedence.</p>
-
-<div id="prepare_wrong_demo">
-  <div class="viz"></div>
-  <i>The above demo uses processes which just accept the most recent message as the "truth", instead of using sequence numbers. Because the clients send at the same time, we end up with a split brain where some process get one message last, and others get a different one. Consensus can't be reached!</i>
-</div>
-
-
-
-
-<div id="prepare_right_demo">
-  <div class="viz"></div>
-  <i>The above demo uses proper Paxos processes which examine the sequence number of the incoming proposal to figure out whether or not to actually prepare to accept the new value in tow. All the processes disambiguate properly, and consensus could be reached!</i>
-</div>
-
-
-<p><br class="break" /></p>
-
-<p>Side note: it&rsquo;s important that no two proposers ever use the same sequence number, and that they are sortable, so that they truly reference only one proposal, and precedence between proposals can be decided using a simple comparison. When implementing Paxos, these globally unique and sortable sequence numbers are usually derivatives of precise system time and node number in the cluster so they grow over time and are never the same.</p>
-
-<h3>Promises</h3>
-
-<div id="promise_demo"></div>
-
-
-<p>So, after the proposing process has sent out it&rsquo;s proposal, the processes check the proposal&rsquo;s sequence number against the highest they&rsquo;ve ever seen, and if it is the highest, they can make a promise to not accept any proposals older than this new threshold sequence number. This promise is returned as a message sent from the promising process to the one that is proposing a new value, as thing a <code>promise</code> message. This gives the proposing process the information it needs to count how many processes have sent their promises, and thus the basis to establish if it has reached a majority or not. If a majority of processes have agreed to accept this proposal or a higher sequenced one, the proposing process can know it &ldquo;has the floor&rdquo;, so to speak, and that progress is possible in the algorithm. If for whatever reason the proposer can&rsquo;t extract a majority of promises from the other processes, progress is impossible, since consensus couldn&rsquo;t be reached, so the proposal is aborted and the client is informed that the write failed.</p>
-
-<p>To decide if a proposal has extracted enough promises, proposers simply count the number of <code>promise</code> messages they receive and compare against the total number of processes in the system. &ldquo;Enough&rdquo; promises here means promises from a majority (N/2 + 1) of processes in the system are received before a certain timeout. The simplest reason for this might be that more than half of the processes in the system have failed completely, so they wouldn&rsquo;t return <code>promise</code> messages ever. This means Paxos could never get the proposed value committed a majority of processes, and thus could never satisfy the majority requirements in the read algorithm described above, and thus couldn&rsquo;t reach consensus, so the proposal should be aborted. Other failure modes which would prevent a majority of promises being returned include things like a network partition preventing a proposer from contacting enough nodes, or more interestingly, a competing proposal having extracted <code>promise</code>s with a higher sequence number already.</p>
-
-<h2>Acceptance</h2>
-
-<div id="accept_demo"></div>
-
-
-<p>Once a proposer has extracted promises from a majority of other processes, it asks the promising processes to &ldquo;accept&rdquo; the value they promised to before. This is the &ldquo;commit&rdquo; phase of the algorithm where progress is actually made. If there are no dueling proposals, failures, or partitions, then the proposal will be accepted by all nodes, and Paxos is complete! You can see this is the demo to the right when the second round of messages from the proposer, called the <code>accept</code> messages, cause the promised values to be taken on (sucked in) by all processes.</p>
-
-<p>Acceptance of a particular process can fail however: if enough processes fail right after replying with a <code>promise</code> message, but before they receive the <code>accept</code> message, then the acceptance could only happen on a minority of nodes instead of a majority. In this case, the Paxos round is now in a weird state where some processes have accepted a value, but not all. This state, while undesirable, is actually &ldquo;consistent&rdquo; due to the read logic described far above: a client trying to read from the system must receive agreement from a majority of nodes on what the value actually is, so if it managed to contact all the nodes, different, conflicting values would be reported by different minorities of nodes. This would cause the read to fail, which sucks, but Paxos has remained consistent, and hasn&rsquo;t allowed a write to take place without consensus. This bad state is often corrected in real implementations by either repeating the accept phase to get more nodes and eventually a majority.</p>
-
-<h3>Dueling Proposals</h3>
-
-<p>Acceptance can also fail because of dueling proposals: the promise that promisers reply with is a contract to accept proposals with that proposal&rsquo;s sequence number, or higher. This means that a second proposal could come around after a first with a higher sequence number, and extract new promises from all the processes where they would no longer accept the first, earlier proposal. The first proposer however might not find out about this second proposal, and continue happily along in the Paxos algorithm, and send out it&rsquo;s <code>accept</code> messages. Upon receipt of those <code>accept</code> messages, the promising processes would note the lower sequence number than their second promises to the second proposer, and simply reject the <code>accept</code> messages. This is correct: the first proposal sadly hasn&rsquo;t made progress, but no value was accepted without consensus, and Paxos remains consistent. This kind of situation could easily arise if clients cause two different processes to start proposals at the same time, which you can see above.</p>
-
-<p>The failure case here gets even more complicated if the second proposal comes around <em>after</em> acceptance has happened on some nodes for an earlier proposal. This is a Danger Zone for Paxos: if different processes have accepted different values, and especially if the groups of processes change which value they have accepted over time, reads of the system could return different values at different times for the same round of Paxos! That violates the consensus algorithm safety property that only one value can be reported by the system, so let&rsquo;s examine how Paxos handles successive proposals and acceptances.</p>
-
-<p>Let&rsquo;s say that a second proposer recovers from a network partition and tries to propose a new value after a first proposer has already proposed a value, and already had that value accepted by a majority of processes. Paxos has &ldquo;completed&rdquo;, in that if the read algorithm was run, the first proposer&rsquo;s value would be reported as the value for the system. That said, this second proposer is allowed by Paxos despite the completed state, because it declares all stages repeatable to allow for failure correction. So, this second proposer can run, but it must not change what value has been accepted, to keep consensus in tact as described above.</p>
-
-<p>To prevent these later proposals from changing the accepted value, Paxos adds a little doohickey to prevents proposal from having a different value than the first one. If any processes have already accepted a value, Paxos forces <em>any</em> proposal that comes after that to also have that same already-accepted value. Freaky, but this maintains consensus, because now the value can never change after acceptance has started. The way this is implemented is that the <code>promise</code> messages returned by processes which have already accepted a value also carry along what value has already been accepted, and can tell the proposer about old values that have been accepted. The proposer can then detect if a majority of nodes have already accepted an old value, and change it&rsquo;s proposal to match that value, or not run it at all. In a way, Paxos piggybacks a read operation on top of the promise phase to make sure that a proposal is in fact free to change the value of the system.</p>
-
-<h3>Datumbase</h3>
-
-<p>All this procedure accomplishes one thing: one durable write. Paxos itself has many variants that make it faster, introduce the ideas of masters, sacrifice pure fault tolerance for more speed, and tonnes of layers built on top which use it as a primitive to implement an actual database. An extremely interesting description of how to do this can be found in the Paxos Made Live paper listed below, but for us, this is the end. Thanks for reading! Please send any suggested edits, corrections, or feedback my way at <a href="mailto:harry@harry.me">harry@harry.me</a>.</p>
-
-<h3>More Resources</h3>
-
-<ul>
-<li>The Part Time Parliment (the original Paxos paper) by Leslie Lamport: <a href="http://research.microsoft.com/en-us/um/people/lamport/pubs/lamport-paxos.pdf">http://research.microsoft.com/en-us/um/people/lamport/pubs/lamport-paxos.pdf</a></li>
-<li>Paxos Made Simple: another attempt at explaining Paxos by the original author by &ldquo;deriving&rdquo; the algorithm using the invariants of the consensus problem <a href="http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf">http://research.microsoft.com/en-us/um/people/lamport/pubs/paxos-simple.pdf</a></li>
-<li>Paxos Made Live: an amazing paper from Google describing the challenges of their Paxos implementation in Chubby: <a href="http://static.googleusercontent.com/media/research.google.com/en//archive/paxos_made_live.pdf">http://static.googleusercontent.com/media/research.google.com/en//archive/paxos_made_live.pdf</a></li>
-<li>A Quora thread explaining Paxos in a few different ways: <a href="https://www.quora.com/Distributed-Systems/What-is-a-simple-explanation-of-the-Paxos-algorithm">https://www.quora.com/Distributed-Systems/What-is-a-simple-explanation-of-the-Paxos-algorithm</a></li>
-<li>Raft - An Understandable Consensus Algorithm. Raft is another conensus algorithm designed for humans to understand, which if you can tell from the above wall of text might be a problem with Paxos. <a href="https://ramcloud.stanford.edu/raft.pdf">https://ramcloud.stanford.edu/raft.pdf</a></li>
-</ul>
-
-
-<script src="/assets/paxos/paxos-0a2fdb0709bc3b199adb503478fb2f56.js"></script>
 
 
   </section> <!-- end article section -->
@@ -481,7 +337,7 @@
         <ul id="menu-footer" class="nav footer-nav clearfix">
           <li class="menu-item"><a href="/">Home</a></li>
           <li class="menu-item"><a href="/about/">About</a></li>
-          <li class="menu-item"><a href="/archives">Archives</a></li>
+          <li class="menu-item"><a href="/blog/archives">Archives</a></li>
           <li class="menu-item"><a href="mailto:harry@harry.me">Contact</a></li>
         </ul>
       </nav>
