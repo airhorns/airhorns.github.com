@@ -12,6 +12,8 @@ categories: ['neat algos']
 
 This is an explanation and demonstration of an extraordinarily neat algorithm called Paxos. Paxos is a family of algorithms for teaching a whole bunch of decidedly unreliable processes to reliably decide on stuff. More formally: it allows a group of unreliable processors to deterministically and safely reach consensus if some certain conditions can be met, while ensuring the group remains consistent if the conditions can't be met.
 
+<!--more-->
+
 The demo below demonstrates a live version of Paxos implemented in Javascript. Two different clients propose new values to random nodes in the system, and depending on what nodes are contacted and in what order, consensus is reached on one of the two proposed values and the clients informed.
 
 <div id="main_demo"></div>
