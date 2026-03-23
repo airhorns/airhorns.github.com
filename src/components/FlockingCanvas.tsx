@@ -15,12 +15,13 @@ const COHESION_FACTOR = 0.006;
 const ALIGNMENT_FACTOR = 0.04;
 const SEPARATION_FACTOR = 0.07;
 const BOUNDS = 40;
-const CENTER_PULL = 0.002;
+const CENTER_PULL = 0.00035;
 const MOUSE_RANGE = 8;
 const EDGE_MARGIN = 5;
 const EDGE_FORCE = 0.08;
 const MOUSE_RANGE_SQ = MOUSE_RANGE * MOUSE_RANGE;
 const MOUSE_FACTOR = 0.03;
+const MOUSE_IDLE_MS = 120;
 const Z_FLATTEN = 0.002;
 const JITTER = 0.008;
 
@@ -156,6 +157,7 @@ function Boids() {
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0));
   const mouseActive = useRef(false);
   const hasRealPointerMove = useRef(false);
+  const lastMouseMoveAt = useRef(0);
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const mouseNDC = useRef(new THREE.Vector2(0, 0));
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
@@ -207,6 +209,7 @@ function Boids() {
 
     mouseNDC.current.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouseNDC.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    lastMouseMoveAt.current = performance.now();
     mouseActive.current = true;
   }, []);
 
@@ -227,6 +230,10 @@ function Boids() {
   const kickGPUStep = useCallback(() => {
     const gpu = gpuRef.current;
     if (!gpu || gpuPending.current) return;
+
+    if (mouseActive.current && performance.now() - lastMouseMoveAt.current > MOUSE_IDLE_MS) {
+      mouseActive.current = false;
+    }
 
     // Update mouse
     if (mouseActive.current) {
