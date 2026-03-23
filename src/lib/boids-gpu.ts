@@ -241,7 +241,7 @@ export async function initBoidGPU(
 
   // Params uniform — 24 floats = 96 bytes (aligned to 16)
   const paramsBuf = device.createBuffer({
-    size: 96,
+    size: 112,
     usage: GPU_UNIFORM | GPU_COPY_DST,
   });
 
