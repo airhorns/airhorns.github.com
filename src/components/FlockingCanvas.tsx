@@ -266,7 +266,7 @@ function Boids() {
 
   return (
     <instancedMesh ref={meshRef} args={[geometry, undefined, BOID_COUNT]}>
-      <meshBasicMaterial color="#1a1a2e" transparent opacity={0.85} />
+      <meshBasicMaterial color="#0a0a18" transparent opacity={0.92} />
     </instancedMesh>
   );
 }
