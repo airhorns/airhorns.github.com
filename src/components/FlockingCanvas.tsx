@@ -5,16 +5,20 @@ interface Boid {
   y: number;
   vx: number;
   vy: number;
+  hue: number;
+  size: number;
 }
 
-const BOID_COUNT = 120;
-const MAX_SPEED = 2.5;
-const MIN_SPEED = 1.2;
-const VISUAL_RANGE = 75;
-const SEPARATION_DIST = 28;
+const BOID_COUNT = 100;
+const MAX_SPEED = 2.2;
+const MIN_SPEED = 0.8;
+const VISUAL_RANGE = 80;
+const SEPARATION_DIST = 30;
 const COHESION_FACTOR = 0.003;
-const ALIGNMENT_FACTOR = 0.04;
+const ALIGNMENT_FACTOR = 0.045;
 const SEPARATION_FACTOR = 0.05;
+const MOUSE_RANGE = 180;
+const MOUSE_FACTOR = 0.08;
 
 function createBoid(w: number, h: number): Boid {
   const angle = Math.random() * Math.PI * 2;
@@ -24,6 +28,8 @@ function createBoid(w: number, h: number): Boid {
     y: Math.random() * h,
     vx: Math.cos(angle) * speed,
     vy: Math.sin(angle) * speed,
+    hue: 210 + (Math.random() - 0.5) * 40, // 190-230 range
+    size: 2.5 + Math.random() * 2,
   };
 }
 
@@ -50,14 +56,22 @@ const FlockingCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boidsRef = useRef<Boid[]>([]);
   const animRef = useRef<number>(0);
+  const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
+  const dprRef = useRef(1);
 
   const init = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    dprRef.current = dpr;
     const w = window.innerWidth;
     const h = window.innerHeight;
-    canvas.width = w;
-    canvas.height = h;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    const ctx = canvas.getContext("2d");
+    if (ctx) ctx.scale(dpr, dpr);
     boidsRef.current = Array.from({ length: BOID_COUNT }, () => createBoid(w, h));
   }, []);
 
@@ -66,19 +80,29 @@ const FlockingCanvas = () => {
     const handleResize = () => init();
     window.addEventListener("resize", handleResize);
 
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY, active: true };
+    };
+    const handleMouseLeave = () => {
+      mouseRef.current.active = false;
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseleave", handleMouseLeave);
+
     const animate = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      const w = canvas.width;
-      const h = canvas.height;
+      const dpr = dprRef.current;
+      const w = canvas.width / dpr;
+      const h = canvas.height / dpr;
       const boids = boidsRef.current;
+      const mouse = mouseRef.current;
 
-      // Fade trail
-      ctx.fillStyle = "hsla(40, 20%, 96%, 0.15)";
-      ctx.fillRect(0, 0, w, h);
+      // Clear fully — no ghosting
+      ctx.clearRect(0, 0, w, h);
 
       // Update boids
       for (let i = 0; i < boids.length; i++) {
@@ -120,6 +144,18 @@ const FlockingCanvas = () => {
         b.vx += sepX * SEPARATION_FACTOR;
         b.vy += sepY * SEPARATION_FACTOR;
 
+        // Mouse avoidance
+        if (mouse.active) {
+          const mdx = b.x - mouse.x;
+          const mdy = b.y - mouse.y;
+          const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+          if (mdist < MOUSE_RANGE && mdist > 0) {
+            const force = (MOUSE_RANGE - mdist) / MOUSE_RANGE;
+            b.vx += (mdx / mdist) * force * MOUSE_FACTOR;
+            b.vy += (mdy / mdist) * force * MOUSE_FACTOR;
+          }
+        }
+
         limitSpeed(b);
 
         b.x = (b.x + b.vx + w) % w;
@@ -127,32 +163,34 @@ const FlockingCanvas = () => {
       }
 
       // Draw boids
+      ctx.save();
       for (const b of boids) {
         const angle = Math.atan2(b.vy, b.vx);
         const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-        const alpha = 0.4 + (speed / MAX_SPEED) * 0.6;
-        const size = 3 + (speed / MAX_SPEED) * 2;
+        const t = speed / MAX_SPEED;
+        const alpha = 0.35 + t * 0.55;
+        const s = b.size;
 
         ctx.save();
         ctx.translate(b.x, b.y);
         ctx.rotate(angle);
 
-        // Triangle boid
+        // Elongated body shape
         ctx.beginPath();
-        ctx.moveTo(size * 2, 0);
-        ctx.lineTo(-size, -size * 0.7);
-        ctx.lineTo(-size, size * 0.7);
+        ctx.moveTo(s * 2.5, 0);
+        ctx.quadraticCurveTo(s * 0.5, -s * 0.6, -s * 1.2, -s * 0.15);
+        ctx.quadraticCurveTo(-s * 0.2, 0, -s * 1.2, s * 0.15);
+        ctx.quadraticCurveTo(s * 0.5, s * 0.6, s * 2.5, 0);
         ctx.closePath();
 
-        ctx.fillStyle = `hsla(220, 50%, 40%, ${alpha})`;
-        ctx.fill();
-
-        ctx.shadowColor = "hsla(220, 50%, 40%, 0.15)";
-        ctx.shadowBlur = 4;
+        const sat = 45 + t * 20;
+        const light = 35 + (1 - t) * 15;
+        ctx.fillStyle = `hsla(${b.hue}, ${sat}%, ${light}%, ${alpha})`;
         ctx.fill();
 
         ctx.restore();
       }
+      ctx.restore();
 
       animRef.current = requestAnimationFrame(animate);
     };
@@ -162,13 +200,15 @@ const FlockingCanvas = () => {
     return () => {
       cancelAnimationFrame(animRef.current);
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, [init]);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 w-full h-full"
+      className="fixed inset-0"
       style={{ zIndex: 0 }}
     />
   );
