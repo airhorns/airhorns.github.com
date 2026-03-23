@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect, useCallback, useState } from "react";
+import { useRef, useMemo, useEffect, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { initBoidGPU, stepBoidGPU, destroyBoidGPU, type BoidGPUState, type SimParams } from "@/lib/boids-gpu";
@@ -162,7 +162,7 @@ function Boids() {
         gpuReady.current = true;
         console.log("🚀 WebGPU boid simulation active");
       } else {
-        console.log("⚠️ WebGPU unavailable, using CPU fallback");
+        console.error("WebGPU unavailable — GPU-only mode enabled, so boids will not render here.");
       }
     });
 
@@ -216,6 +216,8 @@ function Boids() {
       bounds: BOUNDS,
       centerPull: CENTER_PULL,
       zFlatten: Z_FLATTEN,
+      edgeMargin: EDGE_MARGIN,
+      edgeForce: EDGE_FORCE,
       jitter: JITTER,
       mouseX: mouseWorld.current.x,
       mouseY: mouseWorld.current.y,
@@ -235,154 +237,18 @@ function Boids() {
 
   useFrame(() => {
     const mesh = meshRef.current;
-    if (!mesh) return;
+    if (!mesh || !gpuReady.current) return;
 
-    if (gpuReady.current) {
-      // GPU path
-      kickGPUStep();
+    kickGPUStep();
 
-      const data = gpuData.current;
-      if (!data) return;
-
-      for (let i = 0; i < BOID_COUNT; i++) {
-        const x = data[i * 4];
-        const y = data[i * 4 + 1];
-        const z = data[i * 4 + 2];
-        dummy.position.set(x, y, z);
-        // We don't have velocity on GPU readback for orientation, just use position delta
-        dummy.updateMatrix();
-        mesh.setMatrixAt(i, dummy.matrix);
-      }
-      mesh.instanceMatrix.needsUpdate = true;
-      return;
-    }
-
-    // --- CPU fallback ---
-    const { px, py, pz, vx, vy, vz } = state;
-
-    if (mouseActive.current) {
-      raycaster.setFromCamera(mouseNDC.current, camera);
-      raycaster.ray.intersectPlane(plane, rayTarget);
-      if (rayTarget) mouseWorld.current.copy(rayTarget);
-    }
-
-    grid.clear();
-    for (let i = 0; i < BOID_COUNT; i++) {
-      grid.insert(i, px[i], py[i], pz[i]);
-    }
-
-    const mouseAct = mouseActive.current;
-    const mwx = mouseWorld.current.x;
-    const mwy = mouseWorld.current.y;
-    const half = BOUNDS / 2;
-    const buf = grid.neighborBuf;
+    const data = gpuData.current;
+    if (!data) return;
 
     for (let i = 0; i < BOID_COUNT; i++) {
-      let cohX = 0, cohY = 0, cohZ = 0, cohCount = 0;
-      let aliVx = 0, aliVy = 0, aliVz = 0, aliCount = 0;
-      let sepX = 0, sepY = 0, sepZ = 0;
-
-      const pxi = px[i], pyi = py[i], pzi = pz[i];
-      const nCount = grid.queryInto(pxi, pyi, pzi, VISUAL_RANGE);
-
-      for (let ni = 0; ni < nCount; ni++) {
-        const j = buf[ni];
-        if (i === j) continue;
-        const dx = px[j] - pxi;
-        const dy = py[j] - pyi;
-        const dz = pz[j] - pzi;
-        const distSq = dx * dx + dy * dy + dz * dz;
-
-        if (distSq < VISUAL_RANGE_SQ) {
-          cohX += dx; cohY += dy; cohZ += dz;
-          cohCount++;
-          aliVx += vx[j]; aliVy += vy[j]; aliVz += vz[j];
-          aliCount++;
-        }
-        if (distSq < SEPARATION_DIST_SQ && distSq > 0) {
-          const dist = Math.sqrt(distSq);
-          const f = 1 / dist;
-          sepX -= dx * f;
-          sepY -= dy * f;
-          sepZ -= dz * f;
-        }
-      }
-
-      if (cohCount > 0) {
-        const inv = 1 / cohCount;
-        vx[i] += cohX * inv * COHESION_FACTOR;
-        vy[i] += cohY * inv * COHESION_FACTOR;
-        vz[i] += cohZ * inv * COHESION_FACTOR;
-      }
-      if (aliCount > 0) {
-        const inv = 1 / aliCount;
-        vx[i] += (aliVx * inv - vx[i]) * ALIGNMENT_FACTOR;
-        vy[i] += (aliVy * inv - vy[i]) * ALIGNMENT_FACTOR;
-        vz[i] += (aliVz * inv - vz[i]) * ALIGNMENT_FACTOR;
-      }
-      vx[i] += sepX * SEPARATION_FACTOR;
-      vy[i] += sepY * SEPARATION_FACTOR;
-      vz[i] += sepZ * SEPARATION_FACTOR;
-
-      // Soft boundary — gentle center pull + strong edge avoidance
-      vx[i] -= pxi * CENTER_PULL;
-      vy[i] -= pyi * CENTER_PULL;
-      vz[i] -= pzi * CENTER_PULL;
-      vz[i] -= pzi * Z_FLATTEN;
-
-      // Edge steering — ramps up as boids approach boundary
-      const edgeHalf = BOUNDS / 2;
-      if (pxi > edgeHalf - EDGE_MARGIN) vx[i] -= ((pxi - (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
-      if (pxi < -edgeHalf + EDGE_MARGIN) vx[i] -= ((pxi + (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
-      if (pyi > edgeHalf - EDGE_MARGIN) vy[i] -= ((pyi - (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
-      if (pyi < -edgeHalf + EDGE_MARGIN) vy[i] -= ((pyi + (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
-      if (pzi > edgeHalf - EDGE_MARGIN) vz[i] -= ((pzi - (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
-      if (pzi < -edgeHalf + EDGE_MARGIN) vz[i] -= ((pzi + (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
-
-      if (mouseAct) {
-        const mx = pxi - mwx;
-        const my = pyi - mwy;
-        const mDistSq = mx * mx + my * my + pzi * pzi;
-        if (mDistSq < MOUSE_RANGE_SQ && mDistSq > 0) {
-          const mDist = Math.sqrt(mDistSq);
-          const force = ((MOUSE_RANGE - mDist) / MOUSE_RANGE) ** 2;
-          const invD = 1 / mDist;
-          vx[i] += mx * invD * force * MOUSE_FACTOR;
-          vy[i] += my * invD * force * MOUSE_FACTOR;
-          vz[i] += pzi * invD * force * MOUSE_FACTOR;
-        }
-      }
-
-      vx[i] += (Math.random() - 0.5) * JITTER;
-      vy[i] += (Math.random() - 0.5) * JITTER;
-      vz[i] += (Math.random() - 0.5) * JITTER * 0.3;
-
-      const speedSq = vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i];
-      if (speedSq > MAX_SPEED * MAX_SPEED) {
-        const f = MAX_SPEED / Math.sqrt(speedSq);
-        vx[i] *= f; vy[i] *= f; vz[i] *= f;
-      } else if (speedSq < MIN_SPEED * MIN_SPEED && speedSq > 0) {
-        const f = MIN_SPEED / Math.sqrt(speedSq);
-        vx[i] *= f; vy[i] *= f; vz[i] *= f;
-      }
-
-      px[i] += vx[i];
-      py[i] += vy[i];
-      pz[i] += vz[i];
-
-      // Hard clamp (safety net — edge steering should prevent reaching here)
-      const clamp = BOUNDS / 2;
-      px[i] = Math.max(-clamp, Math.min(clamp, px[i]));
-      py[i] = Math.max(-clamp, Math.min(clamp, py[i]));
-      pz[i] = Math.max(-clamp, Math.min(clamp, pz[i]));
-    }
-
-    for (let i = 0; i < BOID_COUNT; i++) {
-      dummy.position.set(px[i], py[i], pz[i]);
-      const speedSq = vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i];
-      if (speedSq > 0.000001) {
-        dummy.lookAt(px[i] + vx[i], py[i] + vy[i], pz[i] + vz[i]);
-      }
+      const x = data[i * 4];
+      const y = data[i * 4 + 1];
+      const z = data[i * 4 + 2];
+      dummy.position.set(x, y, z);
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }

@@ -27,6 +27,8 @@ struct SimParams {
   bounds: f32,
   centerPull: f32,
   zFlatten: f32,
+  edgeMargin: f32,
+  edgeForce: f32,
   jitter: f32,
   mouseX: f32,
   mouseY: f32,
@@ -100,11 +102,22 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   }
   newVel += sepSum * params.separationFactor;
 
-  // Center pull
+  // Soft boundary + edge steering
   newVel -= myPos * params.centerPull;
-
-  // Z flatten
   newVel.z -= myPos.z * params.zFlatten;
+
+  let edgeForce = vec3<f32>(0.0);
+  let edgeStart = params.bounds * 0.5 - params.edgeMargin;
+  let edgeEnd = params.bounds * 0.5;
+
+  if (myPos.x > edgeStart) { edgeForce.x -= (myPos.x - edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.x < -edgeStart) { edgeForce.x -= (myPos.x + edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.y > edgeStart) { edgeForce.y -= (myPos.y - edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.y < -edgeStart) { edgeForce.y -= (myPos.y + edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.z > edgeStart) { edgeForce.z -= (myPos.z - edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.z < -edgeStart) { edgeForce.z -= (myPos.z + edgeStart) / params.edgeMargin * params.edgeForce; }
+
+  newVel += edgeForce;
 
   // Mouse avoidance
   if (params.mouseActive == 1u) {
@@ -136,14 +149,9 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   // Move
   var newPos = myPos + newVel;
 
-  // Wrap
+  // Clamp instead of wrap
   let halfBounds = params.bounds * 0.5;
-  if (newPos.x > halfBounds) { newPos.x -= params.bounds; }
-  if (newPos.x < -halfBounds) { newPos.x += params.bounds; }
-  if (newPos.y > halfBounds) { newPos.y -= params.bounds; }
-  if (newPos.y < -halfBounds) { newPos.y += params.bounds; }
-  if (newPos.z > halfBounds) { newPos.z -= params.bounds; }
-  if (newPos.z < -halfBounds) { newPos.z += params.bounds; }
+  newPos = clamp(newPos, vec3<f32>(-halfBounds), vec3<f32>(halfBounds));
 
   posOut[i] = vec4<f32>(newPos, 0.0);
   velOut[i] = vec4<f32>(newVel, 0.0);
@@ -173,6 +181,8 @@ export interface SimParams {
   bounds: number;
   centerPull: number;
   zFlatten: number;
+  edgeMargin: number;
+  edgeForce: number;
   jitter: number;
   mouseX: number;
   mouseY: number;
@@ -231,7 +241,7 @@ export async function initBoidGPU(
 
   // Params uniform — 24 floats = 96 bytes (aligned to 16)
   const paramsBuf = device.createBuffer({
-    size: 96,
+    size: 112,
     usage: GPU_UNIFORM | GPU_COPY_DST,
   });
 
@@ -279,8 +289,8 @@ export async function stepBoidGPU(
   gpu.frame++;
 
   // Write params
-  const paramsData = new Float32Array(24);
-  paramsData[0] = boidCount; // u32 reinterpreted — use DataView
+  const paramsData = new Float32Array(28);
+  paramsData[0] = boidCount;
   paramsData[1] = simParams.maxSpeed;
   paramsData[2] = simParams.minSpeed;
   paramsData[3] = simParams.visualRange;
@@ -293,20 +303,20 @@ export async function stepBoidGPU(
   paramsData[10] = simParams.bounds;
   paramsData[11] = simParams.centerPull;
   paramsData[12] = simParams.zFlatten;
-  paramsData[13] = simParams.jitter;
-  paramsData[14] = simParams.mouseX;
-  paramsData[15] = simParams.mouseY;
-  paramsData[16] = simParams.mouseActive ? 1 : 0; // u32
-  paramsData[17] = simParams.mouseRange;
-  paramsData[18] = simParams.mouseRange * simParams.mouseRange;
-  paramsData[19] = simParams.mouseFactor;
-  paramsData[20] = Math.random() * 1000; // seed
-  // 21-23 padding
+  paramsData[13] = simParams.edgeMargin;
+  paramsData[14] = simParams.edgeForce;
+  paramsData[15] = simParams.jitter;
+  paramsData[16] = simParams.mouseX;
+  paramsData[17] = simParams.mouseY;
+  paramsData[18] = simParams.mouseActive ? 1 : 0;
+  paramsData[19] = simParams.mouseRange;
+  paramsData[20] = simParams.mouseRange * simParams.mouseRange;
+  paramsData[21] = simParams.mouseFactor;
+  paramsData[22] = Math.random() * 1000;
 
-  // Fix u32 fields using DataView
   const dv = new DataView(paramsData.buffer);
-  dv.setUint32(0, boidCount, true);     // boidCount
-  dv.setUint32(16 * 4, simParams.mouseActive ? 1 : 0, true); // mouseActive
+  dv.setUint32(0, boidCount, true);
+  dv.setUint32(18 * 4, simParams.mouseActive ? 1 : 0, true);
 
   device.queue.writeBuffer(paramsBuf, 0, paramsData);
 
