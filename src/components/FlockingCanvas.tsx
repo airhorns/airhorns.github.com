@@ -15,7 +15,7 @@ const COHESION_FACTOR = 0.006;
 const ALIGNMENT_FACTOR = 0.04;
 const SEPARATION_FACTOR = 0.07;
 const BOUNDS = 40;
-const CENTER_PULL = 0.001;
+const CENTER_PULL = 0.00035;
 const MOUSE_RANGE = 8;
 const EDGE_MARGIN = 5;
 const EDGE_FORCE = 0.08;
@@ -213,6 +213,15 @@ function Boids() {
     mouseActive.current = true;
   }, []);
 
+  const handleCanvasPointerMove = useCallback((event: Event) => {
+    const customEvent = event as CustomEvent<{ x: number; y: number }>;
+    mouseNDC.current.x = customEvent.detail.x;
+    mouseNDC.current.y = customEvent.detail.y;
+    lastMouseMoveAt.current = performance.now();
+    mouseActive.current = true;
+    hasRealPointerMove.current = true;
+  }, []);
+
   const handleMouseLeave = useCallback(() => {
     mouseActive.current = false;
   }, []);
@@ -220,11 +229,15 @@ function Boids() {
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("boids:pointermove", handleCanvasPointerMove as EventListener);
+    window.addEventListener("boids:pointerleave", handleMouseLeave);
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("boids:pointermove", handleCanvasPointerMove as EventListener);
+      window.removeEventListener("boids:pointerleave", handleMouseLeave);
     };
-  }, [handleMouseMove, handleMouseLeave]);
+  }, [handleCanvasPointerMove, handleMouseMove, handleMouseLeave]);
 
   // Kick off GPU step (async, non-blocking)
   const kickGPUStep = useCallback(() => {
@@ -372,8 +385,33 @@ function GradientBackground() {
 
 // --- Main export ---
 const FlockingCanvas = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   return (
-    <>
+    <div
+      ref={containerRef}
+      className="fixed inset-0"
+      onPointerMove={(event) => {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect || rect.width === 0 || rect.height === 0) return;
+
+        const localX = event.clientX - rect.left;
+        const localY = event.clientY - rect.top;
+
+        const syntheticZeroMove = event.movementX === 0 && event.movementY === 0;
+        if (!syntheticZeroMove) {
+          const nextX = (localX / rect.width) * 2 - 1;
+          const nextY = -(localY / rect.height) * 2 + 1;
+          window.dispatchEvent(new CustomEvent("boids:pointermove", {
+            detail: { x: nextX, y: nextY },
+          }));
+        }
+      }}
+      onPointerLeave={() => {
+        window.dispatchEvent(new Event("boids:pointerleave"));
+      }}
+      style={{ zIndex: 1 }}
+    >
       <GradientBackground />
       <Canvas
         camera={{ position: [0, 0, 65], fov: 50 }}
@@ -384,7 +422,7 @@ const FlockingCanvas = () => {
         <Boids />
       </Canvas>
       <NoiseOverlay />
-    </>
+    </div>
   );
 };
 
