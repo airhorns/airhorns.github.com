@@ -51,15 +51,9 @@ struct SimParams {
 @group(0) @binding(3) var<storage, read_write> posOut: array<vec4<f32>>;
 @group(0) @binding(4) var<storage, read_write> velOut: array<vec4<f32>>;
 
-// Simple hash for pseudo-random per-boid jitter
+// Simple hash for pseudo-random per-boid jitter (independent per boid)
 fn rand(seed: f32, id: f32) -> f32 {
   return fract(sin(seed * 78.233 + id * 43758.5453) * 43758.5453);
-}
-
-fn balancedJitter(seed: f32, index: u32, axisOffset: f32) -> f32 {
-  let pairIndex = f32(index / 2u);
-  let direction = select(-1.0, 1.0, (index & 1u) == 0u);
-  return (rand(seed + axisOffset, pairIndex) - 0.5) * direction;
 }
 
 @compute @workgroup_size(${WORKGROUP_SIZE})
