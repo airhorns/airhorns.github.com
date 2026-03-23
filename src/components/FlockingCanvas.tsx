@@ -1,6 +1,7 @@
-import { useRef, useMemo, useEffect, useCallback } from "react";
+import { useRef, useMemo, useEffect, useCallback, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import { initBoidGPU, stepBoidGPU, destroyBoidGPU, type BoidGPUState, type SimParams } from "@/lib/boids-gpu";
 
 // --- Simulation constants ---
 const BOID_COUNT = 3000;
@@ -21,13 +22,12 @@ const MOUSE_FACTOR = 0.03;
 const Z_FLATTEN = 0.002;
 const JITTER = 0.008;
 
-// Integer-keyed spatial hash — avoids string alloc per cell
+// Spatial hash for CPU fallback
 class SpatialGrid {
   cellSize: number;
   invCellSize: number;
   cells: Map<number, Int32Array>;
   counts: Map<number, number>;
-  // Pre-allocated neighbor buffer
   neighborBuf: Int32Array;
   neighborCount: number;
 
@@ -41,13 +41,10 @@ class SpatialGrid {
   }
 
   clear() {
-    // Reset counts instead of clearing map — reuse allocated arrays
     this.counts.forEach((_, k) => this.counts.set(k, 0));
   }
 
-  // Spatial hash using integer math — no string allocation
   hash(ix: number, iy: number, iz: number): number {
-    // Large primes for spatial hashing
     return ((ix * 73856093) ^ (iy * 19349663) ^ (iz * 83492791)) | 0;
   }
 
@@ -56,12 +53,10 @@ class SpatialGrid {
     const iy = Math.floor(y * this.invCellSize);
     const iz = Math.floor(z * this.invCellSize);
     const k = this.hash(ix, iy, iz);
-
     let cell = this.cells.get(k);
     let count = this.counts.get(k) || 0;
-
     if (!cell) {
-      cell = new Int32Array(64); // pre-allocate reasonable capacity
+      cell = new Int32Array(64);
       this.cells.set(k, cell);
     } else if (count >= cell.length) {
       const newCell = new Int32Array(cell.length * 2);
@@ -69,12 +64,10 @@ class SpatialGrid {
       cell = newCell;
       this.cells.set(k, cell);
     }
-
     cell[count] = index;
     this.counts.set(k, count + 1);
   }
 
-  // Query neighbors into pre-allocated buffer — zero allocation
   queryInto(x: number, y: number, z: number, range: number): number {
     let total = 0;
     const inv = this.invCellSize;
@@ -85,7 +78,6 @@ class SpatialGrid {
     const minZ = Math.floor((z - range) * inv);
     const maxZ = Math.floor((z + range) * inv);
     const buf = this.neighborBuf;
-
     for (let cx = minX; cx <= maxX; cx++) {
       for (let cy = minY; cy <= maxY; cy++) {
         for (let cz = minZ; cz <= maxZ; cz++) {
@@ -104,11 +96,12 @@ class SpatialGrid {
   }
 }
 
-// --- Boids component using InstancedMesh ---
+// --- Boids component ---
 function Boids() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const { camera } = useThree();
 
+  // Initial state
   const state = useMemo(() => {
     const px = new Float32Array(BOID_COUNT);
     const py = new Float32Array(BOID_COUNT);
@@ -141,6 +134,44 @@ function Boids() {
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
   const rayTarget = useMemo(() => new THREE.Vector3(), []);
 
+  // GPU state
+  const gpuRef = useRef<BoidGPUState | null>(null);
+  const gpuPending = useRef(false);
+  const gpuReady = useRef(false);
+  const gpuData = useRef<Float32Array | null>(null);
+
+  // Init GPU
+  useEffect(() => {
+    const { px, py, pz, vx, vy, vz } = state;
+    const positions = new Float32Array(BOID_COUNT * 3);
+    const velocities = new Float32Array(BOID_COUNT * 3);
+    for (let i = 0; i < BOID_COUNT; i++) {
+      positions[i * 3] = px[i];
+      positions[i * 3 + 1] = py[i];
+      positions[i * 3 + 2] = pz[i];
+      velocities[i * 3] = vx[i];
+      velocities[i * 3 + 1] = vy[i];
+      velocities[i * 3 + 2] = vz[i];
+    }
+
+    initBoidGPU(BOID_COUNT, positions, velocities).then((gpu) => {
+      if (gpu) {
+        gpuRef.current = gpu;
+        gpuReady.current = true;
+        console.log("🚀 WebGPU boid simulation active");
+      } else {
+        console.log("⚠️ WebGPU unavailable, using CPU fallback");
+      }
+    });
+
+    return () => {
+      if (gpuRef.current) {
+        destroyBoidGPU(gpuRef.current);
+        gpuRef.current = null;
+      }
+    };
+  }, [state]);
+
   const handleMouseMove = useCallback((e: MouseEvent) => {
     mouseNDC.current.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouseNDC.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -160,20 +191,79 @@ function Boids() {
     };
   }, [handleMouseMove, handleMouseLeave]);
 
-  useFrame(() => {
-    const mesh = meshRef.current;
-    if (!mesh) return;
+  // Kick off GPU step (async, non-blocking)
+  const kickGPUStep = useCallback(() => {
+    const gpu = gpuRef.current;
+    if (!gpu || gpuPending.current) return;
 
-    const { px, py, pz, vx, vy, vz } = state;
-
-    // Update mouse world position — reuse rayTarget
+    // Update mouse
     if (mouseActive.current) {
       raycaster.setFromCamera(mouseNDC.current, camera);
       raycaster.ray.intersectPlane(plane, rayTarget);
       if (rayTarget) mouseWorld.current.copy(rayTarget);
     }
 
-    // Build spatial grid
+    const simParams: SimParams = {
+      maxSpeed: MAX_SPEED,
+      minSpeed: MIN_SPEED,
+      visualRange: VISUAL_RANGE,
+      separationDist: SEPARATION_DIST,
+      cohesionFactor: COHESION_FACTOR,
+      alignmentFactor: ALIGNMENT_FACTOR,
+      separationFactor: SEPARATION_FACTOR,
+      bounds: BOUNDS,
+      centerPull: CENTER_PULL,
+      zFlatten: Z_FLATTEN,
+      jitter: JITTER,
+      mouseX: mouseWorld.current.x,
+      mouseY: mouseWorld.current.y,
+      mouseActive: mouseActive.current,
+      mouseRange: MOUSE_RANGE,
+      mouseFactor: MOUSE_FACTOR,
+    };
+
+    gpuPending.current = true;
+    stepBoidGPU(gpu, simParams).then((data) => {
+      gpuData.current = data;
+      gpuPending.current = false;
+    }).catch(() => {
+      gpuPending.current = false;
+    });
+  }, [camera, plane, raycaster, rayTarget]);
+
+  useFrame(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+
+    if (gpuReady.current) {
+      // GPU path
+      kickGPUStep();
+
+      const data = gpuData.current;
+      if (!data) return;
+
+      for (let i = 0; i < BOID_COUNT; i++) {
+        const x = data[i * 4];
+        const y = data[i * 4 + 1];
+        const z = data[i * 4 + 2];
+        dummy.position.set(x, y, z);
+        // We don't have velocity on GPU readback for orientation, just use position delta
+        dummy.updateMatrix();
+        mesh.setMatrixAt(i, dummy.matrix);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+      return;
+    }
+
+    // --- CPU fallback ---
+    const { px, py, pz, vx, vy, vz } = state;
+
+    if (mouseActive.current) {
+      raycaster.setFromCamera(mouseNDC.current, camera);
+      raycaster.ray.intersectPlane(plane, rayTarget);
+      if (rayTarget) mouseWorld.current.copy(rayTarget);
+    }
+
     grid.clear();
     for (let i = 0; i < BOID_COUNT; i++) {
       grid.insert(i, px[i], py[i], pz[i]);
@@ -185,7 +275,6 @@ function Boids() {
     const half = BOUNDS / 2;
     const buf = grid.neighborBuf;
 
-    // Update boids
     for (let i = 0; i < BOID_COUNT; i++) {
       let cohX = 0, cohY = 0, cohZ = 0, cohCount = 0;
       let aliVx = 0, aliVy = 0, aliVz = 0, aliCount = 0;
@@ -197,7 +286,6 @@ function Boids() {
       for (let ni = 0; ni < nCount; ni++) {
         const j = buf[ni];
         if (i === j) continue;
-
         const dx = px[j] - pxi;
         const dy = py[j] - pyi;
         const dz = pz[j] - pzi;
@@ -209,7 +297,6 @@ function Boids() {
           aliVx += vx[j]; aliVy += vy[j]; aliVz += vz[j];
           aliCount++;
         }
-
         if (distSq < SEPARATION_DIST_SQ && distSq > 0) {
           const dist = Math.sqrt(distSq);
           const f = 1 / dist;
@@ -235,15 +322,11 @@ function Boids() {
       vy[i] += sepY * SEPARATION_FACTOR;
       vz[i] += sepZ * SEPARATION_FACTOR;
 
-      // Soft boundary
       vx[i] -= pxi * CENTER_PULL;
       vy[i] -= pyi * CENTER_PULL;
       vz[i] -= pzi * CENTER_PULL;
-
-      // Flatten z
       vz[i] -= pzi * Z_FLATTEN;
 
-      // Mouse avoidance
       if (mouseAct) {
         const mx = pxi - mwx;
         const my = pyi - mwy;
@@ -258,12 +341,10 @@ function Boids() {
         }
       }
 
-      // Random jitter
       vx[i] += (Math.random() - 0.5) * JITTER;
       vy[i] += (Math.random() - 0.5) * JITTER;
       vz[i] += (Math.random() - 0.5) * JITTER * 0.3;
 
-      // Limit speed
       const speedSq = vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i];
       if (speedSq > MAX_SPEED * MAX_SPEED) {
         const f = MAX_SPEED / Math.sqrt(speedSq);
@@ -273,12 +354,10 @@ function Boids() {
         vx[i] *= f; vy[i] *= f; vz[i] *= f;
       }
 
-      // Move
       px[i] += vx[i];
       py[i] += vy[i];
       pz[i] += vz[i];
 
-      // Wrap
       if (px[i] > half) px[i] -= BOUNDS;
       if (px[i] < -half) px[i] += BOUNDS;
       if (py[i] > half) py[i] -= BOUNDS;
@@ -287,15 +366,12 @@ function Boids() {
       if (pz[i] < -half) pz[i] += BOUNDS;
     }
 
-    // Update instance matrices
     for (let i = 0; i < BOID_COUNT; i++) {
       dummy.position.set(px[i], py[i], pz[i]);
-
       const speedSq = vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i];
       if (speedSq > 0.000001) {
         dummy.lookAt(px[i] + vx[i], py[i] + vy[i], pz[i] + vz[i]);
       }
-
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }
@@ -349,7 +425,6 @@ function NoiseOverlay() {
 
 // --- Gradient background ---
 function GradientBackground() {
-  const elapsed = useRef(0);
   const divRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -357,9 +432,7 @@ function GradientBackground() {
     const start = Date.now();
 
     const update = () => {
-      elapsed.current = (Date.now() - start) / 1000;
-      const t = elapsed.current;
-
+      const t = (Date.now() - start) / 1000;
       const hue1 = 230 + Math.sin(t * 0.04) * 30;
       const hue2 = 280 + Math.sin(t * 0.025 + 2) * 40;
       const hue3 = 190 + Math.sin(t * 0.033 + 4) * 25;
@@ -373,7 +446,6 @@ function GradientBackground() {
           hsl(${hue3}, ${(sat1 + sat2) / 2}%, 94%), 
           hsl(${hue2}, ${sat2}%, 91%))`;
       }
-
       animId = requestAnimationFrame(update);
     };
 
