@@ -6,41 +6,41 @@
 
 @layer base {
   :root {
-    --background: 220 15% 6%;
-    --foreground: 60 5% 75%;
+    --background: 40 20% 96%;
+    --foreground: 220 15% 20%;
 
-    --card: 220 12% 10%;
-    --card-foreground: 60 5% 75%;
+    --card: 40 15% 93%;
+    --card-foreground: 220 15% 20%;
 
-    --popover: 220 12% 10%;
-    --popover-foreground: 60 5% 75%;
+    --popover: 40 15% 93%;
+    --popover-foreground: 220 15% 20%;
 
-    --primary: 160 40% 55%;
-    --primary-foreground: 220 15% 6%;
+    --primary: 220 60% 45%;
+    --primary-foreground: 40 20% 96%;
 
-    --secondary: 220 10% 14%;
-    --secondary-foreground: 60 5% 65%;
+    --secondary: 40 10% 90%;
+    --secondary-foreground: 220 15% 30%;
 
-    --muted: 220 10% 12%;
-    --muted-foreground: 220 8% 40%;
+    --muted: 40 10% 90%;
+    --muted-foreground: 220 8% 55%;
 
-    --accent: 45 60% 60%;
-    --accent-foreground: 220 15% 6%;
+    --accent: 12 70% 55%;
+    --accent-foreground: 40 20% 96%;
 
     --destructive: 0 60% 50%;
-    --destructive-foreground: 60 5% 90%;
+    --destructive-foreground: 40 20% 96%;
 
-    --border: 220 10% 18%;
-    --input: 220 10% 18%;
-    --ring: 160 40% 55%;
+    --border: 40 10% 85%;
+    --input: 40 10% 85%;
+    --ring: 220 60% 45%;
 
     --radius: 0.25rem;
 
     --font-mono: 'Space Mono', 'IBM Plex Mono', monospace;
     --font-body: 'IBM Plex Mono', monospace;
 
-    --boid-color: 160 40% 55%;
-    --boid-trail: 160 30% 25%;
+    --boid-color: 220 50% 40%;
+    --boid-trail: 220 30% 70%;
   }
 }
 

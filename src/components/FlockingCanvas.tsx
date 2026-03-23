@@ -144,12 +144,11 @@ const FlockingCanvas = () => {
         ctx.lineTo(-size, size * 0.7);
         ctx.closePath();
 
-        ctx.fillStyle = `hsla(160, 40%, 55%, ${alpha})`;
+        ctx.fillStyle = `hsla(220, 50%, 40%, ${alpha})`;
         ctx.fill();
 
-        // Tiny glow
-        ctx.shadowColor = "hsla(160, 40%, 55%, 0.3)";
-        ctx.shadowBlur = 6;
+        ctx.shadowColor = "hsla(220, 50%, 40%, 0.15)";
+        ctx.shadowBlur = 4;
         ctx.fill();
 
         ctx.restore();
