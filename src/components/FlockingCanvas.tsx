@@ -199,6 +199,9 @@ function Boids() {
       vy[i] -= py[i] * CENTER_PULL;
       vz[i] -= pz[i] * CENTER_PULL;
 
+      // Flatten in z — discourage depth spread
+      vz[i] -= pz[i] * Z_FLATTEN;
+
       // Mouse avoidance
       if (mouseActive.current) {
         const mx = px[i] - mouseWorld.current.x;
