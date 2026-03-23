@@ -7,80 +7,108 @@ const BOID_COUNT = 3000;
 const MAX_SPEED = 0.28;
 const MIN_SPEED = 0.1;
 const VISUAL_RANGE = 3.5;
+const VISUAL_RANGE_SQ = VISUAL_RANGE * VISUAL_RANGE;
 const SEPARATION_DIST = 0.6;
+const SEPARATION_DIST_SQ = SEPARATION_DIST * SEPARATION_DIST;
 const COHESION_FACTOR = 0.006;
-const ALIGNMENT_FACTOR = 0.04; // reduced — was causing lock-step
+const ALIGNMENT_FACTOR = 0.04;
 const SEPARATION_FACTOR = 0.07;
 const BOUNDS = 25;
 const CENTER_PULL = 0.0005;
 const MOUSE_RANGE = 8;
+const MOUSE_RANGE_SQ = MOUSE_RANGE * MOUSE_RANGE;
 const MOUSE_FACTOR = 0.03;
 const Z_FLATTEN = 0.002;
 const JITTER = 0.008;
-const WIND_STRENGTH = 0; // disabled for now
-const WIND_CYCLE = 0.0003; // how fast wind direction shifts
 
-// Spatial hash grid for O(n) neighbor lookups
+// Integer-keyed spatial hash — avoids string alloc per cell
 class SpatialGrid {
   cellSize: number;
-  cells: Map<string, number[]>;
+  invCellSize: number;
+  cells: Map<number, Int32Array>;
+  counts: Map<number, number>;
+  // Pre-allocated neighbor buffer
+  neighborBuf: Int32Array;
+  neighborCount: number;
 
-  constructor(cellSize: number) {
+  constructor(cellSize: number, maxNeighbors: number) {
     this.cellSize = cellSize;
+    this.invCellSize = 1 / cellSize;
     this.cells = new Map();
+    this.counts = new Map();
+    this.neighborBuf = new Int32Array(maxNeighbors);
+    this.neighborCount = 0;
   }
 
   clear() {
-    this.cells.clear();
+    // Reset counts instead of clearing map — reuse allocated arrays
+    this.counts.forEach((_, k) => this.counts.set(k, 0));
   }
 
-  key(x: number, y: number, z: number): string {
-    const cs = this.cellSize;
-    return `${Math.floor(x / cs)},${Math.floor(y / cs)},${Math.floor(z / cs)}`;
+  // Spatial hash using integer math — no string allocation
+  hash(ix: number, iy: number, iz: number): number {
+    // Large primes for spatial hashing
+    return ((ix * 73856093) ^ (iy * 19349663) ^ (iz * 83492791)) | 0;
   }
 
   insert(index: number, x: number, y: number, z: number) {
-    const k = this.key(x, y, z);
+    const ix = Math.floor(x * this.invCellSize);
+    const iy = Math.floor(y * this.invCellSize);
+    const iz = Math.floor(z * this.invCellSize);
+    const k = this.hash(ix, iy, iz);
+
     let cell = this.cells.get(k);
+    let count = this.counts.get(k) || 0;
+
     if (!cell) {
-      cell = [];
+      cell = new Int32Array(64); // pre-allocate reasonable capacity
+      this.cells.set(k, cell);
+    } else if (count >= cell.length) {
+      const newCell = new Int32Array(cell.length * 2);
+      newCell.set(cell);
+      cell = newCell;
       this.cells.set(k, cell);
     }
-    cell.push(index);
+
+    cell[count] = index;
+    this.counts.set(k, count + 1);
   }
 
-  query(x: number, y: number, z: number, range: number): number[] {
-    const results: number[] = [];
-    const cs = this.cellSize;
-    const minX = Math.floor((x - range) / cs);
-    const maxX = Math.floor((x + range) / cs);
-    const minY = Math.floor((y - range) / cs);
-    const maxY = Math.floor((y + range) / cs);
-    const minZ = Math.floor((z - range) / cs);
-    const maxZ = Math.floor((z + range) / cs);
+  // Query neighbors into pre-allocated buffer — zero allocation
+  queryInto(x: number, y: number, z: number, range: number): number {
+    let total = 0;
+    const inv = this.invCellSize;
+    const minX = Math.floor((x - range) * inv);
+    const maxX = Math.floor((x + range) * inv);
+    const minY = Math.floor((y - range) * inv);
+    const maxY = Math.floor((y + range) * inv);
+    const minZ = Math.floor((z - range) * inv);
+    const maxZ = Math.floor((z + range) * inv);
+    const buf = this.neighborBuf;
 
     for (let cx = minX; cx <= maxX; cx++) {
       for (let cy = minY; cy <= maxY; cy++) {
         for (let cz = minZ; cz <= maxZ; cz++) {
-          const cell = this.cells.get(`${cx},${cy},${cz}`);
-          if (cell) {
-            for (let i = 0; i < cell.length; i++) {
-              results.push(cell[i]);
-            }
+          const k = this.hash(cx, cy, cz);
+          const count = this.counts.get(k);
+          if (!count) continue;
+          const cell = this.cells.get(k)!;
+          for (let i = 0; i < count; i++) {
+            buf[total++] = cell[i];
           }
         }
       }
     }
-    return results;
+    this.neighborCount = total;
+    return total;
   }
 }
 
 // --- Boids component using InstancedMesh ---
 function Boids() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const { size, camera } = useThree();
+  const { camera } = useThree();
 
-  // Flat arrays for position & velocity (SoA for cache performance)
   const state = useMemo(() => {
     const px = new Float32Array(BOID_COUNT);
     const py = new Float32Array(BOID_COUNT);
@@ -92,7 +120,7 @@ function Boids() {
     for (let i = 0; i < BOID_COUNT; i++) {
       px[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
       py[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
-      pz[i] = (Math.random() - 0.5) * BOUNDS * 0.15; // start flattened in z
+      pz[i] = (Math.random() - 0.5) * BOUNDS * 0.15;
       const angle1 = Math.random() * Math.PI * 2;
       const angle2 = Math.random() * Math.PI * 2;
       const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
@@ -104,14 +132,14 @@ function Boids() {
     return { px, py, pz, vx, vy, vz };
   }, []);
 
-  const grid = useMemo(() => new SpatialGrid(VISUAL_RANGE), []);
+  const grid = useMemo(() => new SpatialGrid(VISUAL_RANGE, BOID_COUNT * 4), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0));
-  const frameCount = useRef(0);
   const mouseActive = useRef(false);
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const mouseNDC = useRef(new THREE.Vector2(0, 0));
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
+  const rayTarget = useMemo(() => new THREE.Vector3(), []);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     mouseNDC.current.x = (e.clientX / window.innerWidth) * 2 - 1;
@@ -135,21 +163,14 @@ function Boids() {
   useFrame(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
-    frameCount.current++;
-    const t = frameCount.current;
 
     const { px, py, pz, vx, vy, vz } = state;
 
-    // Wind — slowly rotating force that breaks stable patterns
-    const windX = Math.sin(t * WIND_CYCLE) * WIND_STRENGTH + Math.sin(t * WIND_CYCLE * 2.7) * WIND_STRENGTH * 0.4;
-    const windY = Math.cos(t * WIND_CYCLE * 1.3) * WIND_STRENGTH + Math.cos(t * WIND_CYCLE * 3.1) * WIND_STRENGTH * 0.3;
-
-    // Update mouse world position
+    // Update mouse world position — reuse rayTarget
     if (mouseActive.current) {
       raycaster.setFromCamera(mouseNDC.current, camera);
-      const target = new THREE.Vector3();
-      raycaster.ray.intersectPlane(plane, target);
-      if (target) mouseWorld.current.copy(target);
+      raycaster.ray.intersectPlane(plane, rayTarget);
+      if (rayTarget) mouseWorld.current.copy(rayTarget);
     }
 
     // Build spatial grid
@@ -158,32 +179,39 @@ function Boids() {
       grid.insert(i, px[i], py[i], pz[i]);
     }
 
+    const mouseAct = mouseActive.current;
+    const mwx = mouseWorld.current.x;
+    const mwy = mouseWorld.current.y;
+    const half = BOUNDS / 2;
+    const buf = grid.neighborBuf;
+
     // Update boids
     for (let i = 0; i < BOID_COUNT; i++) {
       let cohX = 0, cohY = 0, cohZ = 0, cohCount = 0;
       let aliVx = 0, aliVy = 0, aliVz = 0, aliCount = 0;
       let sepX = 0, sepY = 0, sepZ = 0;
 
-      const neighbors = grid.query(px[i], py[i], pz[i], VISUAL_RANGE);
+      const pxi = px[i], pyi = py[i], pzi = pz[i];
+      const nCount = grid.queryInto(pxi, pyi, pzi, VISUAL_RANGE);
 
-      for (let ni = 0; ni < neighbors.length; ni++) {
-        const j = neighbors[ni];
+      for (let ni = 0; ni < nCount; ni++) {
+        const j = buf[ni];
         if (i === j) continue;
 
-        const dx = px[j] - px[i];
-        const dy = py[j] - py[i];
-        const dz = pz[j] - pz[i];
-        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        const dx = px[j] - pxi;
+        const dy = py[j] - pyi;
+        const dz = pz[j] - pzi;
+        const distSq = dx * dx + dy * dy + dz * dz;
 
-        if (dist < VISUAL_RANGE) {
+        if (distSq < VISUAL_RANGE_SQ) {
           cohX += dx; cohY += dy; cohZ += dz;
           cohCount++;
           aliVx += vx[j]; aliVy += vy[j]; aliVz += vz[j];
           aliCount++;
         }
 
-        if (dist < SEPARATION_DIST && dist > 0) {
-          const f = 1 / dist;
+        if (distSq < SEPARATION_DIST_SQ && distSq > 0) {
+          const f = 1 / distSq; // use 1/distSq instead of 1/dist — avoids sqrt
           sepX -= dx * f;
           sepY -= dy * f;
           sepZ -= dz * f;
@@ -191,52 +219,56 @@ function Boids() {
       }
 
       if (cohCount > 0) {
-        vx[i] += (cohX / cohCount) * COHESION_FACTOR;
-        vy[i] += (cohY / cohCount) * COHESION_FACTOR;
-        vz[i] += (cohZ / cohCount) * COHESION_FACTOR;
+        const inv = 1 / cohCount;
+        vx[i] += cohX * inv * COHESION_FACTOR;
+        vy[i] += cohY * inv * COHESION_FACTOR;
+        vz[i] += cohZ * inv * COHESION_FACTOR;
       }
       if (aliCount > 0) {
-        vx[i] += ((aliVx / aliCount) - vx[i]) * ALIGNMENT_FACTOR;
-        vy[i] += ((aliVy / aliCount) - vy[i]) * ALIGNMENT_FACTOR;
-        vz[i] += ((aliVz / aliCount) - vz[i]) * ALIGNMENT_FACTOR;
+        const inv = 1 / aliCount;
+        vx[i] += (aliVx * inv - vx[i]) * ALIGNMENT_FACTOR;
+        vy[i] += (aliVy * inv - vy[i]) * ALIGNMENT_FACTOR;
+        vz[i] += (aliVz * inv - vz[i]) * ALIGNMENT_FACTOR;
       }
       vx[i] += sepX * SEPARATION_FACTOR;
       vy[i] += sepY * SEPARATION_FACTOR;
       vz[i] += sepZ * SEPARATION_FACTOR;
 
-      // Soft boundary — pull toward center
-      vx[i] -= px[i] * CENTER_PULL;
-      vy[i] -= py[i] * CENTER_PULL;
-      vz[i] -= pz[i] * CENTER_PULL;
+      // Soft boundary
+      vx[i] -= pxi * CENTER_PULL;
+      vy[i] -= pyi * CENTER_PULL;
+      vz[i] -= pzi * CENTER_PULL;
 
-      // Flatten in z — discourage depth spread
-      vz[i] -= pz[i] * Z_FLATTEN;
+      // Flatten z
+      vz[i] -= pzi * Z_FLATTEN;
 
       // Mouse avoidance
-      if (mouseActive.current) {
-        const mx = px[i] - mouseWorld.current.x;
-        const my = py[i] - mouseWorld.current.y;
-        const mDist = Math.sqrt(mx * mx + my * my + pz[i] * pz[i]);
-        if (mDist < MOUSE_RANGE && mDist > 0) {
+      if (mouseAct) {
+        const mx = pxi - mwx;
+        const my = pyi - mwy;
+        const mDistSq = mx * mx + my * my + pzi * pzi;
+        if (mDistSq < MOUSE_RANGE_SQ && mDistSq > 0) {
+          const mDist = Math.sqrt(mDistSq);
           const force = ((MOUSE_RANGE - mDist) / MOUSE_RANGE) ** 2;
-          vx[i] += (mx / mDist) * force * MOUSE_FACTOR;
-          vy[i] += (my / mDist) * force * MOUSE_FACTOR;
-          vz[i] += (pz[i] / mDist) * force * MOUSE_FACTOR;
+          const invD = 1 / mDist;
+          vx[i] += mx * invD * force * MOUSE_FACTOR;
+          vy[i] += my * invD * force * MOUSE_FACTOR;
+          vz[i] += pzi * invD * force * MOUSE_FACTOR;
         }
       }
 
-      // Random jitter + wind
-      vx[i] += (Math.random() - 0.5) * JITTER + windX;
-      vy[i] += (Math.random() - 0.5) * JITTER + windY;
+      // Random jitter
+      vx[i] += (Math.random() - 0.5) * JITTER;
+      vy[i] += (Math.random() - 0.5) * JITTER;
       vz[i] += (Math.random() - 0.5) * JITTER * 0.3;
 
       // Limit speed
-      const speed = Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i]);
-      if (speed > MAX_SPEED) {
-        const f = MAX_SPEED / speed;
+      const speedSq = vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i];
+      if (speedSq > MAX_SPEED * MAX_SPEED) {
+        const f = MAX_SPEED / Math.sqrt(speedSq);
         vx[i] *= f; vy[i] *= f; vz[i] *= f;
-      } else if (speed < MIN_SPEED && speed > 0) {
-        const f = MIN_SPEED / speed;
+      } else if (speedSq < MIN_SPEED * MIN_SPEED && speedSq > 0) {
+        const f = MIN_SPEED / Math.sqrt(speedSq);
         vx[i] *= f; vy[i] *= f; vz[i] *= f;
       }
 
@@ -246,7 +278,6 @@ function Boids() {
       pz[i] += vz[i];
 
       // Wrap
-      const half = BOUNDS / 2;
       if (px[i] > half) px[i] -= BOUNDS;
       if (px[i] < -half) px[i] += BOUNDS;
       if (py[i] > half) py[i] -= BOUNDS;
@@ -259,9 +290,8 @@ function Boids() {
     for (let i = 0; i < BOID_COUNT; i++) {
       dummy.position.set(px[i], py[i], pz[i]);
 
-      // Orient boid along velocity
-      const speed = Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i]);
-      if (speed > 0.001) {
+      const speedSq = vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i];
+      if (speedSq > 0.000001) {
         dummy.lookAt(px[i] + vx[i], py[i] + vy[i], pz[i] + vz[i]);
       }
 
@@ -271,7 +301,6 @@ function Boids() {
     mesh.instanceMatrix.needsUpdate = true;
   });
 
-  // Small elongated shape like a bird silhouette
   const geometry = useMemo(() => {
     const geo = new THREE.ConeGeometry(0.032, 0.16, 3);
     geo.rotateX(Math.PI / 2);
@@ -285,7 +314,7 @@ function Boids() {
   );
 }
 
-// --- Noise overlay as a CSS layer ---
+// --- Noise overlay ---
 function NoiseOverlay() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -312,12 +341,7 @@ function NoiseOverlay() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none"
-      style={{
-        zIndex: 2,
-        width: "100%",
-        height: "100%",
-        opacity: 1,
-      }}
+      style={{ zIndex: 2, width: "100%", height: "100%", opacity: 1 }}
     />
   );
 }
@@ -356,13 +380,7 @@ function GradientBackground() {
     return () => cancelAnimationFrame(animId);
   }, []);
 
-  return (
-    <div
-      ref={divRef}
-      className="fixed inset-0"
-      style={{ zIndex: -1 }}
-    />
-  );
+  return <div ref={divRef} className="fixed inset-0" style={{ zIndex: -1 }} />;
 }
 
 // --- Main export ---
@@ -373,8 +391,8 @@ const FlockingCanvas = () => {
       <Canvas
         camera={{ position: [0, 0, 65], fov: 50 }}
         style={{ position: "fixed", inset: 0, zIndex: 1 }}
-        gl={{ alpha: true, antialias: true }}
-        dpr={[1, 2]}
+        gl={{ alpha: true, antialias: false }}
+        dpr={[1, 1.5]}
       >
         <Boids />
       </Canvas>
