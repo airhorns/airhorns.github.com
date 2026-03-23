@@ -4,8 +4,8 @@ import * as THREE from "three";
 
 // --- Simulation constants ---
 const BOID_COUNT = 3000;
-const MAX_SPEED = 0.4;
-const MIN_SPEED = 0.15;
+const MAX_SPEED = 0.28;
+const MIN_SPEED = 0.1;
 const VISUAL_RANGE = 3.5;
 const SEPARATION_DIST = 1.0;
 const COHESION_FACTOR = 0.006;
