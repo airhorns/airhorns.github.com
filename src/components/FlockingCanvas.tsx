@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 // --- Simulation constants ---
-const BOID_COUNT = 800;
+const BOID_COUNT = 3000;
 const MAX_SPEED = 0.4;
 const MIN_SPEED = 0.15;
 const VISUAL_RANGE = 3.5;
