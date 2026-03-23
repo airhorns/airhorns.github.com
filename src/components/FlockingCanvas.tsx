@@ -357,7 +357,7 @@ const FlockingCanvas = () => {
     <>
       <GradientBackground />
       <Canvas
-        camera={{ position: [0, 0, 30], fov: 60 }}
+        camera={{ position: [0, 0, 65], fov: 50 }}
         style={{ position: "fixed", inset: 0, zIndex: 1 }}
         gl={{ alpha: true, antialias: true }}
         dpr={[1, 2]}
