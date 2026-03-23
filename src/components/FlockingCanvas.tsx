@@ -17,7 +17,7 @@ const MOUSE_RANGE = 8;
 const MOUSE_FACTOR = 0.03;
 const Z_FLATTEN = 0.002;
 const JITTER = 0.008;
-const WIND_STRENGTH = 0.012;
+const WIND_STRENGTH = 0; // disabled for now
 const WIND_CYCLE = 0.0003; // how fast wind direction shifts
 
 // Spatial hash grid for O(n) neighbor lookups
