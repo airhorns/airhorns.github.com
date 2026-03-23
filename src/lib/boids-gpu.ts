@@ -181,6 +181,8 @@ export interface SimParams {
   bounds: number;
   centerPull: number;
   zFlatten: number;
+  edgeMargin: number;
+  edgeForce: number;
   jitter: number;
   mouseX: number;
   mouseY: number;

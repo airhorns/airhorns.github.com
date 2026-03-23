@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect, useCallback, useState } from "react";
+import { useRef, useMemo, useEffect, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { initBoidGPU, stepBoidGPU, destroyBoidGPU, type BoidGPUState, type SimParams } from "@/lib/boids-gpu";
