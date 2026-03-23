@@ -324,7 +324,7 @@ export async function stepBoidGPU(
   device.queue.submit([encoder.finish()]);
 
   // Map and read positions
-  await readBuf.mapAsync(GPUMapMode.READ);
+  await readBuf.mapAsync(1); // GPUMapMode.READ = 1
   const data = new Float32Array(readBuf.getMappedRange().slice(0));
   readBuf.unmap();
 
