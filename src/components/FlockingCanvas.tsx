@@ -135,8 +135,14 @@ function Boids() {
   useFrame(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
+    frameCount.current++;
+    const t = frameCount.current;
 
     const { px, py, pz, vx, vy, vz } = state;
+
+    // Wind — slowly rotating force that breaks stable patterns
+    const windX = Math.sin(t * WIND_CYCLE) * WIND_STRENGTH + Math.sin(t * WIND_CYCLE * 2.7) * WIND_STRENGTH * 0.4;
+    const windY = Math.cos(t * WIND_CYCLE * 1.3) * WIND_STRENGTH + Math.cos(t * WIND_CYCLE * 3.1) * WIND_STRENGTH * 0.3;
 
     // Update mouse world position
     if (mouseActive.current) {
