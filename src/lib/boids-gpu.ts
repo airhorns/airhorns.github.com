@@ -223,7 +223,7 @@ export async function initBoidGPU(
     return buf;
   };
 
-  const storageUsage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC;
+  const storageUsage = GPU_STORAGE | GPU_COPY_SRC;
   const posBuf0 = createBuf(posData, storageUsage);
   const posBuf1 = createBuf(posData, storageUsage);
   const velBuf0 = createBuf(velData, storageUsage);
