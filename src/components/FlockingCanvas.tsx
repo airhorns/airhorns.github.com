@@ -1,310 +1,367 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useRef, useMemo, useEffect, useCallback } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
 
-interface Boid {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  hue: number;
-  baseSize: number;
-  trail: { x: number; y: number }[];
-}
+// --- Simulation constants ---
+const BOID_COUNT = 800;
+const MAX_SPEED = 0.8;
+const MIN_SPEED = 0.3;
+const VISUAL_RANGE = 4;
+const SEPARATION_DIST = 1.2;
+const COHESION_FACTOR = 0.005;
+const ALIGNMENT_FACTOR = 0.06;
+const SEPARATION_FACTOR = 0.08;
+const BOUNDS = 40;
+const CENTER_PULL = 0.0003;
+const MOUSE_RANGE = 12;
+const MOUSE_FACTOR = 0.04;
 
-const BOID_COUNT = 160;
-const TRAIL_LENGTH = 24;
-const MAX_SPEED = 2.2;
-const MIN_SPEED = 0.8;
-const VISUAL_RANGE = 80;
-const SEPARATION_DIST = 30;
-const COHESION_FACTOR = 0.003;
-const ALIGNMENT_FACTOR = 0.045;
-const SEPARATION_FACTOR = 0.05;
-const MOUSE_RANGE = 250;
-const MOUSE_FACTOR = 0.18;
+// Spatial hash grid for O(n) neighbor lookups
+class SpatialGrid {
+  cellSize: number;
+  cells: Map<string, number[]>;
 
-function createBoid(w: number, h: number): Boid {
-  const angle = Math.random() * Math.PI * 2;
-  const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
-  const x = Math.random() * w;
-  const y = Math.random() * h;
-  return {
-    x, y,
-    vx: Math.cos(angle) * speed,
-    vy: Math.sin(angle) * speed,
-    hue: 210 + (Math.random() - 0.5) * 40,
-    baseSize: 4 + Math.random() * 3,
-    trail: Array.from({ length: TRAIL_LENGTH }, () => ({ x, y })),
-  };
-}
-
-function limitSpeed(boid: Boid) {
-  const speed = Math.sqrt(boid.vx * boid.vx + boid.vy * boid.vy);
-  if (speed > MAX_SPEED) {
-    boid.vx = (boid.vx / speed) * MAX_SPEED;
-    boid.vy = (boid.vy / speed) * MAX_SPEED;
+  constructor(cellSize: number) {
+    this.cellSize = cellSize;
+    this.cells = new Map();
   }
-  if (speed < MIN_SPEED) {
-    boid.vx = (boid.vx / speed) * MIN_SPEED;
-    boid.vy = (boid.vy / speed) * MIN_SPEED;
+
+  clear() {
+    this.cells.clear();
+  }
+
+  key(x: number, y: number, z: number): string {
+    const cs = this.cellSize;
+    return `${Math.floor(x / cs)},${Math.floor(y / cs)},${Math.floor(z / cs)}`;
+  }
+
+  insert(index: number, x: number, y: number, z: number) {
+    const k = this.key(x, y, z);
+    let cell = this.cells.get(k);
+    if (!cell) {
+      cell = [];
+      this.cells.set(k, cell);
+    }
+    cell.push(index);
+  }
+
+  query(x: number, y: number, z: number, range: number): number[] {
+    const results: number[] = [];
+    const cs = this.cellSize;
+    const minX = Math.floor((x - range) / cs);
+    const maxX = Math.floor((x + range) / cs);
+    const minY = Math.floor((y - range) / cs);
+    const maxY = Math.floor((y + range) / cs);
+    const minZ = Math.floor((z - range) / cs);
+    const maxZ = Math.floor((z + range) / cs);
+
+    for (let cx = minX; cx <= maxX; cx++) {
+      for (let cy = minY; cy <= maxY; cy++) {
+        for (let cz = minZ; cz <= maxZ; cz++) {
+          const cell = this.cells.get(`${cx},${cy},${cz}`);
+          if (cell) {
+            for (let i = 0; i < cell.length; i++) {
+              results.push(cell[i]);
+            }
+          }
+        }
+      }
+    }
+    return results;
   }
 }
 
-function wrapDist(a: number, b: number, size: number): number {
-  let d = b - a;
-  if (d > size / 2) d -= size;
-  if (d < -size / 2) d += size;
-  return d;
-}
+// --- Boids component using InstancedMesh ---
+function Boids() {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const { size, camera } = useThree();
 
-// Generate a static noise texture once
-function createNoiseTexture(w: number, h: number): ImageData {
-  const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext("2d")!;
-  const imageData = ctx.createImageData(w, h);
-  const data = imageData.data;
-  for (let i = 0; i < data.length; i += 4) {
-    const v = Math.random() * 255;
-    data[i] = v;
-    data[i + 1] = v;
-    data[i + 2] = v;
-    data[i + 3] = 12; // very subtle
-  }
-  return imageData;
-}
+  // Flat arrays for position & velocity (SoA for cache performance)
+  const state = useMemo(() => {
+    const px = new Float32Array(BOID_COUNT);
+    const py = new Float32Array(BOID_COUNT);
+    const pz = new Float32Array(BOID_COUNT);
+    const vx = new Float32Array(BOID_COUNT);
+    const vy = new Float32Array(BOID_COUNT);
+    const vz = new Float32Array(BOID_COUNT);
 
-const FlockingCanvas = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const boidsRef = useRef<Boid[]>([]);
-  const animRef = useRef<number>(0);
-  const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
-  const dprRef = useRef(1);
-  const startTime = useRef(Date.now());
-  const noiseRef = useRef<HTMLCanvasElement | null>(null);
+    for (let i = 0; i < BOID_COUNT; i++) {
+      px[i] = (Math.random() - 0.5) * BOUNDS * 0.6;
+      py[i] = (Math.random() - 0.5) * BOUNDS * 0.6;
+      pz[i] = (Math.random() - 0.5) * BOUNDS * 0.6;
+      const angle1 = Math.random() * Math.PI * 2;
+      const angle2 = Math.random() * Math.PI * 2;
+      const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
+      vx[i] = Math.cos(angle1) * Math.cos(angle2) * speed;
+      vy[i] = Math.sin(angle2) * speed;
+      vz[i] = Math.sin(angle1) * Math.cos(angle2) * speed;
+    }
 
-  const init = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    dprRef.current = dpr;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = w + "px";
-    canvas.style.height = h + "px";
-    const ctx = canvas.getContext("2d");
-    if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    boidsRef.current = Array.from({ length: BOID_COUNT }, () => createBoid(w, h));
+    return { px, py, pz, vx, vy, vz };
+  }, []);
 
-    // Create noise overlay canvas
-    const noiseCanvas = document.createElement("canvas");
-    noiseCanvas.width = w;
-    noiseCanvas.height = h;
-    const nctx = noiseCanvas.getContext("2d")!;
-    nctx.putImageData(createNoiseTexture(w, h), 0, 0);
-    noiseRef.current = noiseCanvas;
+  const grid = useMemo(() => new SpatialGrid(VISUAL_RANGE), []);
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  const mouseWorld = useRef(new THREE.Vector3(0, 0, 0));
+  const mouseActive = useRef(false);
+  const raycaster = useMemo(() => new THREE.Raycaster(), []);
+  const mouseNDC = useRef(new THREE.Vector2(0, 0));
+  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    mouseNDC.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseNDC.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    mouseActive.current = true;
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    mouseActive.current = false;
   }, []);
 
   useEffect(() => {
-    init();
-    const handleResize = () => init();
-    window.addEventListener("resize", handleResize);
-
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseRef.current = { x: e.clientX, y: e.clientY, active: true };
-    };
-    const handleMouseLeave = () => {
-      mouseRef.current.active = false;
-    };
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", handleMouseLeave);
-
-    let frameCount = 0;
-
-    const animate = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      const dpr = dprRef.current;
-      const w = canvas.width / dpr;
-      const h = canvas.height / dpr;
-      const boids = boidsRef.current;
-      const mouse = mouseRef.current;
-      frameCount++;
-
-      // Animated gradient background — bolder colors
-      const elapsed = (Date.now() - startTime.current) / 1000;
-      const hue1 = 230 + Math.sin(elapsed * 0.04) * 30;
-      const hue2 = 280 + Math.sin(elapsed * 0.025 + 2) * 40;
-      const hue3 = 190 + Math.sin(elapsed * 0.033 + 4) * 25;
-      const sat1 = 20 + Math.sin(elapsed * 0.02) * 10;
-      const sat2 = 25 + Math.sin(elapsed * 0.03 + 1) * 12;
-
-      const angle = elapsed * 0.008;
-      const cx = w / 2;
-      const cy = h / 2;
-      const gradLen = Math.max(w, h) * 0.8;
-
-      const grad = ctx.createLinearGradient(
-        cx + Math.cos(angle) * gradLen,
-        cy + Math.sin(angle) * gradLen,
-        cx - Math.cos(angle) * gradLen,
-        cy - Math.sin(angle) * gradLen
-      );
-      grad.addColorStop(0, `hsl(${hue1}, ${sat1}%, 93%)`);
-      grad.addColorStop(0.4, `hsl(${hue3}, ${(sat1 + sat2) / 2}%, 94%)`);
-      grad.addColorStop(1, `hsl(${hue2}, ${sat2}%, 91%)`);
-
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, w, h);
-
-      // Noise overlay (re-randomize every ~6 frames for shimmer)
-      if (noiseRef.current) {
-        if (frameCount % 6 === 0) {
-          const nctx = noiseRef.current.getContext("2d")!;
-          nctx.putImageData(createNoiseTexture(w, h), 0, 0);
-        }
-        ctx.drawImage(noiseRef.current, 0, 0);
-      }
-
-      // Update boids
-      for (let i = 0; i < boids.length; i++) {
-        const b = boids[i];
-        let cohX = 0, cohY = 0, cohCount = 0;
-        let aliVx = 0, aliVy = 0, aliCount = 0;
-        let sepX = 0, sepY = 0;
-
-        for (let j = 0; j < boids.length; j++) {
-          if (i === j) continue;
-          const other = boids[j];
-          const dx = wrapDist(b.x, other.x, w);
-          const dy = wrapDist(b.y, other.y, h);
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < VISUAL_RANGE) {
-            cohX += dx;
-            cohY += dy;
-            cohCount++;
-            aliVx += other.vx;
-            aliVy += other.vy;
-            aliCount++;
-          }
-
-          if (dist < SEPARATION_DIST) {
-            sepX -= dx;
-            sepY -= dy;
-          }
-        }
-
-        if (cohCount > 0) {
-          b.vx += (cohX / cohCount) * COHESION_FACTOR;
-          b.vy += (cohY / cohCount) * COHESION_FACTOR;
-        }
-        if (aliCount > 0) {
-          b.vx += ((aliVx / aliCount) - b.vx) * ALIGNMENT_FACTOR;
-          b.vy += ((aliVy / aliCount) - b.vy) * ALIGNMENT_FACTOR;
-        }
-        b.vx += sepX * SEPARATION_FACTOR;
-        b.vy += sepY * SEPARATION_FACTOR;
-
-        // Mouse avoidance
-        if (mouse.active) {
-          const mdx = b.x - mouse.x;
-          const mdy = b.y - mouse.y;
-          const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-          if (mdist < MOUSE_RANGE && mdist > 0) {
-            const force = ((MOUSE_RANGE - mdist) / MOUSE_RANGE) ** 1.5;
-            b.vx += (mdx / mdist) * force * MOUSE_FACTOR;
-            b.vy += (mdy / mdist) * force * MOUSE_FACTOR;
-          }
-        }
-
-        limitSpeed(b);
-
-        // Store trail
-        b.trail.push({ x: b.x, y: b.y });
-        if (b.trail.length > TRAIL_LENGTH) b.trail.shift();
-
-        b.x = (b.x + b.vx + w) % w;
-        b.y = (b.y + b.vy + h) % h;
-      }
-
-      // Draw trails as connected strokes + boid heads
-      for (const b of boids) {
-        const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
-        const t = speed / MAX_SPEED;
-        const sat = 45 + t * 20;
-        const light = 30 + (1 - t) * 20;
-        const trail = b.trail;
-
-        // Draw trail as a tapered stroke
-        if (trail.length > 2) {
-          for (let ti = 1; ti < trail.length; ti++) {
-            const prev = trail[ti - 1];
-            const curr = trail[ti];
-
-            // Skip if wrapping around screen edge
-            if (Math.abs(curr.x - prev.x) > w / 2 || Math.abs(curr.y - prev.y) > h / 2) continue;
-
-            const frac = ti / trail.length;
-            const trailAlpha = frac * frac * 0.4;
-            const lineWidth = b.baseSize * frac * 0.8;
-
-            ctx.beginPath();
-            ctx.moveTo(prev.x, prev.y);
-            ctx.lineTo(curr.x, curr.y);
-            ctx.strokeStyle = `hsla(${b.hue}, ${sat}%, ${light}%, ${trailAlpha})`;
-            ctx.lineWidth = lineWidth;
-            ctx.lineCap = "round";
-            ctx.stroke();
-          }
-        }
-
-        // Draw boid head
-        const angle = Math.atan2(b.vy, b.vx);
-        const alpha = 0.55 + t * 0.45;
-        const s = b.baseSize;
-
-        ctx.save();
-        ctx.translate(b.x, b.y);
-        ctx.rotate(angle);
-
-        ctx.beginPath();
-        ctx.moveTo(s * 2.5, 0);
-        ctx.quadraticCurveTo(s * 0.5, -s * 0.7, -s * 1.2, -s * 0.2);
-        ctx.quadraticCurveTo(-s * 0.2, 0, -s * 1.2, s * 0.2);
-        ctx.quadraticCurveTo(s * 0.5, s * 0.7, s * 2.5, 0);
-        ctx.closePath();
-
-        ctx.fillStyle = `hsla(${b.hue}, ${sat}%, ${light}%, ${alpha})`;
-        ctx.fill();
-
-        ctx.restore();
-      }
-
-      animRef.current = requestAnimationFrame(animate);
-    };
-
-    animRef.current = requestAnimationFrame(animate);
-
     return () => {
-      cancelAnimationFrame(animRef.current);
-      window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", handleMouseLeave);
     };
-  }, [init]);
+  }, [handleMouseMove, handleMouseLeave]);
+
+  useFrame(() => {
+    const mesh = meshRef.current;
+    if (!mesh) return;
+
+    const { px, py, pz, vx, vy, vz } = state;
+
+    // Update mouse world position
+    if (mouseActive.current) {
+      raycaster.setFromCamera(mouseNDC.current, camera);
+      const target = new THREE.Vector3();
+      raycaster.ray.intersectPlane(plane, target);
+      if (target) mouseWorld.current.copy(target);
+    }
+
+    // Build spatial grid
+    grid.clear();
+    for (let i = 0; i < BOID_COUNT; i++) {
+      grid.insert(i, px[i], py[i], pz[i]);
+    }
+
+    // Update boids
+    for (let i = 0; i < BOID_COUNT; i++) {
+      let cohX = 0, cohY = 0, cohZ = 0, cohCount = 0;
+      let aliVx = 0, aliVy = 0, aliVz = 0, aliCount = 0;
+      let sepX = 0, sepY = 0, sepZ = 0;
+
+      const neighbors = grid.query(px[i], py[i], pz[i], VISUAL_RANGE);
+
+      for (let ni = 0; ni < neighbors.length; ni++) {
+        const j = neighbors[ni];
+        if (i === j) continue;
+
+        const dx = px[j] - px[i];
+        const dy = py[j] - py[i];
+        const dz = pz[j] - pz[i];
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+
+        if (dist < VISUAL_RANGE) {
+          cohX += dx; cohY += dy; cohZ += dz;
+          cohCount++;
+          aliVx += vx[j]; aliVy += vy[j]; aliVz += vz[j];
+          aliCount++;
+        }
+
+        if (dist < SEPARATION_DIST && dist > 0) {
+          const f = 1 / dist;
+          sepX -= dx * f;
+          sepY -= dy * f;
+          sepZ -= dz * f;
+        }
+      }
+
+      if (cohCount > 0) {
+        vx[i] += (cohX / cohCount) * COHESION_FACTOR;
+        vy[i] += (cohY / cohCount) * COHESION_FACTOR;
+        vz[i] += (cohZ / cohCount) * COHESION_FACTOR;
+      }
+      if (aliCount > 0) {
+        vx[i] += ((aliVx / aliCount) - vx[i]) * ALIGNMENT_FACTOR;
+        vy[i] += ((aliVy / aliCount) - vy[i]) * ALIGNMENT_FACTOR;
+        vz[i] += ((aliVz / aliCount) - vz[i]) * ALIGNMENT_FACTOR;
+      }
+      vx[i] += sepX * SEPARATION_FACTOR;
+      vy[i] += sepY * SEPARATION_FACTOR;
+      vz[i] += sepZ * SEPARATION_FACTOR;
+
+      // Soft boundary — pull toward center
+      vx[i] -= px[i] * CENTER_PULL;
+      vy[i] -= py[i] * CENTER_PULL;
+      vz[i] -= pz[i] * CENTER_PULL;
+
+      // Mouse avoidance
+      if (mouseActive.current) {
+        const mx = px[i] - mouseWorld.current.x;
+        const my = py[i] - mouseWorld.current.y;
+        const mDist = Math.sqrt(mx * mx + my * my + pz[i] * pz[i]);
+        if (mDist < MOUSE_RANGE && mDist > 0) {
+          const force = ((MOUSE_RANGE - mDist) / MOUSE_RANGE) ** 2;
+          vx[i] += (mx / mDist) * force * MOUSE_FACTOR;
+          vy[i] += (my / mDist) * force * MOUSE_FACTOR;
+          vz[i] += (pz[i] / mDist) * force * MOUSE_FACTOR;
+        }
+      }
+
+      // Limit speed
+      const speed = Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i]);
+      if (speed > MAX_SPEED) {
+        const f = MAX_SPEED / speed;
+        vx[i] *= f; vy[i] *= f; vz[i] *= f;
+      } else if (speed < MIN_SPEED && speed > 0) {
+        const f = MIN_SPEED / speed;
+        vx[i] *= f; vy[i] *= f; vz[i] *= f;
+      }
+
+      // Move
+      px[i] += vx[i];
+      py[i] += vy[i];
+      pz[i] += vz[i];
+
+      // Wrap
+      const half = BOUNDS / 2;
+      if (px[i] > half) px[i] -= BOUNDS;
+      if (px[i] < -half) px[i] += BOUNDS;
+      if (py[i] > half) py[i] -= BOUNDS;
+      if (py[i] < -half) py[i] += BOUNDS;
+      if (pz[i] > half) pz[i] -= BOUNDS;
+      if (pz[i] < -half) pz[i] += BOUNDS;
+    }
+
+    // Update instance matrices
+    for (let i = 0; i < BOID_COUNT; i++) {
+      dummy.position.set(px[i], py[i], pz[i]);
+
+      // Orient boid along velocity
+      const speed = Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i]);
+      if (speed > 0.001) {
+        dummy.lookAt(px[i] + vx[i], py[i] + vy[i], pz[i] + vz[i]);
+      }
+
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+  });
+
+  // Small elongated shape like a bird silhouette
+  const geometry = useMemo(() => {
+    const geo = new THREE.ConeGeometry(0.06, 0.35, 3);
+    geo.rotateX(Math.PI / 2);
+    return geo;
+  }, []);
+
+  return (
+    <instancedMesh ref={meshRef} args={[geometry, undefined, BOID_COUNT]}>
+      <meshBasicMaterial color="#1a1a2e" transparent opacity={0.85} />
+    </instancedMesh>
+  );
+}
+
+// --- Noise overlay as a CSS layer ---
+function NoiseOverlay() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const size = 256;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+    const imageData = ctx.createImageData(size, size);
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      const v = Math.random() * 255;
+      data[i] = v;
+      data[i + 1] = v;
+      data[i + 2] = v;
+      data[i + 3] = 14;
+    }
+    ctx.putImageData(imageData, 0, 0);
+  }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0"
-      style={{ zIndex: 0 }}
+      className="fixed inset-0 pointer-events-none"
+      style={{
+        zIndex: 2,
+        width: "100%",
+        height: "100%",
+        imageRendering: "pixelated",
+        opacity: 1,
+      }}
     />
+  );
+}
+
+// --- Gradient background ---
+function GradientBackground() {
+  const elapsed = useRef(0);
+  const divRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let animId: number;
+    const start = Date.now();
+
+    const update = () => {
+      elapsed.current = (Date.now() - start) / 1000;
+      const t = elapsed.current;
+
+      const hue1 = 230 + Math.sin(t * 0.04) * 30;
+      const hue2 = 280 + Math.sin(t * 0.025 + 2) * 40;
+      const hue3 = 190 + Math.sin(t * 0.033 + 4) * 25;
+      const sat1 = 20 + Math.sin(t * 0.02) * 10;
+      const sat2 = 25 + Math.sin(t * 0.03 + 1) * 12;
+      const angle = (t * 3) % 360;
+
+      if (divRef.current) {
+        divRef.current.style.background = `linear-gradient(${angle}deg, 
+          hsl(${hue1}, ${sat1}%, 93%), 
+          hsl(${hue3}, ${(sat1 + sat2) / 2}%, 94%), 
+          hsl(${hue2}, ${sat2}%, 91%))`;
+      }
+
+      animId = requestAnimationFrame(update);
+    };
+
+    animId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
+  return (
+    <div
+      ref={divRef}
+      className="fixed inset-0"
+      style={{ zIndex: -1 }}
+    />
+  );
+}
+
+// --- Main export ---
+const FlockingCanvas = () => {
+  return (
+    <>
+      <GradientBackground />
+      <Canvas
+        camera={{ position: [0, 0, 30], fov: 60 }}
+        style={{ position: "fixed", inset: 0, zIndex: 1 }}
+        gl={{ alpha: true, antialias: true }}
+        dpr={[1, 2]}
+      >
+        <Boids />
+      </Canvas>
+      <NoiseOverlay />
+    </>
   );
 };
 
