@@ -102,8 +102,9 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   }
   newVel += sepSum * params.separationFactor;
 
-  // Soft boundary + edge steering
-  newVel -= myPos * params.centerPull;
+  // Quadratic center pull — gentle near center, strong when far
+  let dist2center = length(myPos);
+  newVel -= myPos * params.centerPull * (1.0 + dist2center * 0.15);
   newVel.z -= myPos.z * params.zFlatten;
 
   var ef = vec3<f32>(0.0);
