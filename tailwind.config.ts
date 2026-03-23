@@ -13,7 +13,13 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        mono: ['Space Mono', 'IBM Plex Mono', 'monospace'],
+        body: ['IBM Plex Mono', 'monospace'],
+      },
       colors: {
+        boid: "hsl(var(--boid-color))",
+        "boid-trail": "hsl(var(--boid-trail))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
