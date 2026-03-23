@@ -264,7 +264,7 @@ function Boids() {
 
   // Small elongated shape like a bird silhouette
   const geometry = useMemo(() => {
-    const geo = new THREE.ConeGeometry(0.055, 0.3, 3);
+    const geo = new THREE.ConeGeometry(0.018, 0.1, 3);
     geo.rotateX(Math.PI / 2);
     return geo;
   }, []);
