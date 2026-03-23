@@ -10,8 +10,8 @@ interface Boid {
   trail: { x: number; y: number }[];
 }
 
-const BOID_COUNT = 150;
-const TRAIL_LENGTH = 8;
+const BOID_COUNT = 160;
+const TRAIL_LENGTH = 24;
 const MAX_SPEED = 2.2;
 const MIN_SPEED = 0.8;
 const VISUAL_RANGE = 80;
@@ -56,6 +56,24 @@ function wrapDist(a: number, b: number, size: number): number {
   return d;
 }
 
+// Generate a static noise texture once
+function createNoiseTexture(w: number, h: number): ImageData {
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d")!;
+  const imageData = ctx.createImageData(w, h);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const v = Math.random() * 255;
+    data[i] = v;
+    data[i + 1] = v;
+    data[i + 2] = v;
+    data[i + 3] = 12; // very subtle
+  }
+  return imageData;
+}
+
 const FlockingCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const boidsRef = useRef<Boid[]>([]);
@@ -63,6 +81,7 @@ const FlockingCanvas = () => {
   const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
   const dprRef = useRef(1);
   const startTime = useRef(Date.now());
+  const noiseRef = useRef<HTMLCanvasElement | null>(null);
 
   const init = useCallback(() => {
     const canvas = canvasRef.current;
@@ -78,6 +97,14 @@ const FlockingCanvas = () => {
     const ctx = canvas.getContext("2d");
     if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     boidsRef.current = Array.from({ length: BOID_COUNT }, () => createBoid(w, h));
+
+    // Create noise overlay canvas
+    const noiseCanvas = document.createElement("canvas");
+    noiseCanvas.width = w;
+    noiseCanvas.height = h;
+    const nctx = noiseCanvas.getContext("2d")!;
+    nctx.putImageData(createNoiseTexture(w, h), 0, 0);
+    noiseRef.current = noiseCanvas;
   }, []);
 
   useEffect(() => {
@@ -94,6 +121,8 @@ const FlockingCanvas = () => {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", handleMouseLeave);
 
+    let frameCount = 0;
+
     const animate = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -105,26 +134,42 @@ const FlockingCanvas = () => {
       const h = canvas.height / dpr;
       const boids = boidsRef.current;
       const mouse = mouseRef.current;
+      frameCount++;
 
-      // Animated gradient background
+      // Animated gradient background — bolder colors
       const elapsed = (Date.now() - startTime.current) / 1000;
-      const hue1 = 220 + Math.sin(elapsed * 0.03) * 15;
-      const hue2 = 200 + Math.sin(elapsed * 0.02 + 2) * 20;
-      const sat1 = 8 + Math.sin(elapsed * 0.015) * 4;
-      const sat2 = 12 + Math.sin(elapsed * 0.025 + 1) * 5;
+      const hue1 = 230 + Math.sin(elapsed * 0.04) * 30;
+      const hue2 = 280 + Math.sin(elapsed * 0.025 + 2) * 40;
+      const hue3 = 190 + Math.sin(elapsed * 0.033 + 4) * 25;
+      const sat1 = 20 + Math.sin(elapsed * 0.02) * 10;
+      const sat2 = 25 + Math.sin(elapsed * 0.03 + 1) * 12;
+
+      const angle = elapsed * 0.008;
+      const cx = w / 2;
+      const cy = h / 2;
+      const gradLen = Math.max(w, h) * 0.8;
 
       const grad = ctx.createLinearGradient(
-        w * (0.3 + 0.2 * Math.sin(elapsed * 0.01)),
-        0,
-        w * (0.7 + 0.2 * Math.cos(elapsed * 0.012)),
-        h
+        cx + Math.cos(angle) * gradLen,
+        cy + Math.sin(angle) * gradLen,
+        cx - Math.cos(angle) * gradLen,
+        cy - Math.sin(angle) * gradLen
       );
-      grad.addColorStop(0, `hsl(${hue1}, ${sat1}%, 95.5%)`);
-      grad.addColorStop(0.5, `hsl(${(hue1 + hue2) / 2}, ${(sat1 + sat2) / 2}%, 96%)`);
-      grad.addColorStop(1, `hsl(${hue2}, ${sat2}%, 94.5%)`);
+      grad.addColorStop(0, `hsl(${hue1}, ${sat1}%, 93%)`);
+      grad.addColorStop(0.4, `hsl(${hue3}, ${(sat1 + sat2) / 2}%, 94%)`);
+      grad.addColorStop(1, `hsl(${hue2}, ${sat2}%, 91%)`);
 
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
+
+      // Noise overlay (re-randomize every ~6 frames for shimmer)
+      if (noiseRef.current) {
+        if (frameCount % 6 === 0) {
+          const nctx = noiseRef.current.getContext("2d")!;
+          nctx.putImageData(createNoiseTexture(w, h), 0, 0);
+        }
+        ctx.drawImage(noiseRef.current, 0, 0);
+      }
 
       // Update boids
       for (let i = 0; i < boids.length; i++) {
@@ -180,7 +225,7 @@ const FlockingCanvas = () => {
 
         limitSpeed(b);
 
-        // Store trail before moving
+        // Store trail
         b.trail.push({ x: b.x, y: b.y });
         if (b.trail.length > TRAIL_LENGTH) b.trail.shift();
 
@@ -188,29 +233,40 @@ const FlockingCanvas = () => {
         b.y = (b.y + b.vy + h) % h;
       }
 
-      // Draw trails + boids
+      // Draw trails as connected strokes + boid heads
       for (const b of boids) {
         const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
         const t = speed / MAX_SPEED;
         const sat = 45 + t * 20;
         const light = 30 + (1 - t) * 20;
+        const trail = b.trail;
 
-        // Draw trail as fading dots
-        for (let ti = 0; ti < b.trail.length; ti++) {
-          const tp = b.trail[ti];
-          const frac = ti / b.trail.length;
-          const trailAlpha = frac * 0.25;
-          const trailSize = b.baseSize * frac * 0.5;
+        // Draw trail as a tapered stroke
+        if (trail.length > 2) {
+          for (let ti = 1; ti < trail.length; ti++) {
+            const prev = trail[ti - 1];
+            const curr = trail[ti];
 
-          ctx.beginPath();
-          ctx.arc(tp.x, tp.y, trailSize, 0, Math.PI * 2);
-          ctx.fillStyle = `hsla(${b.hue}, ${sat}%, ${light}%, ${trailAlpha})`;
-          ctx.fill();
+            // Skip if wrapping around screen edge
+            if (Math.abs(curr.x - prev.x) > w / 2 || Math.abs(curr.y - prev.y) > h / 2) continue;
+
+            const frac = ti / trail.length;
+            const trailAlpha = frac * frac * 0.4;
+            const lineWidth = b.baseSize * frac * 0.8;
+
+            ctx.beginPath();
+            ctx.moveTo(prev.x, prev.y);
+            ctx.lineTo(curr.x, curr.y);
+            ctx.strokeStyle = `hsla(${b.hue}, ${sat}%, ${light}%, ${trailAlpha})`;
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = "round";
+            ctx.stroke();
+          }
         }
 
         // Draw boid head
         const angle = Math.atan2(b.vy, b.vx);
-        const alpha = 0.5 + t * 0.5;
+        const alpha = 0.55 + t * 0.45;
         const s = b.baseSize;
 
         ctx.save();
