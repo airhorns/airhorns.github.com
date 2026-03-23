@@ -152,7 +152,6 @@ function Boids() {
     return { px, py, pz, vx, vy, vz };
   }, []);
 
-  const grid = useMemo(() => new SpatialGrid(VISUAL_RANGE, BOID_COUNT * 4), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0));
   const mouseActive = useRef(false);
