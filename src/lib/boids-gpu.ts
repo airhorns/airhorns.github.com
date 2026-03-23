@@ -289,8 +289,8 @@ export async function stepBoidGPU(
   gpu.frame++;
 
   // Write params
-  const paramsData = new Float32Array(24);
-  paramsData[0] = boidCount; // u32 reinterpreted — use DataView
+  const paramsData = new Float32Array(28);
+  paramsData[0] = boidCount;
   paramsData[1] = simParams.maxSpeed;
   paramsData[2] = simParams.minSpeed;
   paramsData[3] = simParams.visualRange;
@@ -303,20 +303,20 @@ export async function stepBoidGPU(
   paramsData[10] = simParams.bounds;
   paramsData[11] = simParams.centerPull;
   paramsData[12] = simParams.zFlatten;
-  paramsData[13] = simParams.jitter;
-  paramsData[14] = simParams.mouseX;
-  paramsData[15] = simParams.mouseY;
-  paramsData[16] = simParams.mouseActive ? 1 : 0; // u32
-  paramsData[17] = simParams.mouseRange;
-  paramsData[18] = simParams.mouseRange * simParams.mouseRange;
-  paramsData[19] = simParams.mouseFactor;
-  paramsData[20] = Math.random() * 1000; // seed
-  // 21-23 padding
+  paramsData[13] = simParams.edgeMargin;
+  paramsData[14] = simParams.edgeForce;
+  paramsData[15] = simParams.jitter;
+  paramsData[16] = simParams.mouseX;
+  paramsData[17] = simParams.mouseY;
+  paramsData[18] = simParams.mouseActive ? 1 : 0;
+  paramsData[19] = simParams.mouseRange;
+  paramsData[20] = simParams.mouseRange * simParams.mouseRange;
+  paramsData[21] = simParams.mouseFactor;
+  paramsData[22] = Math.random() * 1000;
 
-  // Fix u32 fields using DataView
   const dv = new DataView(paramsData.buffer);
-  dv.setUint32(0, boidCount, true);     // boidCount
-  dv.setUint32(16 * 4, simParams.mouseActive ? 1 : 0, true); // mouseActive
+  dv.setUint32(0, boidCount, true);
+  dv.setUint32(18 * 4, simParams.mouseActive ? 1 : 0, true);
 
   device.queue.writeBuffer(paramsBuf, 0, paramsData);
 
