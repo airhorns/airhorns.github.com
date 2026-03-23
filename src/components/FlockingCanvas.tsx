@@ -4,17 +4,18 @@ import * as THREE from "three";
 
 // --- Simulation constants ---
 const BOID_COUNT = 800;
-const MAX_SPEED = 0.8;
-const MIN_SPEED = 0.3;
-const VISUAL_RANGE = 4;
-const SEPARATION_DIST = 1.2;
-const COHESION_FACTOR = 0.005;
-const ALIGNMENT_FACTOR = 0.06;
-const SEPARATION_FACTOR = 0.08;
-const BOUNDS = 40;
-const CENTER_PULL = 0.0003;
-const MOUSE_RANGE = 12;
-const MOUSE_FACTOR = 0.04;
+const MAX_SPEED = 0.6;
+const MIN_SPEED = 0.2;
+const VISUAL_RANGE = 3.5;
+const SEPARATION_DIST = 1.0;
+const COHESION_FACTOR = 0.008;
+const ALIGNMENT_FACTOR = 0.08;
+const SEPARATION_FACTOR = 0.06;
+const BOUNDS = 25;
+const CENTER_PULL = 0.0005;
+const MOUSE_RANGE = 8;
+const MOUSE_FACTOR = 0.03;
+const Z_FLATTEN = 0.002; // extra force pushing boids toward z=0
 
 // Spatial hash grid for O(n) neighbor lookups
 class SpatialGrid {
