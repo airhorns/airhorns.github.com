@@ -8,14 +8,15 @@ const MAX_SPEED = 0.6;
 const MIN_SPEED = 0.2;
 const VISUAL_RANGE = 3.5;
 const SEPARATION_DIST = 1.0;
-const COHESION_FACTOR = 0.008;
-const ALIGNMENT_FACTOR = 0.08;
-const SEPARATION_FACTOR = 0.06;
+const COHESION_FACTOR = 0.006;
+const ALIGNMENT_FACTOR = 0.04; // reduced — was causing lock-step
+const SEPARATION_FACTOR = 0.07;
 const BOUNDS = 25;
 const CENTER_PULL = 0.0005;
 const MOUSE_RANGE = 8;
 const MOUSE_FACTOR = 0.03;
-const Z_FLATTEN = 0.002; // extra force pushing boids toward z=0
+const Z_FLATTEN = 0.002;
+const JITTER = 0.008; // random perturbation to break uniformity
 
 // Spatial hash grid for O(n) neighbor lookups
 class SpatialGrid {
