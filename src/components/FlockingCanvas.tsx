@@ -4,17 +4,18 @@ import * as THREE from "three";
 
 // --- Simulation constants ---
 const BOID_COUNT = 800;
-const MAX_SPEED = 0.8;
-const MIN_SPEED = 0.3;
-const VISUAL_RANGE = 4;
-const SEPARATION_DIST = 1.2;
-const COHESION_FACTOR = 0.005;
-const ALIGNMENT_FACTOR = 0.06;
-const SEPARATION_FACTOR = 0.08;
-const BOUNDS = 40;
-const CENTER_PULL = 0.0003;
-const MOUSE_RANGE = 12;
-const MOUSE_FACTOR = 0.04;
+const MAX_SPEED = 0.6;
+const MIN_SPEED = 0.2;
+const VISUAL_RANGE = 3.5;
+const SEPARATION_DIST = 1.0;
+const COHESION_FACTOR = 0.008;
+const ALIGNMENT_FACTOR = 0.08;
+const SEPARATION_FACTOR = 0.06;
+const BOUNDS = 25;
+const CENTER_PULL = 0.0005;
+const MOUSE_RANGE = 8;
+const MOUSE_FACTOR = 0.03;
+const Z_FLATTEN = 0.002; // extra force pushing boids toward z=0
 
 // Spatial hash grid for O(n) neighbor lookups
 class SpatialGrid {
@@ -86,9 +87,9 @@ function Boids() {
     const vz = new Float32Array(BOID_COUNT);
 
     for (let i = 0; i < BOID_COUNT; i++) {
-      px[i] = (Math.random() - 0.5) * BOUNDS * 0.6;
-      py[i] = (Math.random() - 0.5) * BOUNDS * 0.6;
-      pz[i] = (Math.random() - 0.5) * BOUNDS * 0.6;
+      px[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
+      py[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
+      pz[i] = (Math.random() - 0.5) * BOUNDS * 0.15; // start flattened in z
       const angle1 = Math.random() * Math.PI * 2;
       const angle2 = Math.random() * Math.PI * 2;
       const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
@@ -198,6 +199,9 @@ function Boids() {
       vy[i] -= py[i] * CENTER_PULL;
       vz[i] -= pz[i] * CENTER_PULL;
 
+      // Flatten in z — discourage depth spread
+      vz[i] -= pz[i] * Z_FLATTEN;
+
       // Mouse avoidance
       if (mouseActive.current) {
         const mx = px[i] - mouseWorld.current.x;
@@ -254,7 +258,7 @@ function Boids() {
 
   // Small elongated shape like a bird silhouette
   const geometry = useMemo(() => {
-    const geo = new THREE.ConeGeometry(0.06, 0.35, 3);
+    const geo = new THREE.ConeGeometry(0.035, 0.2, 3);
     geo.rotateX(Math.PI / 2);
     return geo;
   }, []);
@@ -353,7 +357,7 @@ const FlockingCanvas = () => {
     <>
       <GradientBackground />
       <Canvas
-        camera={{ position: [0, 0, 30], fov: 60 }}
+        camera={{ position: [0, 0, 65], fov: 50 }}
         style={{ position: "fixed", inset: 0, zIndex: 1 }}
         gl={{ alpha: true, antialias: true }}
         dpr={[1, 2]}
