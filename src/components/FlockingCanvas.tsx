@@ -216,6 +216,11 @@ function Boids() {
         }
       }
 
+      // Random jitter to break lock-step
+      vx[i] += (Math.random() - 0.5) * JITTER;
+      vy[i] += (Math.random() - 0.5) * JITTER;
+      vz[i] += (Math.random() - 0.5) * JITTER * 0.3;
+
       // Limit speed
       const speed = Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i]);
       if (speed > MAX_SPEED) {
