@@ -131,10 +131,10 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     }
   }
 
-  // Jitter
-  let r1 = balancedJitter(params.seed, i, 0.0);
-  let r2 = balancedJitter(params.seed, i, 1.0);
-  let r3 = balancedJitter(params.seed, i, 2.0);
+  // Jitter (independent per boid, zero-mean via (rand-0.5))
+  let r1 = rand(params.seed, fi * 3.0) - 0.5;
+  let r2 = rand(params.seed, fi * 3.0 + 1.0) - 0.5;
+  let r3 = rand(params.seed, fi * 3.0 + 2.0) - 0.5;
   newVel += vec3<f32>(r1 * params.jitter, r2 * params.jitter, r3 * params.jitter * 0.3);
 
   // Speed limits
