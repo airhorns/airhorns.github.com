@@ -155,6 +155,7 @@ function Boids() {
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0));
   const mouseActive = useRef(false);
+  const hasRealPointerMove = useRef(false);
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const mouseNDC = useRef(new THREE.Vector2(0, 0));
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
@@ -199,6 +200,11 @@ function Boids() {
   }, [state]);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!hasRealPointerMove.current) {
+      if (e.movementX === 0 && e.movementY === 0) return;
+      hasRealPointerMove.current = true;
+    }
+
     mouseNDC.current.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouseNDC.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
     mouseActive.current = true;
