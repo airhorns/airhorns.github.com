@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 // --- Simulation constants ---
-const BOID_COUNT = 800;
+const BOID_COUNT = 3000;
 const MAX_SPEED = 0.4;
 const MIN_SPEED = 0.15;
 const VISUAL_RANGE = 3.5;
@@ -264,7 +264,7 @@ function Boids() {
 
   // Small elongated shape like a bird silhouette
   const geometry = useMemo(() => {
-    const geo = new THREE.ConeGeometry(0.055, 0.3, 3);
+    const geo = new THREE.ConeGeometry(0.018, 0.1, 3);
     geo.rotateX(Math.PI / 2);
     return geo;
   }, []);
