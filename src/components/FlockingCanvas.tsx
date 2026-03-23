@@ -77,7 +77,7 @@ const FlockingCanvas = () => {
       const boids = boidsRef.current;
 
       // Fade trail
-      ctx.fillStyle = "hsla(220, 15%, 6%, 0.15)";
+      ctx.fillStyle = "hsla(40, 20%, 96%, 0.15)";
       ctx.fillRect(0, 0, w, h);
 
       // Update boids
