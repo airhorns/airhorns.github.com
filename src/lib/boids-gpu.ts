@@ -56,6 +56,12 @@ fn rand(seed: f32, id: f32) -> f32 {
   return fract(sin(seed * 78.233 + id * 43758.5453) * 43758.5453);
 }
 
+fn balancedJitter(seed: f32, index: u32, axisOffset: f32) -> f32 {
+  let pairIndex = f32(index / 2u);
+  let direction = select(-1.0, 1.0, (index & 1u) == 0u);
+  return (rand(seed + axisOffset, pairIndex) - 0.5) * direction;
+}
+
 @compute @workgroup_size(${WORKGROUP_SIZE})
 fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   let i = gid.x;
@@ -132,9 +138,9 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   }
 
   // Jitter
-  let r1 = rand(params.seed, fi) - 0.5;
-  let r2 = rand(params.seed + 1.0, fi) - 0.5;
-  let r3 = rand(params.seed + 2.0, fi) - 0.5;
+  let r1 = balancedJitter(params.seed, i, 0.0);
+  let r2 = balancedJitter(params.seed, i, 1.0);
+  let r3 = balancedJitter(params.seed, i, 2.0);
   newVel += vec3<f32>(r1 * params.jitter, r2 * params.jitter, r3 * params.jitter * 0.3);
 
   // Speed limits

@@ -103,3 +103,16 @@ export function computeMouseAvoidance(position: Vec3, mouse: Pick<Vec3, "x" | "y
     z: dz / dist * strength,
   };
 }
+
+export function computeBalancedJitter(seed: number, boidIndex: number, axisOffset: number) {
+  const pairIndex = Math.floor(boidIndex / 2);
+  const direction = boidIndex % 2 === 0 ? 1 : -1;
+  const raw = pseudoRandom(seed + axisOffset, pairIndex) - 0.5;
+
+  return raw * direction;
+}
+
+export function pseudoRandom(seed: number, index: number) {
+  const value = Math.sin(seed * 78.233 + index * 43758.5453) * 43758.5453;
+  return value - Math.floor(value);
+}

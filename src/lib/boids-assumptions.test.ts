@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   SIM_PARAMS_BUFFER_SIZE,
+  computeBalancedJitter,
   computeCenterPull,
   computeEdgeForce,
   computeMouseAvoidance,
@@ -83,5 +84,22 @@ describe("boid assumptions", () => {
     expect(a.x).toBeCloseTo(-b.x);
     expect(a.y).toBeCloseTo(-b.y);
     expect(a.z).toBeCloseTo(-b.z);
+  });
+
+  it("balances jitter exactly across boid pairs so flock-wide drift cannot accumulate", () => {
+    const count = 3000;
+    let sumX = 0;
+    let sumY = 0;
+    let sumZ = 0;
+
+    for (let i = 0; i < count; i++) {
+      sumX += computeBalancedJitter(123, i, 0);
+      sumY += computeBalancedJitter(123, i, 1);
+      sumZ += computeBalancedJitter(123, i, 2);
+    }
+
+    expect(sumX).toBeCloseTo(0, 10);
+    expect(sumY).toBeCloseTo(0, 10);
+    expect(sumZ).toBeCloseTo(0, 10);
   });
 });
