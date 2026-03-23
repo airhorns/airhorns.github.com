@@ -87,9 +87,9 @@ function Boids() {
     const vz = new Float32Array(BOID_COUNT);
 
     for (let i = 0; i < BOID_COUNT; i++) {
-      px[i] = (Math.random() - 0.5) * BOUNDS * 0.6;
-      py[i] = (Math.random() - 0.5) * BOUNDS * 0.6;
-      pz[i] = (Math.random() - 0.5) * BOUNDS * 0.6;
+      px[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
+      py[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
+      pz[i] = (Math.random() - 0.5) * BOUNDS * 0.15; // start flattened in z
       const angle1 = Math.random() * Math.PI * 2;
       const angle2 = Math.random() * Math.PI * 2;
       const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
