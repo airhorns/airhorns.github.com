@@ -2,6 +2,8 @@
 // O(n²) brute force on GPU — fast enough for ~5000+ boids
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { packSimParams, SIM_PARAMS_BUFFER_SIZE } from "@/lib/boids-assumptions";
+
 const WORKGROUP_SIZE = 64;
 
 // WebGPU constants (avoid TS global lookup issues)
@@ -240,7 +242,7 @@ export async function initBoidGPU(
 
   // Params uniform — 24 floats = 96 bytes (aligned to 16)
   const paramsBuf = device.createBuffer({
-    size: 112,
+    size: SIM_PARAMS_BUFFER_SIZE,
     usage: GPU_UNIFORM | GPU_COPY_DST,
   });
 
@@ -288,36 +290,13 @@ export async function stepBoidGPU(
   gpu.frame++;
 
   // Write params
-  const paramsData = new Float32Array(28);
-  paramsData[0] = boidCount;
-  paramsData[1] = simParams.maxSpeed;
-  paramsData[2] = simParams.minSpeed;
-  paramsData[3] = simParams.visualRange;
-  paramsData[4] = simParams.visualRange * simParams.visualRange;
-  paramsData[5] = simParams.separationDist;
-  paramsData[6] = simParams.separationDist * simParams.separationDist;
-  paramsData[7] = simParams.cohesionFactor;
-  paramsData[8] = simParams.alignmentFactor;
-  paramsData[9] = simParams.separationFactor;
-  paramsData[10] = simParams.bounds;
-  paramsData[11] = simParams.centerPull;
-  paramsData[12] = simParams.zFlatten;
-  paramsData[13] = simParams.edgeMargin;
-  paramsData[14] = simParams.edgeForce;
-  paramsData[15] = simParams.jitter;
-  paramsData[16] = simParams.mouseX;
-  paramsData[17] = simParams.mouseY;
-  paramsData[18] = simParams.mouseActive ? 1 : 0;
-  paramsData[19] = simParams.mouseRange;
-  paramsData[20] = simParams.mouseRange * simParams.mouseRange;
-  paramsData[21] = simParams.mouseFactor;
-  paramsData[22] = Math.random() * 1000;
+  const packedParams = packSimParams({
+    boidCount,
+    ...simParams,
+    seed: Math.random() * 1000,
+  });
 
-  const dv = new DataView(paramsData.buffer);
-  dv.setUint32(0, boidCount, true);
-  dv.setUint32(18 * 4, simParams.mouseActive ? 1 : 0, true);
-
-  device.queue.writeBuffer(paramsBuf, 0, paramsData);
+  device.queue.writeBuffer(paramsBuf, 0, packedParams);
 
   const encoder = device.createCommandEncoder();
   const pass = encoder.beginComputePass();
