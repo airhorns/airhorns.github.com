@@ -8,14 +8,15 @@ const MAX_SPEED = 0.6;
 const MIN_SPEED = 0.2;
 const VISUAL_RANGE = 3.5;
 const SEPARATION_DIST = 1.0;
-const COHESION_FACTOR = 0.008;
-const ALIGNMENT_FACTOR = 0.08;
-const SEPARATION_FACTOR = 0.06;
+const COHESION_FACTOR = 0.006;
+const ALIGNMENT_FACTOR = 0.04; // reduced — was causing lock-step
+const SEPARATION_FACTOR = 0.07;
 const BOUNDS = 25;
 const CENTER_PULL = 0.0005;
 const MOUSE_RANGE = 8;
 const MOUSE_FACTOR = 0.03;
-const Z_FLATTEN = 0.002; // extra force pushing boids toward z=0
+const Z_FLATTEN = 0.002;
+const JITTER = 0.008; // random perturbation to break uniformity
 
 // Spatial hash grid for O(n) neighbor lookups
 class SpatialGrid {
@@ -215,6 +216,11 @@ function Boids() {
         }
       }
 
+      // Random jitter to break lock-step
+      vx[i] += (Math.random() - 0.5) * JITTER;
+      vy[i] += (Math.random() - 0.5) * JITTER;
+      vz[i] += (Math.random() - 0.5) * JITTER * 0.3;
+
       // Limit speed
       const speed = Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i] + vz[i] * vz[i]);
       if (speed > MAX_SPEED) {
@@ -265,7 +271,7 @@ function Boids() {
 
   return (
     <instancedMesh ref={meshRef} args={[geometry, undefined, BOID_COUNT]}>
-      <meshBasicMaterial color="#1a1a2e" transparent opacity={0.85} />
+      <meshBasicMaterial color="#0a0a18" transparent opacity={0.92} />
     </instancedMesh>
   );
 }
@@ -277,7 +283,7 @@ function NoiseOverlay() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const size = 256;
+    const size = 1024;
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext("2d")!;
@@ -288,7 +294,7 @@ function NoiseOverlay() {
       data[i] = v;
       data[i + 1] = v;
       data[i + 2] = v;
-      data[i + 3] = 14;
+      data[i + 3] = 10;
     }
     ctx.putImageData(imageData, 0, 0);
   }, []);
@@ -301,7 +307,6 @@ function NoiseOverlay() {
         zIndex: 2,
         width: "100%",
         height: "100%",
-        imageRendering: "pixelated",
         opacity: 1,
       }}
     />
