@@ -100,11 +100,22 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   }
   newVel += sepSum * params.separationFactor;
 
-  // Center pull
+  // Soft boundary + edge steering
   newVel -= myPos * params.centerPull;
-
-  // Z flatten
   newVel.z -= myPos.z * params.zFlatten;
+
+  let edgeForce = vec3<f32>(0.0);
+  let edgeStart = params.bounds * 0.5 - params.edgeMargin;
+  let edgeEnd = params.bounds * 0.5;
+
+  if (myPos.x > edgeStart) { edgeForce.x -= (myPos.x - edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.x < -edgeStart) { edgeForce.x -= (myPos.x + edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.y > edgeStart) { edgeForce.y -= (myPos.y - edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.y < -edgeStart) { edgeForce.y -= (myPos.y + edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.z > edgeStart) { edgeForce.z -= (myPos.z - edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.z < -edgeStart) { edgeForce.z -= (myPos.z + edgeStart) / params.edgeMargin * params.edgeForce; }
+
+  newVel += edgeForce;
 
   // Mouse avoidance
   if (params.mouseActive == 1u) {
