@@ -323,10 +323,20 @@ function Boids() {
       vy[i] += sepY * SEPARATION_FACTOR;
       vz[i] += sepZ * SEPARATION_FACTOR;
 
+      // Soft boundary — gentle center pull + strong edge avoidance
       vx[i] -= pxi * CENTER_PULL;
       vy[i] -= pyi * CENTER_PULL;
       vz[i] -= pzi * CENTER_PULL;
       vz[i] -= pzi * Z_FLATTEN;
+
+      // Edge steering — ramps up as boids approach boundary
+      const edgeHalf = BOUNDS / 2;
+      if (pxi > edgeHalf - EDGE_MARGIN) vx[i] -= ((pxi - (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
+      if (pxi < -edgeHalf + EDGE_MARGIN) vx[i] -= ((pxi + (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
+      if (pyi > edgeHalf - EDGE_MARGIN) vy[i] -= ((pyi - (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
+      if (pyi < -edgeHalf + EDGE_MARGIN) vy[i] -= ((pyi + (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
+      if (pzi > edgeHalf - EDGE_MARGIN) vz[i] -= ((pzi - (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
+      if (pzi < -edgeHalf + EDGE_MARGIN) vz[i] -= ((pzi + (edgeHalf - EDGE_MARGIN)) / EDGE_MARGIN) * EDGE_FORCE;
 
       if (mouseAct) {
         const mx = pxi - mwx;
