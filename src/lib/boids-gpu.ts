@@ -306,7 +306,7 @@ export async function stepBoidGPU(
   const pass = encoder.beginComputePass();
   pass.setPipeline(pipeline);
   pass.setBindGroup(0, bindGroups[ping]);
-  pass.dispatchWorkgroups(Math.ceil(boidCount / ${WORKGROUP_SIZE}));
+  pass.dispatchWorkgroups(Math.ceil(boidCount / WORKGROUP_SIZE));
   pass.end();
 
   // Copy output positions to readback buffer
