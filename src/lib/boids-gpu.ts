@@ -1,7 +1,15 @@
 // WebGPU compute-based boid simulation
 // O(n²) brute force on GPU — fast enough for ~5000+ boids
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 const WORKGROUP_SIZE = 64;
+
+// WebGPU constants (avoid TS global lookup issues)
+const GPU_STORAGE = 0x0080;
+const GPU_COPY_SRC = 0x0004;
+const GPU_COPY_DST = 0x0008;
+const GPU_UNIFORM = 0x0040;
+const GPU_MAP_READ = 0x0001;
 
 const SHADER = /* wgsl */ `
 
