@@ -26,8 +26,8 @@ const JITTER = 0.008;
 class SpatialGrid {
   cellSize: number;
   invCellSize: number;
-  cells: Map<number, Int32Array>;
-  counts: Map<number, number>;
+  cells: Map<string, Int32Array>;
+  counts: Map<string, number>;
   neighborBuf: Int32Array;
   neighborCount: number;
 
@@ -44,15 +44,15 @@ class SpatialGrid {
     this.counts.forEach((_, k) => this.counts.set(k, 0));
   }
 
-  hash(ix: number, iy: number, iz: number): number {
-    return ((ix * 73856093) ^ (iy * 19349663) ^ (iz * 83492791)) | 0;
+  key(ix: number, iy: number, iz: number): string {
+    return `${ix},${iy},${iz}`;
   }
 
   insert(index: number, x: number, y: number, z: number) {
     const ix = Math.floor(x * this.invCellSize);
     const iy = Math.floor(y * this.invCellSize);
     const iz = Math.floor(z * this.invCellSize);
-    const k = this.hash(ix, iy, iz);
+    const k = this.key(ix, iy, iz);
     let cell = this.cells.get(k);
     let count = this.counts.get(k) || 0;
     if (!cell) {
@@ -81,7 +81,7 @@ class SpatialGrid {
     for (let cx = minX; cx <= maxX; cx++) {
       for (let cy = minY; cy <= maxY; cy++) {
         for (let cz = minZ; cz <= maxZ; cz++) {
-          const k = this.hash(cx, cy, cz);
+          const k = this.key(cx, cy, cz);
           const count = this.counts.get(k);
           if (!count) continue;
           const cell = this.cells.get(k)!;
