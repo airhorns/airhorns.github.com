@@ -213,6 +213,15 @@ function Boids() {
     mouseActive.current = true;
   }, []);
 
+  const handleCanvasPointerMove = useCallback((event: Event) => {
+    const customEvent = event as CustomEvent<{ x: number; y: number }>;
+    mouseNDC.current.x = customEvent.detail.x;
+    mouseNDC.current.y = customEvent.detail.y;
+    lastMouseMoveAt.current = performance.now();
+    mouseActive.current = true;
+    hasRealPointerMove.current = true;
+  }, []);
+
   const handleMouseLeave = useCallback(() => {
     mouseActive.current = false;
   }, []);
@@ -220,11 +229,15 @@ function Boids() {
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);
     window.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("boids:pointermove", handleCanvasPointerMove as EventListener);
+    window.addEventListener("boids:pointerleave", handleMouseLeave);
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("boids:pointermove", handleCanvasPointerMove as EventListener);
+      window.removeEventListener("boids:pointerleave", handleMouseLeave);
     };
-  }, [handleMouseMove, handleMouseLeave]);
+  }, [handleCanvasPointerMove, handleMouseMove, handleMouseLeave]);
 
   // Kick off GPU step (async, non-blocking)
   const kickGPUStep = useCallback(() => {
