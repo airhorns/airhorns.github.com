@@ -211,7 +211,8 @@ function Boids() {
         }
 
         if (distSq < SEPARATION_DIST_SQ && distSq > 0) {
-          const f = 1 / distSq; // use 1/distSq instead of 1/dist — avoids sqrt
+          const dist = Math.sqrt(distSq);
+          const f = 1 / dist;
           sepX -= dx * f;
           sepY -= dy * f;
           sepZ -= dz * f;
