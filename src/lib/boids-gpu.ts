@@ -102,8 +102,10 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   }
   newVel += sepSum * params.separationFactor;
 
-  // Gentle center pull to keep the flock bounded without pinning it
-  newVel -= myPos * params.centerPull;
+  // Distance-dependent center pull — negligible near origin, ramps up at edges
+  let dist2center = length(myPos);
+  let pullStrength = params.centerPull * max(0.0, dist2center - 5.0) * 0.06;
+  newVel -= normalize(myPos + vec3<f32>(0.001)) * pullStrength;
   newVel.z -= myPos.z * params.zFlatten;
 
   var ef = vec3<f32>(0.0);
