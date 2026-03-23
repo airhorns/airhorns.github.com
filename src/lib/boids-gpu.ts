@@ -149,14 +149,9 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   // Move
   var newPos = myPos + newVel;
 
-  // Wrap
+  // Clamp instead of wrap
   let halfBounds = params.bounds * 0.5;
-  if (newPos.x > halfBounds) { newPos.x -= params.bounds; }
-  if (newPos.x < -halfBounds) { newPos.x += params.bounds; }
-  if (newPos.y > halfBounds) { newPos.y -= params.bounds; }
-  if (newPos.y < -halfBounds) { newPos.y += params.bounds; }
-  if (newPos.z > halfBounds) { newPos.z -= params.bounds; }
-  if (newPos.z < -halfBounds) { newPos.z += params.bounds; }
+  newPos = clamp(newPos, vec3<f32>(-halfBounds), vec3<f32>(halfBounds));
 
   posOut[i] = vec4<f32>(newPos, 0.0);
   velOut[i] = vec4<f32>(newVel, 0.0);
