@@ -15,7 +15,7 @@ const COHESION_FACTOR = 0.006;
 const ALIGNMENT_FACTOR = 0.04;
 const SEPARATION_FACTOR = 0.07;
 const BOUNDS = 40;
-const CENTER_PULL = 0.0002;
+const CENTER_PULL = 0.00035;
 const MOUSE_RANGE = 8;
 const EDGE_MARGIN = 5;
 const EDGE_FORCE = 0.08;
@@ -112,6 +112,9 @@ function Boids() {
     const vy = new Float32Array(BOID_COUNT);
     const vz = new Float32Array(BOID_COUNT);
 
+    let sumPx = 0, sumPy = 0, sumPz = 0;
+    let sumVx = 0, sumVy = 0, sumVz = 0;
+
     for (let i = 0; i < BOID_COUNT; i++) {
       px[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
       py[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
@@ -122,12 +125,33 @@ function Boids() {
       vx[i] = Math.cos(angle1) * Math.cos(angle2) * speed;
       vy[i] = Math.sin(angle2) * speed;
       vz[i] = Math.sin(angle1) * Math.cos(angle2) * speed;
+      sumPx += px[i];
+      sumPy += py[i];
+      sumPz += pz[i];
+      sumVx += vx[i];
+      sumVy += vy[i];
+      sumVz += vz[i];
+    }
+
+    const meanPx = sumPx / BOID_COUNT;
+    const meanPy = sumPy / BOID_COUNT;
+    const meanPz = sumPz / BOID_COUNT;
+    const meanVx = sumVx / BOID_COUNT;
+    const meanVy = sumVy / BOID_COUNT;
+    const meanVz = sumVz / BOID_COUNT;
+
+    for (let i = 0; i < BOID_COUNT; i++) {
+      px[i] -= meanPx;
+      py[i] -= meanPy;
+      pz[i] -= meanPz;
+      vx[i] -= meanVx;
+      vy[i] -= meanVy;
+      vz[i] -= meanVz;
     }
 
     return { px, py, pz, vx, vy, vz };
   }, []);
 
-  const grid = useMemo(() => new SpatialGrid(VISUAL_RANGE, BOID_COUNT * 4), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0));
   const mouseActive = useRef(false);
