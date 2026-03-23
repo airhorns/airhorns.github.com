@@ -6,7 +6,7 @@ interface Boid {
   vx: number;
   vy: number;
   hue: number;
-  size: number;
+  baseSize: number;
 }
 
 const BOID_COUNT = 100;
@@ -28,8 +28,8 @@ function createBoid(w: number, h: number): Boid {
     y: Math.random() * h,
     vx: Math.cos(angle) * speed,
     vy: Math.sin(angle) * speed,
-    hue: 210 + (Math.random() - 0.5) * 40, // 190-230 range
-    size: 2.5 + Math.random() * 2,
+    hue: 210 + (Math.random() - 0.5) * 40,
+    baseSize: 4 + Math.random() * 3,
   };
 }
 
@@ -71,7 +71,12 @@ const FlockingCanvas = () => {
     canvas.style.width = w + "px";
     canvas.style.height = h + "px";
     const ctx = canvas.getContext("2d");
-    if (ctx) ctx.scale(dpr, dpr);
+    if (ctx) {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // Fill initial background
+      ctx.fillStyle = "hsl(40, 20%, 96%)";
+      ctx.fillRect(0, 0, w, h);
+    }
     boidsRef.current = Array.from({ length: BOID_COUNT }, () => createBoid(w, h));
   }, []);
 
@@ -101,8 +106,9 @@ const FlockingCanvas = () => {
       const boids = boidsRef.current;
       const mouse = mouseRef.current;
 
-      // Clear fully — no ghosting
-      ctx.clearRect(0, 0, w, h);
+      // Fade trail — semi-transparent overlay
+      ctx.fillStyle = "hsla(40, 20%, 96%, 0.12)";
+      ctx.fillRect(0, 0, w, h);
 
       // Update boids
       for (let i = 0; i < boids.length; i++) {
@@ -163,34 +169,34 @@ const FlockingCanvas = () => {
       }
 
       // Draw boids
-      ctx.save();
       for (const b of boids) {
         const angle = Math.atan2(b.vy, b.vx);
         const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
         const t = speed / MAX_SPEED;
-        const alpha = 0.35 + t * 0.55;
-        const s = b.size;
+        const alpha = 0.5 + t * 0.5;
+        const s = b.baseSize;
 
         ctx.save();
         ctx.translate(b.x, b.y);
         ctx.rotate(angle);
 
-        // Elongated body shape
+        // Elongated teardrop/bird shape
         ctx.beginPath();
         ctx.moveTo(s * 2.5, 0);
-        ctx.quadraticCurveTo(s * 0.5, -s * 0.6, -s * 1.2, -s * 0.15);
-        ctx.quadraticCurveTo(-s * 0.2, 0, -s * 1.2, s * 0.15);
-        ctx.quadraticCurveTo(s * 0.5, s * 0.6, s * 2.5, 0);
+        ctx.quadraticCurveTo(s * 0.5, -s * 0.7, -s * 1.2, -s * 0.2);
+        ctx.quadraticCurveTo(-s * 0.2, 0, -s * 1.2, s * 0.2);
+        ctx.quadraticCurveTo(s * 0.5, s * 0.7, s * 2.5, 0);
         ctx.closePath();
 
         const sat = 45 + t * 20;
-        const light = 35 + (1 - t) * 15;
+        const light = 30 + (1 - t) * 20;
         ctx.fillStyle = `hsla(${b.hue}, ${sat}%, ${light}%, ${alpha})`;
+        ctx.shadowColor = `hsla(${b.hue}, ${sat}%, ${light}%, 0.25)`;
+        ctx.shadowBlur = 6;
         ctx.fill();
 
         ctx.restore();
       }
-      ctx.restore();
 
       animRef.current = requestAnimationFrame(animate);
     };
