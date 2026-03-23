@@ -372,8 +372,33 @@ function GradientBackground() {
 
 // --- Main export ---
 const FlockingCanvas = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   return (
-    <>
+    <div
+      ref={containerRef}
+      className="fixed inset-0"
+      onPointerMove={(event) => {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect || rect.width === 0 || rect.height === 0) return;
+
+        const localX = event.clientX - rect.left;
+        const localY = event.clientY - rect.top;
+
+        const syntheticZeroMove = event.movementX === 0 && event.movementY === 0;
+        if (!syntheticZeroMove) {
+          const nextX = (localX / rect.width) * 2 - 1;
+          const nextY = -(localY / rect.height) * 2 + 1;
+          window.dispatchEvent(new CustomEvent("boids:pointermove", {
+            detail: { x: nextX, y: nextY },
+          }));
+        }
+      }}
+      onPointerLeave={() => {
+        window.dispatchEvent(new Event("boids:pointerleave"));
+      }}
+      style={{ zIndex: 1 }}
+    >
       <GradientBackground />
       <Canvas
         camera={{ position: [0, 0, 65], fov: 50 }}
@@ -384,7 +409,7 @@ const FlockingCanvas = () => {
         <Boids />
       </Canvas>
       <NoiseOverlay />
-    </>
+    </div>
   );
 };
 
