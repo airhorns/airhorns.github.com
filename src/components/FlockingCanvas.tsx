@@ -369,12 +369,11 @@ function Boids() {
       py[i] += vy[i];
       pz[i] += vz[i];
 
-      if (px[i] > half) px[i] -= BOUNDS;
-      if (px[i] < -half) px[i] += BOUNDS;
-      if (py[i] > half) py[i] -= BOUNDS;
-      if (py[i] < -half) py[i] += BOUNDS;
-      if (pz[i] > half) pz[i] -= BOUNDS;
-      if (pz[i] < -half) pz[i] += BOUNDS;
+      // Hard clamp (safety net — edge steering should prevent reaching here)
+      const clamp = BOUNDS / 2;
+      px[i] = Math.max(-clamp, Math.min(clamp, px[i]));
+      py[i] = Math.max(-clamp, Math.min(clamp, py[i]));
+      pz[i] = Math.max(-clamp, Math.min(clamp, pz[i]));
     }
 
     for (let i = 0; i < BOID_COUNT; i++) {
