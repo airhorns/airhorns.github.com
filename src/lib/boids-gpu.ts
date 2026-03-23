@@ -238,7 +238,7 @@ export async function initBoidGPU(
   // Read-back buffer for positions
   const readBuf = device.createBuffer({
     size: bufSize,
-    usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST,
+    usage: GPU_MAP_READ | GPU_COPY_DST,
   });
 
   // Ping-pong bind groups
