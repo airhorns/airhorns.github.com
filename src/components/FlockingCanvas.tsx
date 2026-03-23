@@ -112,6 +112,9 @@ function Boids() {
     const vy = new Float32Array(BOID_COUNT);
     const vz = new Float32Array(BOID_COUNT);
 
+    let sumPx = 0, sumPy = 0, sumPz = 0;
+    let sumVx = 0, sumVy = 0, sumVz = 0;
+
     for (let i = 0; i < BOID_COUNT; i++) {
       px[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
       py[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
@@ -122,6 +125,28 @@ function Boids() {
       vx[i] = Math.cos(angle1) * Math.cos(angle2) * speed;
       vy[i] = Math.sin(angle2) * speed;
       vz[i] = Math.sin(angle1) * Math.cos(angle2) * speed;
+      sumPx += px[i];
+      sumPy += py[i];
+      sumPz += pz[i];
+      sumVx += vx[i];
+      sumVy += vy[i];
+      sumVz += vz[i];
+    }
+
+    const meanPx = sumPx / BOID_COUNT;
+    const meanPy = sumPy / BOID_COUNT;
+    const meanPz = sumPz / BOID_COUNT;
+    const meanVx = sumVx / BOID_COUNT;
+    const meanVy = sumVy / BOID_COUNT;
+    const meanVz = sumVz / BOID_COUNT;
+
+    for (let i = 0; i < BOID_COUNT; i++) {
+      px[i] -= meanPx;
+      py[i] -= meanPy;
+      pz[i] -= meanPz;
+      vx[i] -= meanVx;
+      vy[i] -= meanVy;
+      vz[i] -= meanVz;
     }
 
     return { px, py, pz, vx, vy, vz };
