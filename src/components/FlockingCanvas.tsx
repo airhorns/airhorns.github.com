@@ -7,7 +7,7 @@ const BOID_COUNT = 3000;
 const MAX_SPEED = 0.28;
 const MIN_SPEED = 0.1;
 const VISUAL_RANGE = 3.5;
-const SEPARATION_DIST = 1.0;
+const SEPARATION_DIST = 0.6;
 const COHESION_FACTOR = 0.006;
 const ALIGNMENT_FACTOR = 0.04; // reduced — was causing lock-step
 const SEPARATION_FACTOR = 0.07;
@@ -16,7 +16,9 @@ const CENTER_PULL = 0.0005;
 const MOUSE_RANGE = 8;
 const MOUSE_FACTOR = 0.03;
 const Z_FLATTEN = 0.002;
-const JITTER = 0.008; // random perturbation to break uniformity
+const JITTER = 0.008;
+const WIND_STRENGTH = 0.012;
+const WIND_CYCLE = 0.0003; // how fast wind direction shifts
 
 // Spatial hash grid for O(n) neighbor lookups
 class SpatialGrid {
@@ -105,6 +107,7 @@ function Boids() {
   const grid = useMemo(() => new SpatialGrid(VISUAL_RANGE), []);
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0));
+  const frameCount = useRef(0);
   const mouseActive = useRef(false);
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const mouseNDC = useRef(new THREE.Vector2(0, 0));
@@ -132,8 +135,14 @@ function Boids() {
   useFrame(() => {
     const mesh = meshRef.current;
     if (!mesh) return;
+    frameCount.current++;
+    const t = frameCount.current;
 
     const { px, py, pz, vx, vy, vz } = state;
+
+    // Wind — slowly rotating force that breaks stable patterns
+    const windX = Math.sin(t * WIND_CYCLE) * WIND_STRENGTH + Math.sin(t * WIND_CYCLE * 2.7) * WIND_STRENGTH * 0.4;
+    const windY = Math.cos(t * WIND_CYCLE * 1.3) * WIND_STRENGTH + Math.cos(t * WIND_CYCLE * 3.1) * WIND_STRENGTH * 0.3;
 
     // Update mouse world position
     if (mouseActive.current) {
@@ -216,9 +225,9 @@ function Boids() {
         }
       }
 
-      // Random jitter to break lock-step
-      vx[i] += (Math.random() - 0.5) * JITTER;
-      vy[i] += (Math.random() - 0.5) * JITTER;
+      // Random jitter + wind
+      vx[i] += (Math.random() - 0.5) * JITTER + windX;
+      vy[i] += (Math.random() - 0.5) * JITTER + windY;
       vz[i] += (Math.random() - 0.5) * JITTER * 0.3;
 
       // Limit speed
