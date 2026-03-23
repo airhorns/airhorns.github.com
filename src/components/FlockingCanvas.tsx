@@ -7,9 +7,11 @@ interface Boid {
   vy: number;
   hue: number;
   baseSize: number;
+  trail: { x: number; y: number }[];
 }
 
-const BOID_COUNT = 100;
+const BOID_COUNT = 150;
+const TRAIL_LENGTH = 8;
 const MAX_SPEED = 2.2;
 const MIN_SPEED = 0.8;
 const VISUAL_RANGE = 80;
@@ -17,19 +19,21 @@ const SEPARATION_DIST = 30;
 const COHESION_FACTOR = 0.003;
 const ALIGNMENT_FACTOR = 0.045;
 const SEPARATION_FACTOR = 0.05;
-const MOUSE_RANGE = 180;
-const MOUSE_FACTOR = 0.08;
+const MOUSE_RANGE = 250;
+const MOUSE_FACTOR = 0.18;
 
 function createBoid(w: number, h: number): Boid {
   const angle = Math.random() * Math.PI * 2;
   const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
+  const x = Math.random() * w;
+  const y = Math.random() * h;
   return {
-    x: Math.random() * w,
-    y: Math.random() * h,
+    x, y,
     vx: Math.cos(angle) * speed,
     vy: Math.sin(angle) * speed,
     hue: 210 + (Math.random() - 0.5) * 40,
     baseSize: 4 + Math.random() * 3,
+    trail: Array.from({ length: TRAIL_LENGTH }, () => ({ x, y })),
   };
 }
 
@@ -58,6 +62,7 @@ const FlockingCanvas = () => {
   const animRef = useRef<number>(0);
   const mouseRef = useRef<{ x: number; y: number; active: boolean }>({ x: 0, y: 0, active: false });
   const dprRef = useRef(1);
+  const startTime = useRef(Date.now());
 
   const init = useCallback(() => {
     const canvas = canvasRef.current;
@@ -71,12 +76,7 @@ const FlockingCanvas = () => {
     canvas.style.width = w + "px";
     canvas.style.height = h + "px";
     const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      // Fill initial background
-      ctx.fillStyle = "hsl(40, 20%, 96%)";
-      ctx.fillRect(0, 0, w, h);
-    }
+    if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     boidsRef.current = Array.from({ length: BOID_COUNT }, () => createBoid(w, h));
   }, []);
 
@@ -106,8 +106,24 @@ const FlockingCanvas = () => {
       const boids = boidsRef.current;
       const mouse = mouseRef.current;
 
-      // Fade trail — semi-transparent overlay
-      ctx.fillStyle = "hsla(40, 20%, 96%, 0.12)";
+      // Animated gradient background
+      const elapsed = (Date.now() - startTime.current) / 1000;
+      const hue1 = 220 + Math.sin(elapsed * 0.03) * 15;
+      const hue2 = 200 + Math.sin(elapsed * 0.02 + 2) * 20;
+      const sat1 = 8 + Math.sin(elapsed * 0.015) * 4;
+      const sat2 = 12 + Math.sin(elapsed * 0.025 + 1) * 5;
+
+      const grad = ctx.createLinearGradient(
+        w * (0.3 + 0.2 * Math.sin(elapsed * 0.01)),
+        0,
+        w * (0.7 + 0.2 * Math.cos(elapsed * 0.012)),
+        h
+      );
+      grad.addColorStop(0, `hsl(${hue1}, ${sat1}%, 95.5%)`);
+      grad.addColorStop(0.5, `hsl(${(hue1 + hue2) / 2}, ${(sat1 + sat2) / 2}%, 96%)`);
+      grad.addColorStop(1, `hsl(${hue2}, ${sat2}%, 94.5%)`);
+
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, w, h);
 
       // Update boids
@@ -156,7 +172,7 @@ const FlockingCanvas = () => {
           const mdy = b.y - mouse.y;
           const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
           if (mdist < MOUSE_RANGE && mdist > 0) {
-            const force = (MOUSE_RANGE - mdist) / MOUSE_RANGE;
+            const force = ((MOUSE_RANGE - mdist) / MOUSE_RANGE) ** 1.5;
             b.vx += (mdx / mdist) * force * MOUSE_FACTOR;
             b.vy += (mdy / mdist) * force * MOUSE_FACTOR;
           }
@@ -164,15 +180,36 @@ const FlockingCanvas = () => {
 
         limitSpeed(b);
 
+        // Store trail before moving
+        b.trail.push({ x: b.x, y: b.y });
+        if (b.trail.length > TRAIL_LENGTH) b.trail.shift();
+
         b.x = (b.x + b.vx + w) % w;
         b.y = (b.y + b.vy + h) % h;
       }
 
-      // Draw boids
+      // Draw trails + boids
       for (const b of boids) {
-        const angle = Math.atan2(b.vy, b.vx);
         const speed = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
         const t = speed / MAX_SPEED;
+        const sat = 45 + t * 20;
+        const light = 30 + (1 - t) * 20;
+
+        // Draw trail as fading dots
+        for (let ti = 0; ti < b.trail.length; ti++) {
+          const tp = b.trail[ti];
+          const frac = ti / b.trail.length;
+          const trailAlpha = frac * 0.25;
+          const trailSize = b.baseSize * frac * 0.5;
+
+          ctx.beginPath();
+          ctx.arc(tp.x, tp.y, trailSize, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${b.hue}, ${sat}%, ${light}%, ${trailAlpha})`;
+          ctx.fill();
+        }
+
+        // Draw boid head
+        const angle = Math.atan2(b.vy, b.vx);
         const alpha = 0.5 + t * 0.5;
         const s = b.baseSize;
 
@@ -180,7 +217,6 @@ const FlockingCanvas = () => {
         ctx.translate(b.x, b.y);
         ctx.rotate(angle);
 
-        // Elongated teardrop/bird shape
         ctx.beginPath();
         ctx.moveTo(s * 2.5, 0);
         ctx.quadraticCurveTo(s * 0.5, -s * 0.7, -s * 1.2, -s * 0.2);
@@ -188,11 +224,7 @@ const FlockingCanvas = () => {
         ctx.quadraticCurveTo(s * 0.5, s * 0.7, s * 2.5, 0);
         ctx.closePath();
 
-        const sat = 45 + t * 20;
-        const light = 30 + (1 - t) * 20;
         ctx.fillStyle = `hsla(${b.hue}, ${sat}%, ${light}%, ${alpha})`;
-        ctx.shadowColor = `hsla(${b.hue}, ${sat}%, ${light}%, 0.25)`;
-        ctx.shadowBlur = 6;
         ctx.fill();
 
         ctx.restore();
