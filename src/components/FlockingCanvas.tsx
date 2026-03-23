@@ -162,7 +162,7 @@ function Boids() {
         gpuReady.current = true;
         console.log("🚀 WebGPU boid simulation active");
       } else {
-        console.log("⚠️ WebGPU unavailable, using CPU fallback");
+        console.error("WebGPU unavailable — GPU-only mode enabled, so boids will not render here.");
       }
     });
 
