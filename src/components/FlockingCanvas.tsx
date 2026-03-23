@@ -225,9 +225,9 @@ function Boids() {
         }
       }
 
-      // Random jitter to break lock-step
-      vx[i] += (Math.random() - 0.5) * JITTER;
-      vy[i] += (Math.random() - 0.5) * JITTER;
+      // Random jitter + wind
+      vx[i] += (Math.random() - 0.5) * JITTER + windX;
+      vy[i] += (Math.random() - 0.5) * JITTER + windY;
       vz[i] += (Math.random() - 0.5) * JITTER * 0.3;
 
       // Limit speed
