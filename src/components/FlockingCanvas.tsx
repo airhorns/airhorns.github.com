@@ -216,6 +216,8 @@ function Boids() {
       bounds: BOUNDS,
       centerPull: CENTER_PULL,
       zFlatten: Z_FLATTEN,
+      edgeMargin: EDGE_MARGIN,
+      edgeForce: EDGE_FORCE,
       jitter: JITTER,
       mouseX: mouseWorld.current.x,
       mouseY: mouseWorld.current.y,
