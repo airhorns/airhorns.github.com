@@ -5,8 +5,11 @@ import Posts from "./pages/Posts";
 import PostPage from "./pages/PostPage";
 import NotFound from "./pages/NotFound";
 
+import Footer from "./components/Footer";
+
 const App = () => (
   <BrowserRouter>
+    <Footer />
     <Routes>
       <Route path="/" element={<Index />} />
       <Route path="/about" element={<About />} />
