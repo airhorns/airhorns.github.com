@@ -26,7 +26,9 @@ struct SimParams {
   cohesionFactor: f32,
   alignmentFactor: f32,
   separationFactor: f32,
-  bounds: f32,
+  boundsX: f32,
+  boundsY: f32,
+  boundsZ: f32,
   centerPull: f32,
   zFlatten: f32,
   edgeMargin: f32,
@@ -51,7 +53,6 @@ struct SimParams {
 @group(0) @binding(3) var<storage, read_write> posOut: array<vec4<f32>>;
 @group(0) @binding(4) var<storage, read_write> velOut: array<vec4<f32>>;
 
-// Simple hash for pseudo-random per-boid jitter (independent per boid)
 fn rand(seed: f32, id: f32) -> f32 {
   return fract(sin(seed * 78.233 + id * 43758.5453) * 43758.5453);
 }
@@ -104,23 +105,23 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   }
   newVel += sepSum * params.separationFactor;
 
-  // Center pull
   newVel -= myPos * params.centerPull;
   newVel.z -= myPos.z * params.zFlatten;
 
   var ef = vec3<f32>(0.0);
-  let edgeStart = params.bounds * 0.5 - params.edgeMargin;
+  let edgeStartX = params.boundsX * 0.5 - params.edgeMargin;
+  let edgeStartY = params.boundsY * 0.5 - params.edgeMargin;
+  let edgeStartZ = params.boundsZ * 0.5 - params.edgeMargin;
 
-  if (myPos.x > edgeStart) { ef.x -= (myPos.x - edgeStart) / params.edgeMargin * params.edgeForce; }
-  if (myPos.x < -edgeStart) { ef.x -= (myPos.x + edgeStart) / params.edgeMargin * params.edgeForce; }
-  if (myPos.y > edgeStart) { ef.y -= (myPos.y - edgeStart) / params.edgeMargin * params.edgeForce; }
-  if (myPos.y < -edgeStart) { ef.y -= (myPos.y + edgeStart) / params.edgeMargin * params.edgeForce; }
-  if (myPos.z > edgeStart) { ef.z -= (myPos.z - edgeStart) / params.edgeMargin * params.edgeForce; }
-  if (myPos.z < -edgeStart) { ef.z -= (myPos.z + edgeStart) / params.edgeMargin * params.edgeForce; }
+  if (myPos.x > edgeStartX) { ef.x -= (myPos.x - edgeStartX) / params.edgeMargin * params.edgeForce; }
+  if (myPos.x < -edgeStartX) { ef.x -= (myPos.x + edgeStartX) / params.edgeMargin * params.edgeForce; }
+  if (myPos.y > edgeStartY) { ef.y -= (myPos.y - edgeStartY) / params.edgeMargin * params.edgeForce; }
+  if (myPos.y < -edgeStartY) { ef.y -= (myPos.y + edgeStartY) / params.edgeMargin * params.edgeForce; }
+  if (myPos.z > edgeStartZ) { ef.z -= (myPos.z - edgeStartZ) / params.edgeMargin * params.edgeForce; }
+  if (myPos.z < -edgeStartZ) { ef.z -= (myPos.z + edgeStartZ) / params.edgeMargin * params.edgeForce; }
 
   newVel += ef;
 
-  // Mouse avoidance
   if (params.mouseActive == 1u) {
     let mouseVec = vec3<f32>(myPos.x - params.mouseX, myPos.y - params.mouseY, myPos.z);
     let mDistSq = dot(mouseVec, mouseVec);
@@ -131,13 +132,11 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     }
   }
 
-  // Jitter (independent per boid, zero-mean via (rand-0.5))
   let r1 = rand(params.seed, fi * 3.0) - 0.5;
   let r2 = rand(params.seed, fi * 3.0 + 1.0) - 0.5;
   let r3 = rand(params.seed, fi * 3.0 + 2.0) - 0.5;
   newVel += vec3<f32>(r1 * params.jitter, r2 * params.jitter, r3 * params.jitter * 0.3);
 
-  // Speed limits
   let speedSq = dot(newVel, newVel);
   let maxSpeedSq = params.maxSpeed * params.maxSpeed;
   let minSpeedSq = params.minSpeed * params.minSpeed;
@@ -147,12 +146,9 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     newVel *= params.minSpeed / sqrt(speedSq);
   }
 
-  // Move
   var newPos = myPos + newVel;
-
-  // Clamp instead of wrap
-  let halfBounds = params.bounds * 0.5;
-  newPos = clamp(newPos, vec3<f32>(-halfBounds), vec3<f32>(halfBounds));
+  let halfBounds = vec3<f32>(params.boundsX * 0.5, params.boundsY * 0.5, params.boundsZ * 0.5);
+  newPos = clamp(newPos, -halfBounds, halfBounds);
 
   posOut[i] = vec4<f32>(newPos, 0.0);
   velOut[i] = vec4<f32>(newVel, 0.0);
@@ -179,7 +175,9 @@ export interface SimParams {
   cohesionFactor: number;
   alignmentFactor: number;
   separationFactor: number;
-  bounds: number;
+  boundsX: number;
+  boundsY: number;
+  boundsZ: number;
   centerPull: number;
   zFlatten: number;
   edgeMargin: number;

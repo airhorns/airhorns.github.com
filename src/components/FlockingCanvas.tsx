@@ -14,7 +14,8 @@ const SEPARATION_DIST_SQ = SEPARATION_DIST * SEPARATION_DIST;
 const COHESION_FACTOR = 0.006;
 const ALIGNMENT_FACTOR = 0.04;
 const SEPARATION_FACTOR = 0.07;
-const BOUNDS = 40;
+const BOUNDS_Y = 40;
+const BOUNDS_Z = 40;
 const CENTER_PULL = 0.00035;
 const MOUSE_RANGE = 8;
 const EDGE_MARGIN = 5;
@@ -25,86 +26,17 @@ const MOUSE_IDLE_MS = 120;
 const Z_FLATTEN = 0.002;
 const JITTER = 0.008;
 
-// Spatial hash for CPU fallback
-class SpatialGrid {
-  cellSize: number;
-  invCellSize: number;
-  cells: Map<string, Int32Array>;
-  counts: Map<string, number>;
-  neighborBuf: Int32Array;
-  neighborCount: number;
-
-  constructor(cellSize: number, maxNeighbors: number) {
-    this.cellSize = cellSize;
-    this.invCellSize = 1 / cellSize;
-    this.cells = new Map();
-    this.counts = new Map();
-    this.neighborBuf = new Int32Array(maxNeighbors);
-    this.neighborCount = 0;
-  }
-
-  clear() {
-    this.counts.forEach((_, k) => this.counts.set(k, 0));
-  }
-
-  key(ix: number, iy: number, iz: number): string {
-    return `${ix},${iy},${iz}`;
-  }
-
-  insert(index: number, x: number, y: number, z: number) {
-    const ix = Math.floor(x * this.invCellSize);
-    const iy = Math.floor(y * this.invCellSize);
-    const iz = Math.floor(z * this.invCellSize);
-    const k = this.key(ix, iy, iz);
-    let cell = this.cells.get(k);
-    let count = this.counts.get(k) || 0;
-    if (!cell) {
-      cell = new Int32Array(64);
-      this.cells.set(k, cell);
-    } else if (count >= cell.length) {
-      const newCell = new Int32Array(cell.length * 2);
-      newCell.set(cell);
-      cell = newCell;
-      this.cells.set(k, cell);
-    }
-    cell[count] = index;
-    this.counts.set(k, count + 1);
-  }
-
-  queryInto(x: number, y: number, z: number, range: number): number {
-    let total = 0;
-    const inv = this.invCellSize;
-    const minX = Math.floor((x - range) * inv);
-    const maxX = Math.floor((x + range) * inv);
-    const minY = Math.floor((y - range) * inv);
-    const maxY = Math.floor((y + range) * inv);
-    const minZ = Math.floor((z - range) * inv);
-    const maxZ = Math.floor((z + range) * inv);
-    const buf = this.neighborBuf;
-    for (let cx = minX; cx <= maxX; cx++) {
-      for (let cy = minY; cy <= maxY; cy++) {
-        for (let cz = minZ; cz <= maxZ; cz++) {
-          const k = this.key(cx, cy, cz);
-          const count = this.counts.get(k);
-          if (!count) continue;
-          const cell = this.cells.get(k)!;
-          for (let i = 0; i < count; i++) {
-            buf[total++] = cell[i];
-          }
-        }
-      }
-    }
-    this.neighborCount = total;
-    return total;
-  }
-}
-
 // --- Boids component ---
 function Boids() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const { camera } = useThree();
+  const { camera, size } = useThree();
 
-  // Initial state
+  const simBounds = useMemo(() => ({
+    x: BOUNDS_Y * Math.max(size.width / Math.max(size.height, 1), 1),
+    y: BOUNDS_Y,
+    z: BOUNDS_Z,
+  }), [size.height, size.width]);
+
   const state = useMemo(() => {
     const px = new Float32Array(BOID_COUNT);
     const py = new Float32Array(BOID_COUNT);
@@ -117,9 +49,9 @@ function Boids() {
     let sumVx = 0, sumVy = 0, sumVz = 0;
 
     for (let i = 0; i < BOID_COUNT; i++) {
-      px[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
-      py[i] = (Math.random() - 0.5) * BOUNDS * 0.5;
-      pz[i] = (Math.random() - 0.5) * BOUNDS * 0.15;
+      px[i] = (Math.random() - 0.5) * simBounds.x * 0.5;
+      py[i] = (Math.random() - 0.5) * simBounds.y * 0.5;
+      pz[i] = (Math.random() - 0.5) * simBounds.z * 0.15;
       const angle1 = Math.random() * Math.PI * 2;
       const angle2 = Math.random() * Math.PI * 2;
       const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
@@ -151,7 +83,7 @@ function Boids() {
     }
 
     return { px, py, pz, vx, vy, vz };
-  }, []);
+  }, [simBounds.x, simBounds.y, simBounds.z]);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
   const mouseWorld = useRef(new THREE.Vector3(0, 0, 0));
@@ -163,13 +95,11 @@ function Boids() {
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0), []);
   const rayTarget = useMemo(() => new THREE.Vector3(), []);
 
-  // GPU state
   const gpuRef = useRef<BoidGPUState | null>(null);
   const gpuPending = useRef(false);
   const gpuReady = useRef(false);
   const gpuData = useRef<Float32Array | null>(null);
 
-  // Init GPU
   useEffect(() => {
     const { px, py, pz, vx, vy, vz } = state;
     const positions = new Float32Array(BOID_COUNT * 3);
@@ -194,6 +124,9 @@ function Boids() {
     });
 
     return () => {
+      gpuReady.current = false;
+      gpuData.current = null;
+      gpuPending.current = false;
       if (gpuRef.current) {
         destroyBoidGPU(gpuRef.current);
         gpuRef.current = null;
@@ -239,7 +172,6 @@ function Boids() {
     };
   }, [handleCanvasPointerMove, handleMouseMove, handleMouseLeave]);
 
-  // Kick off GPU step (async, non-blocking)
   const kickGPUStep = useCallback(() => {
     const gpu = gpuRef.current;
     if (!gpu || gpuPending.current) return;
@@ -248,7 +180,6 @@ function Boids() {
       mouseActive.current = false;
     }
 
-    // Update mouse
     if (mouseActive.current) {
       raycaster.setFromCamera(mouseNDC.current, camera);
       raycaster.ray.intersectPlane(plane, rayTarget);
@@ -263,7 +194,9 @@ function Boids() {
       cohesionFactor: COHESION_FACTOR,
       alignmentFactor: ALIGNMENT_FACTOR,
       separationFactor: SEPARATION_FACTOR,
-      bounds: BOUNDS,
+      boundsX: simBounds.x,
+      boundsY: simBounds.y,
+      boundsZ: simBounds.z,
       centerPull: CENTER_PULL,
       zFlatten: Z_FLATTEN,
       edgeMargin: EDGE_MARGIN,
@@ -283,7 +216,7 @@ function Boids() {
     }).catch(() => {
       gpuPending.current = false;
     });
-  }, [camera, plane, raycaster, rayTarget]);
+  }, [camera, plane, raycaster, rayTarget, simBounds.x, simBounds.y, simBounds.z]);
 
   useFrame(() => {
     const mesh = meshRef.current;
