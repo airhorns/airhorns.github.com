@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import PageBackground from "@/components/PageBackground";
-import Footer from "@/components/Footer";
 import { getAllPosts } from "@/lib/posts";
 
 const Posts = () => {
@@ -36,7 +35,6 @@ const Posts = () => {
           </ul>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
