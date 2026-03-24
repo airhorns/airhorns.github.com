@@ -34,23 +34,25 @@ export function packSimParams(input: PackedSimParamsInput): ArrayBuffer {
   paramsData[7] = input.cohesionFactor;
   paramsData[8] = input.alignmentFactor;
   paramsData[9] = input.separationFactor;
-  paramsData[10] = input.bounds;
-  paramsData[11] = input.centerPull;
-  paramsData[12] = input.zFlatten;
-  paramsData[13] = input.edgeMargin;
-  paramsData[14] = input.edgeForce;
-  paramsData[15] = input.jitter;
-  paramsData[16] = input.mouseX;
-  paramsData[17] = input.mouseY;
-  paramsData[18] = input.mouseActive ? 1 : 0;
-  paramsData[19] = input.mouseRange;
-  paramsData[20] = input.mouseRange * input.mouseRange;
-  paramsData[21] = input.mouseFactor;
-  paramsData[22] = input.seed ?? 0;
+  paramsData[10] = input.boundsX;
+  paramsData[11] = input.boundsY;
+  paramsData[12] = input.boundsZ;
+  paramsData[13] = input.centerPull;
+  paramsData[14] = input.zFlatten;
+  paramsData[15] = input.edgeMargin;
+  paramsData[16] = input.edgeForce;
+  paramsData[17] = input.jitter;
+  paramsData[18] = input.mouseX;
+  paramsData[19] = input.mouseY;
+  paramsData[20] = input.mouseActive ? 1 : 0;
+  paramsData[21] = input.mouseRange;
+  paramsData[22] = input.mouseRange * input.mouseRange;
+  paramsData[23] = input.mouseFactor;
+  paramsData[24] = input.seed ?? 0;
 
   const dataView = new DataView(paramsData.buffer);
   dataView.setUint32(0, input.boidCount, true);
-  dataView.setUint32(18 * 4, input.mouseActive ? 1 : 0, true);
+  dataView.setUint32(20 * 4, input.mouseActive ? 1 : 0, true);
 
   return paramsData.buffer.slice(0);
 }
@@ -70,16 +72,18 @@ export function computeCenterPull(position: Vec3, centerPull: number, zFlatten: 
   };
 }
 
-export function computeEdgeForce(position: Vec3, bounds: number, edgeMargin: number, edgeForce: number): Vec3 {
-  const edgeStart = bounds * 0.5 - edgeMargin;
+export function computeEdgeForce(position: Vec3, bounds: Vec3, edgeMargin: number, edgeForce: number): Vec3 {
+  const edgeStartX = bounds.x * 0.5 - edgeMargin;
+  const edgeStartY = bounds.y * 0.5 - edgeMargin;
+  const edgeStartZ = bounds.z * 0.5 - edgeMargin;
   const force = { x: 0, y: 0, z: 0 };
 
-  if (position.x > edgeStart) force.x -= (position.x - edgeStart) / edgeMargin * edgeForce;
-  if (position.x < -edgeStart) force.x -= (position.x + edgeStart) / edgeMargin * edgeForce;
-  if (position.y > edgeStart) force.y -= (position.y - edgeStart) / edgeMargin * edgeForce;
-  if (position.y < -edgeStart) force.y -= (position.y + edgeStart) / edgeMargin * edgeForce;
-  if (position.z > edgeStart) force.z -= (position.z - edgeStart) / edgeMargin * edgeForce;
-  if (position.z < -edgeStart) force.z -= (position.z + edgeStart) / edgeMargin * edgeForce;
+  if (position.x > edgeStartX) force.x -= (position.x - edgeStartX) / edgeMargin * edgeForce;
+  if (position.x < -edgeStartX) force.x -= (position.x + edgeStartX) / edgeMargin * edgeForce;
+  if (position.y > edgeStartY) force.y -= (position.y - edgeStartY) / edgeMargin * edgeForce;
+  if (position.y < -edgeStartY) force.y -= (position.y + edgeStartY) / edgeMargin * edgeForce;
+  if (position.z > edgeStartZ) force.z -= (position.z - edgeStartZ) / edgeMargin * edgeForce;
+  if (position.z < -edgeStartZ) force.z -= (position.z + edgeStartZ) / edgeMargin * edgeForce;
 
   return force;
 }

@@ -19,7 +19,9 @@ const baseParams = {
   cohesionFactor: 0.006,
   alignmentFactor: 0.04,
   separationFactor: 0.07,
-  bounds: 40,
+  boundsX: 80,
+  boundsY: 40,
+  boundsZ: 40,
   centerPull: 0.00035,
   zFlatten: 0.002,
   edgeMargin: 5,
@@ -42,10 +44,13 @@ describe("boid assumptions", () => {
     expect(view.getUint32(0, true)).toBe(baseParams.boidCount);
     expect(view.getFloat32(4, true)).toBeCloseTo(baseParams.maxSpeed);
     expect(view.getFloat32(16, true)).toBeCloseTo(baseParams.visualRange ** 2);
-    expect(view.getUint32(72, true)).toBe(1);
-    expect(view.getFloat32(76, true)).toBeCloseTo(baseParams.mouseRange);
-    expect(view.getFloat32(80, true)).toBeCloseTo(baseParams.mouseRange ** 2);
-    expect(view.getFloat32(88, true)).toBeCloseTo(baseParams.seed);
+    expect(view.getFloat32(40, true)).toBeCloseTo(baseParams.boundsX);
+    expect(view.getFloat32(44, true)).toBeCloseTo(baseParams.boundsY);
+    expect(view.getFloat32(48, true)).toBeCloseTo(baseParams.boundsZ);
+    expect(view.getUint32(80, true)).toBe(1);
+    expect(view.getFloat32(84, true)).toBeCloseTo(baseParams.mouseRange);
+    expect(view.getFloat32(88, true)).toBeCloseTo(baseParams.mouseRange ** 2);
+    expect(view.getFloat32(96, true)).toBeCloseTo(baseParams.seed);
   });
 
   it("normalizes pointer coordinates against the actual canvas rect", () => {
@@ -65,11 +70,12 @@ describe("boid assumptions", () => {
     expect(right.z).toBeCloseTo(-left.z);
   });
 
-  it("keeps edge steering mirrored across left/right and top/bottom", () => {
-    const right = computeEdgeForce({ x: 18, y: 0, z: 0 }, baseParams.bounds, baseParams.edgeMargin, baseParams.edgeForce);
-    const left = computeEdgeForce({ x: -18, y: 0, z: 0 }, baseParams.bounds, baseParams.edgeMargin, baseParams.edgeForce);
-    const top = computeEdgeForce({ x: 0, y: 18, z: 0 }, baseParams.bounds, baseParams.edgeMargin, baseParams.edgeForce);
-    const bottom = computeEdgeForce({ x: 0, y: -18, z: 0 }, baseParams.bounds, baseParams.edgeMargin, baseParams.edgeForce);
+  it("keeps edge steering mirrored across left/right and top/bottom for rectangular bounds", () => {
+    const bounds = { x: baseParams.boundsX, y: baseParams.boundsY, z: baseParams.boundsZ };
+    const right = computeEdgeForce({ x: 38, y: 0, z: 0 }, bounds, baseParams.edgeMargin, baseParams.edgeForce);
+    const left = computeEdgeForce({ x: -38, y: 0, z: 0 }, bounds, baseParams.edgeMargin, baseParams.edgeForce);
+    const top = computeEdgeForce({ x: 0, y: 18, z: 0 }, bounds, baseParams.edgeMargin, baseParams.edgeForce);
+    const bottom = computeEdgeForce({ x: 0, y: -18, z: 0 }, bounds, baseParams.edgeMargin, baseParams.edgeForce);
 
     expect(right.x).toBeCloseTo(-left.x);
     expect(top.y).toBeCloseTo(-bottom.y);
