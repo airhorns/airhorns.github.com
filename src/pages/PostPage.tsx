@@ -33,9 +33,6 @@ const PostPage = () => {
       <PageBackground />
       <div className="relative z-10 flex min-h-screen items-start justify-center p-8 pt-24 pb-32">
         <article className="w-full max-w-xl">
-          <Link to="/posts" className="nav-link text-xs mb-8 inline-block">
-            ← Back to posts
-          </Link>
           <header className="mb-10">
             <time className="text-xs text-muted-foreground font-mono tracking-wider">
               {meta.date}
@@ -55,6 +52,11 @@ const PostPage = () => {
             prose-li:text-muted-foreground
           ">
             <Component />
+          </div>
+          <div className="mt-16">
+            <Link to="/posts" className="nav-link text-xs">
+              ← Back to posts
+            </Link>
           </div>
         </article>
       </div>
