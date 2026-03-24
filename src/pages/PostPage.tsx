@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import PageBackground from "@/components/PageBackground";
-import Footer from "@/components/Footer";
 import { getPostBySlug } from "@/lib/posts";
 
 const PostPage = () => {
@@ -21,7 +20,6 @@ const PostPage = () => {
             </Link>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -60,7 +58,6 @@ const PostPage = () => {
           </div>
         </article>
       </div>
-      <Footer />
     </div>
   );
 };

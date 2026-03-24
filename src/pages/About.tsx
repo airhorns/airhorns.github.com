@@ -1,5 +1,4 @@
 import PageBackground from "@/components/PageBackground";
-import Footer from "@/components/Footer";
 
 const About = () => {
   return (
@@ -15,7 +14,6 @@ const About = () => {
           </p>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };
