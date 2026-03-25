@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# lnai-generated
+.claude/CLAUDE.md
+.claude/settings.json
+.codex/config.toml
+AGENTS.md
+# end lnai-generated

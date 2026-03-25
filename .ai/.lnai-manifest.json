@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "tools": {
+    "claudeCode": {
+      "version": 1,
+      "tool": "claudeCode",
+      "generatedAt": "2026-03-25T10:42:59.804Z",
+      "files": [
+        {
+          "path": ".claude/CLAUDE.md",
+          "type": "symlink",
+          "target": "../.ai/AGENTS.md"
+        },
+        {
+          "path": ".claude/settings.json",
+          "type": "json",
+          "hash": "77a711f0ed6c082ede0094fd212fe8a7d440bf72074150021a3b152f2683da04"
+        }
+      ]
+    },
+    "codex": {
+      "version": 1,
+      "tool": "codex",
+      "generatedAt": "2026-03-25T10:42:59.805Z",
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "type": "symlink",
+          "target": ".ai/AGENTS.md"
+        },
+        {
+          "path": ".codex/config.toml",
+          "type": "text",
+          "hash": "84a8b355b8a3896d802f5376acce371d11023912c61b3c305951cf14bbc1f27f"
+        }
+      ]
+    }
+  }
+}
