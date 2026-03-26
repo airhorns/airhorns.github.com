@@ -1,0 +1,40 @@
+---
+title: "Clerks versus Analysts"
+date: "2021-09-01"
+description: "For a lot of problems, software acts as a clerk. Clerks can be useful, but analysts are better. Why aren't there more?"
+slug: "clerks-versus-analysts"
+---
+
+For a lot of problems, software acts as a clerk. Clerks help people keep track of what they're doing because they have a very good memory, unlike us, and they act as a source of truth between multiple parties. If all information is funnelled to the clerk, then everyone can rely on the clerk to reproduce it reliably and consistently for each consumer. Clerks allow less toe-stepping, more confidence in data to make decisions on, and more awareness of anomalies or inconsistencies.
+
+Computers make excellent clerks because of this consistency, but also because they can slice and dice the information in more than one way. We can ask for the list of most recent stuff, then the list of stuff that is most important, and then a chart of how fast or how much stuff has happened recently. They can search and sort very quickly, and they can inform you when things you care about change. They are always available, and cheap, unlike a real clerk.
+
+Hiring a software-clerk can be hard however, because you have to find one that solves your particular problem. There's lots of CRMs and ERPs out there, but there's still many specific problems that aren't solved very well by anything off-the-shelf. There's some SaaSes for dentists, and some for dog walkers, but few for dog dentists.
+
+Excel has long been the default tool for these long tail clerky problems, and frankly, it works pretty darn well. You can VLOOKUP your way out of most K9 canine challenges, and tools like Airtable or Coda make it even more pleasant. But, clerks like these have limited utility, because they don't understand the work that they do.
+
+## The Best Tools Guide The Work
+
+Clerks have great recall, and can add numbers real fast, but that's about where they top out. Humans, for example, can do a lot more! They can perceive trends, give context, or raise a hand when something seems off! Given the choice between learning from an Excel sheet or learning from a human armed with said sheet, I'd take the human every time. What most folks really need is an _analyst_, which doesn't just store data, but _analyzes_ it. Analysts help you solve your problem faster, smarter, or even teach you that the problem is different than you thought. Analysts return more information than just what's stored in them -- they participate in the meta-game, helping the player improve their play during it.
+
+Like a human analyst, the best software helps the users beyond just recall. Good software should offer automation, accelerated workflows, insight, and predictions. Same as a human analyst, the best software should produce a story and suggested actions to create the outcome we want.
+
+Analysis in software can be really simple, like Shopify not letting you publish a product without setting a price first, or Gmail warning you before sending an email with the word "attachment" in it if you don't have a file attached. Or, they can be complicated, like Slack having a do-not-disturb feature that knows your preferences around notifications but can violate them for high priority notifications, or Dynamics telling you to put a product on sale cause it's not selling. Really grown up analysts leverage the data exhausted by everyone conducting the workflow to make each instance better, like LinkedIn suggesting people you might know or Shopify offering you a loan because they know they can trust you based on your revenue.
+
+So, why do so many folks still do their work with clerks like Excel if there could be something giving them important feedback? It's because analysis is hard, and building analysts is expensive.
+
+## Why don't we have more analysts?
+
+Setting up a spreadsheet or a database is easy and getting even easier, but no one's figured out how to automate the understanding-the-world part. Identifying the opportunities to automate, predict, or workflow better on a given problem is time consuming and risky. There are teams of world-understanders out there doing this: they are generally called startups! If you have an analyzable problem in a big enough market, usually someone has tried to understand how to help, and built some software for you.
+
+If you have a long-tail problem though, there may be no software yet. This tends to suck: you can either use a clerk, adopt a solution to a more common but different problem, or, build software yourself. All these options kinda suck: Clerks get used a lot but miss out on the extra value from analysis, square pegs in round holes end up generating extra work to jam them in, and building software is time consuming, expensive, and outside your average dog dentist's bailiwick.
+
+## Race you to the topchart
+
+So, how do we help get more analysts in the world, so computers can do more of the leg work? How do we produce more bicycles for the mind?
+
+We arm people with mind-wrenches, mind-steel, and mind-blueprints. What makes each software analyst special is intrinsic and not going away, but the parts that are the same can be re-used.
+
+Your average analyst needs authentication, hosting, payment processing, notifications, and a bunch of other infrastructure pieces. Off-the-shelf infrastructure often provides these things, but setting up an app in AWS that authenticates using Auth0 to render a chart of Stripe transaction revenue with anomaly detection in Splunk is quite a bit more work than adding a new sheet to Excel. And, none of these tools even starts to help with the actual analysis of dogs or their teeth.
+
+Moreover, many analysts share a need for understanding the same domain concepts: e-commerce analysts need to understand orders, transactions, and line items, and marketplace analysts need to understand reviews, search, and fraud. Someone building a dog dentist can likely re-use bits of a normal dentist's system, or a normal veterinarian's system, as long as they can adjust those bits when they need to.
