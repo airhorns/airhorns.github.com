@@ -41,7 +41,7 @@ struct SimParams {
   mouseRangeSq: f32,
   mouseFactor: f32,
   seed: f32,
-  _pad1: f32,
+  time: f32,
   _pad2: f32,
   _pad3: f32,
 };
@@ -53,8 +53,20 @@ struct SimParams {
 @group(0) @binding(3) var<storage, read_write> posOut: array<vec4<f32>>;
 @group(0) @binding(4) var<storage, read_write> velOut: array<vec4<f32>>;
 
+fn hash(a: u32) -> u32 {
+  var x = a;
+  x ^= x >> 16u;
+  x *= 0x45d9f3bu;
+  x ^= x >> 16u;
+  x *= 0x45d9f3bu;
+  x ^= x >> 16u;
+  return x;
+}
+
 fn rand(seed: f32, id: f32) -> f32 {
-  return fract(sin(seed * 78.233 + id * 43758.5453) * 43758.5453);
+  let s = bitcast<u32>(seed);
+  let i = bitcast<u32>(id);
+  return f32(hash(s ^ hash(i))) / 4294967295.0;
 }
 
 @compute @workgroup_size(${WORKGROUP_SIZE})
@@ -105,12 +117,22 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   }
   newVel += sepSum * params.separationFactor;
 
-  // Edge avoidance: wide proportional margins with quadratic ramp for smooth
-  // gradual turns instead of bouncy reflections. Force starts gentle and
-  // increases as boids approach the viewport edge.
+  // Distance-based drag: boids far from center slow down (all velocity, not
+  // directional), so cohesion naturally pulls them back. Isotropic drag can't
+  // create orbits like directional damping does.
   let halfX = params.boundsX * 0.5;
   let halfY = params.boundsY * 0.5;
   let halfZ = params.boundsZ * 0.5;
+  let normDist = length(vec2<f32>(myPos.x / max(halfX, 0.001), myPos.y / max(halfY, 0.001)));
+  let dragStart = 0.5;
+  if (normDist > dragStart) {
+    let drag = params.centerPull * (normDist - dragStart);
+    newVel *= max(1.0 - drag, 0.4);
+  }
+
+  // Edge avoidance: proportional margins with quadratic ramp for smooth
+  // gradual turns instead of bouncy reflections. Force starts gentle and
+  // increases as boids approach the viewport edge.
   var ef = vec3<f32>(0.0);
   let emX = halfX * 0.25;
   let emY = halfY * 0.25;
@@ -142,6 +164,19 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   let r2 = rand(params.seed, fi * 3.0 + 1.0) - 0.5;
   let r3 = rand(params.seed, fi * 3.0 + 2.0) - 0.5;
   newVel += vec3<f32>(r1 * params.jitter, r2 * params.jitter, r3 * params.jitter * 0.3);
+
+  // Turbulence: spatially-varying force field that evolves over time.
+  // Different regions of the flock get pushed in different directions,
+  // creating the stretching, folding, and swirling of real murmurations.
+  let t = params.time;
+  let turbStrength = 0.006;
+  let freq = 0.08;
+  let fx = sin(myPos.y * freq + t * 0.4) * cos(myPos.x * freq * 0.7 + t * 0.3) * turbStrength
+         + sin(myPos.y * freq * 2.3 + t * 0.7) * 0.4 * turbStrength;
+  let fy = cos(myPos.x * freq + t * 0.35) * sin(myPos.y * freq * 0.6 + t * 0.5) * turbStrength
+         + cos(myPos.x * freq * 1.8 + t * 0.6) * 0.4 * turbStrength;
+  newVel.x += fx;
+  newVel.y += fy;
 
   let speedSq = dot(newVel, newVel);
   let maxSpeedSq = params.maxSpeed * params.maxSpeed;
@@ -195,6 +230,7 @@ export interface SimParams {
   mouseActive: boolean;
   mouseRange: number;
   mouseFactor: number;
+  time: number;
 }
 
 export async function initBoidGPU(

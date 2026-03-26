@@ -9,9 +9,9 @@ const MAX_SPEED = 0.15;
 const MIN_SPEED = 0.10;
 const VISUAL_RANGE = 2.8;
 const VISUAL_RANGE_SQ = VISUAL_RANGE * VISUAL_RANGE;
-const SEPARATION_DIST = 0.7;
+const SEPARATION_DIST = 0.9;
 const SEPARATION_DIST_SQ = SEPARATION_DIST * SEPARATION_DIST;
-const COHESION_FACTOR = 0.005;
+const COHESION_FACTOR = 0.004;
 const ALIGNMENT_FACTOR = 0.065;
 const SEPARATION_FACTOR = 0.035;
 const BOUNDS_Z = 15;
@@ -222,6 +222,7 @@ function Boids() {
       mouseActive: mouseActive.current,
       mouseRange: MOUSE_RANGE,
       mouseFactor: MOUSE_FACTOR,
+      time: performance.now() * 0.001,
     };
 
     gpuPending.current = true;

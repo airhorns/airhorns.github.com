@@ -49,6 +49,7 @@ export function packSimParams(input: PackedSimParamsInput): ArrayBuffer {
   paramsData[22] = input.mouseRange * input.mouseRange;
   paramsData[23] = input.mouseFactor;
   paramsData[24] = input.seed ?? 0;
+  paramsData[25] = input.time ?? 0;
 
   const dataView = new DataView(paramsData.buffer);
   dataView.setUint32(0, input.boidCount, true);
