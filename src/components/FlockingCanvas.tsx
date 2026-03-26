@@ -5,8 +5,8 @@ import { initBoidGPU, stepBoidGPU, destroyBoidGPU, type BoidGPUState, type SimPa
 
 // --- Simulation constants ---
 const BOID_COUNT = 4500;
-const MAX_SPEED = 0.24;
-const MIN_SPEED = 0.14;
+const MAX_SPEED = 0.15;
+const MIN_SPEED = 0.10;
 const VISUAL_RANGE = 2.8;
 const VISUAL_RANGE_SQ = VISUAL_RANGE * VISUAL_RANGE;
 const SEPARATION_DIST = 0.7;
