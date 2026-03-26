@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         mono: ['Space Mono', 'IBM Plex Mono', 'monospace'],
         body: ['IBM Plex Mono', 'monospace'],
+        prose: ['IBM Plex Sans', 'system-ui', 'sans-serif'],
       },
       colors: {
         boid: "hsl(var(--boid-color))",

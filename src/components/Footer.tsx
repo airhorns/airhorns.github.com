@@ -6,7 +6,9 @@ const Footer = () => {
   const isHome = location.pathname === "/";
   const prevIsHome = useRef(isHome);
   const [animClass, setAnimClass] = useState("");
-  const [position, setPosition] = useState<"top" | "bottom">(isHome ? "bottom" : "top");
+  const [position, setPosition] = useState<"top" | "bottom">(
+    isHome ? "bottom" : "top",
+  );
 
   useEffect(() => {
     if (prevIsHome.current !== isHome) {
@@ -35,17 +37,19 @@ const Footer = () => {
   const linkClass = (path: string) =>
     `nav-link ${location.pathname === path ? "nav-link-active" : ""}`;
 
-  const positionClass = position === "bottom"
-    ? "bottom-0 items-end"
-    : "top-0 items-start";
+  const positionClass =
+    position === "bottom" ? "bottom-0 items-end" : "top-0 items-start";
 
   return (
     <div
       className={`fixed left-0 right-0 z-50 p-8 flex justify-between pointer-events-none ${positionClass} ${animClass}`}
     >
       <div className="pointer-events-auto">
-        <Link to="/" className="text-glow font-mono text-lg tracking-wider text-primary">
-          airhorns
+        <Link
+          to="/"
+          className="text-glow font-mono text-lg tracking-wider text-primary"
+        >
+          harry.me
         </Link>
       </div>
       <nav className="pointer-events-auto flex gap-8">

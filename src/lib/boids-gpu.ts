@@ -105,20 +105,26 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
   }
   newVel += sepSum * params.separationFactor;
 
-  newVel -= myPos * params.centerPull;
-  newVel.z -= myPos.z * params.zFlatten;
-
+  // Edge avoidance: wide proportional margins with quadratic ramp for smooth
+  // gradual turns instead of bouncy reflections. Force starts gentle and
+  // increases as boids approach the viewport edge.
+  let halfX = params.boundsX * 0.5;
+  let halfY = params.boundsY * 0.5;
+  let halfZ = params.boundsZ * 0.5;
   var ef = vec3<f32>(0.0);
-  let edgeStartX = params.boundsX * 0.5 - params.edgeMargin;
-  let edgeStartY = params.boundsY * 0.5 - params.edgeMargin;
-  let edgeStartZ = params.boundsZ * 0.5 - params.edgeMargin;
+  let emX = halfX * 0.25;
+  let emY = halfY * 0.25;
+  let emZ = halfZ * 0.25;
+  let edgeStartX = halfX - emX;
+  let edgeStartY = halfY - emY;
+  let edgeStartZ = halfZ - emZ;
 
-  if (myPos.x > edgeStartX) { ef.x -= (myPos.x - edgeStartX) / params.edgeMargin * params.edgeForce; }
-  if (myPos.x < -edgeStartX) { ef.x -= (myPos.x + edgeStartX) / params.edgeMargin * params.edgeForce; }
-  if (myPos.y > edgeStartY) { ef.y -= (myPos.y - edgeStartY) / params.edgeMargin * params.edgeForce; }
-  if (myPos.y < -edgeStartY) { ef.y -= (myPos.y + edgeStartY) / params.edgeMargin * params.edgeForce; }
-  if (myPos.z > edgeStartZ) { ef.z -= (myPos.z - edgeStartZ) / params.edgeMargin * params.edgeForce; }
-  if (myPos.z < -edgeStartZ) { ef.z -= (myPos.z + edgeStartZ) / params.edgeMargin * params.edgeForce; }
+  if (myPos.x > edgeStartX) { let t = (myPos.x - edgeStartX) / emX; ef.x -= t * t * params.edgeForce; }
+  if (myPos.x < -edgeStartX) { let t = (-myPos.x - edgeStartX) / emX; ef.x += t * t * params.edgeForce; }
+  if (myPos.y > edgeStartY) { let t = (myPos.y - edgeStartY) / emY; ef.y -= t * t * params.edgeForce; }
+  if (myPos.y < -edgeStartY) { let t = (-myPos.y - edgeStartY) / emY; ef.y += t * t * params.edgeForce; }
+  if (myPos.z > edgeStartZ) { let t = (myPos.z - edgeStartZ) / emZ; ef.z -= t * t * params.edgeForce; }
+  if (myPos.z < -edgeStartZ) { let t = (-myPos.z - edgeStartZ) / emZ; ef.z += t * t * params.edgeForce; }
 
   newVel += ef;
 
@@ -146,9 +152,10 @@ fn main(@builtin(global_invocation_id) gid: vec3<u32>) {
     newVel *= params.minSpeed / sqrt(speedSq);
   }
 
+  // Damp z-velocity to keep flock flat (damping, not a spring — no oscillation)
+  newVel.z *= (1.0 - params.zFlatten);
+
   var newPos = myPos + newVel;
-  let halfBounds = vec3<f32>(params.boundsX * 0.5, params.boundsY * 0.5, params.boundsZ * 0.5);
-  newPos = clamp(newPos, -halfBounds, halfBounds);
 
   posOut[i] = vec4<f32>(newPos, 0.0);
   velOut[i] = vec4<f32>(newVel, 0.0);
@@ -244,9 +251,9 @@ export async function initBoidGPU(
     usage: GPU_UNIFORM | GPU_COPY_DST,
   });
 
-  // Read-back buffer for positions
+  // Read-back buffer for positions + velocities (concatenated)
   const readBuf = device.createBuffer({
-    size: bufSize,
+    size: bufSize * 2,
     usage: GPU_MAP_READ | GPU_COPY_DST,
   });
 
@@ -283,7 +290,7 @@ export async function stepBoidGPU(
   gpu: BoidGPUState,
   simParams: SimParams,
 ): Promise<Float32Array> {
-  const { device, pipeline, bindGroups, paramsBuf, posBufs, readBuf, boidCount } = gpu;
+  const { device, pipeline, bindGroups, paramsBuf, posBufs, velBufs, readBuf, boidCount } = gpu;
   const ping = gpu.frame % 2;
   gpu.frame++;
 
@@ -303,18 +310,22 @@ export async function stepBoidGPU(
   pass.dispatchWorkgroups(Math.ceil(boidCount / WORKGROUP_SIZE));
   pass.end();
 
-  // Copy output positions to readback buffer
-  const outPosBuf = posBufs[1 - ping];
-  encoder.copyBufferToBuffer(outPosBuf, 0, readBuf, 0, boidCount * 16);
+  // Copy output positions and velocities to readback buffer
+  const outIdx = 1 - ping;
+  const outPosBuf = posBufs[outIdx];
+  const outVelBuf = velBufs[outIdx];
+  const singleBufSize = boidCount * 16;
+  encoder.copyBufferToBuffer(outPosBuf, 0, readBuf, 0, singleBufSize);
+  encoder.copyBufferToBuffer(outVelBuf, 0, readBuf, singleBufSize, singleBufSize);
 
   device.queue.submit([encoder.finish()]);
 
-  // Map and read positions
+  // Map and read positions + velocities
   await readBuf.mapAsync(1); // GPUMapMode.READ = 1
   const data = new Float32Array(readBuf.getMappedRange().slice(0));
   readBuf.unmap();
 
-  return data; // vec4 per boid
+  return data; // first half: vec4 positions, second half: vec4 velocities
 }
 
 export function destroyBoidGPU(gpu: BoidGPUState) {

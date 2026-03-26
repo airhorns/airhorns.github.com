@@ -4,7 +4,6 @@ import About from "./pages/About";
 import Posts from "./pages/Posts";
 import PostPage from "./pages/PostPage";
 import NotFound from "./pages/NotFound";
-
 import Footer from "./components/Footer";
 
 const App = () => (

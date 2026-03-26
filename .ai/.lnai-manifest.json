@@ -4,7 +4,7 @@
     "claudeCode": {
       "version": 1,
       "tool": "claudeCode",
-      "generatedAt": "2026-03-25T10:42:59.804Z",
+      "generatedAt": "2026-03-25T10:53:08.502Z",
       "files": [
         {
           "path": ".claude/CLAUDE.md",
@@ -21,7 +21,7 @@
     "codex": {
       "version": 1,
       "tool": "codex",
-      "generatedAt": "2026-03-25T10:42:59.805Z",
+      "generatedAt": "2026-03-25T10:53:08.503Z",
       "files": [
         {
           "path": "AGENTS.md",

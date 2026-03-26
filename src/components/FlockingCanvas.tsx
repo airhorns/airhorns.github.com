@@ -4,38 +4,46 @@ import * as THREE from "three";
 import { initBoidGPU, stepBoidGPU, destroyBoidGPU, type BoidGPUState, type SimParams } from "@/lib/boids-gpu";
 
 // --- Simulation constants ---
-const BOID_COUNT = 3000;
-const MAX_SPEED = 0.28;
-const MIN_SPEED = 0.1;
-const VISUAL_RANGE = 3.5;
+const BOID_COUNT = 4500;
+const MAX_SPEED = 0.24;
+const MIN_SPEED = 0.14;
+const VISUAL_RANGE = 2.8;
 const VISUAL_RANGE_SQ = VISUAL_RANGE * VISUAL_RANGE;
-const SEPARATION_DIST = 0.6;
+const SEPARATION_DIST = 0.7;
 const SEPARATION_DIST_SQ = SEPARATION_DIST * SEPARATION_DIST;
-const COHESION_FACTOR = 0.006;
-const ALIGNMENT_FACTOR = 0.04;
-const SEPARATION_FACTOR = 0.07;
-const BOUNDS_Y = 40;
-const BOUNDS_Z = 40;
-const CENTER_PULL = 0.00035;
-const MOUSE_RANGE = 8;
-const EDGE_MARGIN = 5;
-const EDGE_FORCE = 0.08;
+const COHESION_FACTOR = 0.005;
+const ALIGNMENT_FACTOR = 0.065;
+const SEPARATION_FACTOR = 0.035;
+const BOUNDS_Z = 15;
+const CENTER_PULL = 0.03;
+const MOUSE_RANGE = 12;
+const EDGE_MARGIN = 10;
+const EDGE_FORCE = 0.15;
 const MOUSE_RANGE_SQ = MOUSE_RANGE * MOUSE_RANGE;
 const MOUSE_FACTOR = 0.03;
 const MOUSE_IDLE_MS = 120;
-const Z_FLATTEN = 0.002;
-const JITTER = 0.008;
+const Z_FLATTEN = 0.03;
+const JITTER = 0.002;
+
+// Camera constants (must match Canvas camera props below)
+const CAM_Z = 65;
+const CAM_FOV = 50;
 
 // --- Boids component ---
 function Boids() {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const { camera, size } = useThree();
 
-  const simBounds = useMemo(() => ({
-    x: BOUNDS_Y * Math.max(size.width / Math.max(size.height, 1), 1),
-    y: BOUNDS_Y,
-    z: BOUNDS_Z,
-  }), [size.height, size.width]);
+  // Derive simulation bounds from the camera frustum so boids fill the full viewport
+  const simBounds = useMemo(() => {
+    const halfHeight = CAM_Z * Math.tan((CAM_FOV / 2) * Math.PI / 180);
+    const aspect = size.width / Math.max(size.height, 1);
+    return {
+      x: halfHeight * 2 * Math.max(aspect, 1),
+      y: halfHeight * 2,
+      z: BOUNDS_Z,
+    };
+  }, [size.height, size.width]);
 
   const state = useMemo(() => {
     const px = new Float32Array(BOID_COUNT);
@@ -52,12 +60,19 @@ function Boids() {
       px[i] = (Math.random() - 0.5) * simBounds.x * 0.5;
       py[i] = (Math.random() - 0.5) * simBounds.y * 0.5;
       pz[i] = (Math.random() - 0.5) * simBounds.z * 0.15;
-      const angle1 = Math.random() * Math.PI * 2;
-      const angle2 = Math.random() * Math.PI * 2;
+      // Isotropic velocity via rejection sampling on unit sphere
+      let dx, dy, dz, lenSq;
+      do {
+        dx = Math.random() * 2 - 1;
+        dy = Math.random() * 2 - 1;
+        dz = Math.random() * 2 - 1;
+        lenSq = dx * dx + dy * dy + dz * dz;
+      } while (lenSq > 1 || lenSq === 0);
+      const len = Math.sqrt(lenSq);
       const speed = MIN_SPEED + Math.random() * (MAX_SPEED - MIN_SPEED);
-      vx[i] = Math.cos(angle1) * Math.cos(angle2) * speed;
-      vy[i] = Math.sin(angle2) * speed;
-      vz[i] = Math.sin(angle1) * Math.cos(angle2) * speed;
+      vx[i] = (dx / len) * speed;
+      vy[i] = (dy / len) * speed;
+      vz[i] = (dz / len) * speed;
       sumPx += px[i];
       sumPy += py[i];
       sumPz += pz[i];
@@ -218,6 +233,9 @@ function Boids() {
     });
   }, [camera, plane, raycaster, rayTarget, simBounds.x, simBounds.y, simBounds.z]);
 
+  const velDir = useMemo(() => new THREE.Vector3(), []);
+  const forward = useMemo(() => new THREE.Vector3(0, 1, 0), []);
+
   useFrame(() => {
     const mesh = meshRef.current;
     if (!mesh || !gpuReady.current) return;
@@ -227,22 +245,28 @@ function Boids() {
     const data = gpuData.current;
     if (!data) return;
 
+    // Data layout: first BOID_COUNT*4 floats = positions, next BOID_COUNT*4 = velocities
+    const velOffset = BOID_COUNT * 4;
+
     for (let i = 0; i < BOID_COUNT; i++) {
-      const x = data[i * 4];
-      const y = data[i * 4 + 1];
-      const z = data[i * 4 + 2];
-      dummy.position.set(x, y, z);
+      const pi = i * 4;
+      dummy.position.set(data[pi], data[pi + 1], data[pi + 2]);
+
+      const vi = velOffset + i * 4;
+      velDir.set(data[vi], data[vi + 1], data[vi + 2]);
+      const speed = velDir.length();
+      if (speed > 0.001) {
+        velDir.divideScalar(speed);
+        dummy.quaternion.setFromUnitVectors(forward, velDir);
+      }
+
       dummy.updateMatrix();
       mesh.setMatrixAt(i, dummy.matrix);
     }
     mesh.instanceMatrix.needsUpdate = true;
   });
 
-  const geometry = useMemo(() => {
-    const geo = new THREE.ConeGeometry(0.032, 0.16, 3);
-    geo.rotateX(Math.PI / 2);
-    return geo;
-  }, []);
+  const geometry = useMemo(() => new THREE.ConeGeometry(0.06, 0.5, 3), []);
 
   return (
     <instancedMesh ref={meshRef} args={[geometry, undefined, BOID_COUNT]}>
