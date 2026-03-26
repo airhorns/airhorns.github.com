@@ -1,0 +1,11 @@
+---
+layout: post_index
+footer: false
+---
+
+<h1 class="archive-title h2">
+  <span>Category</span>: {{ page.category }}
+</h1>
+{% for post in site.categories[page.category] %}
+  {% include post/archive_post.html %}
+{% endfor %}

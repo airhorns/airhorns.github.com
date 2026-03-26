@@ -1,0 +1,102 @@
+---
+layout: default
+single: true
+---
+
+{% if page.featured_image %}
+<div id="featured-wrap">
+  <img src="{{ page.featured_image }}" class="attachment-creer-full wp-post-image" />
+  <div class="feature-credit">photo credit: {{ page.photo_credit }}</div>
+</div>
+{% endif %}
+
+
+<div id="content" class="single">
+  <div id="inner-content" class="wrap clearfix">
+    <div id="main" class="twelvecol clearfix" role="main">
+      <article class="clearfix post" role="article" itemscope itemtype="http://schema.org/BlogPosting">
+        <header class="article-header pushfourcol">
+          {% if page.date %}<span class="published">{% include post/date.html %}{{ time }}</span>{% endif %}
+          <h1 class="entry-title single-title" itemprop="headline">{% if site.titlecase %}{{ page.title | titlecase }}{% else %}{{ page.title }}{% endif %}</h1>
+        </header>
+
+        <section class="entry-content clearfix" itemprop="articleBody">
+          <div id="postmeta" class="fourcol first clearfix">
+            <p class="byline vcard">
+
+            <span class="byline author vcard">
+                {% if page.author %}
+                  {% assign author = page.author %}
+                {% else %}
+                  {% assign author = site.author %}
+                {% endif %}
+                By <a href="/about/" rel="author">{{ author }}</a>
+              </span>
+
+              {% if page.shortlink %}
+                <span class="shortlink">Short URL: <a href="{{ page.shortlink }}">{{ page.shortlink }}</a></span>
+              {% endif %}
+              {% if updated %}
+                <span class="updated">Edited: {{ updated }}</span>
+              {% endif %}
+              {% if page.categories %}
+                {% include post/categories.html %}
+              {% endif %}
+              <span class="count">Words: <strong>{{ content | count_words }}</strong></span>
+              </p>
+
+            {% unless post.sharing == false %}
+              {% include post/sharing.html %}
+            {% endunless %}
+          </div>
+
+          <div id="post-content">
+            {{ content }}
+          </div>
+        </section>
+
+        <footer class="article-footer clearfix">
+          <nav id="post-entries" class="clearfix">
+            {% if page.previous.url %}
+            <div class="nav-prev fl">
+              <a rel="prev" href="{{page.previous.url}}" title="Previous Post: {{page.previous.title}}">
+                <span class="meta">Previous</span>
+                <span class="link">{{page.previous.title}}</span>
+              </a>
+            </div>
+            {% endif %}
+            {% if page.next.url %}
+            <div class="nav-next fr">
+              <a rel="next" href="{{page.next.url}}" title="Next Post: {{page.next.title}}">
+                <span class="meta">Next</span>
+                <span class="link">{{page.next.title}}</span>
+              </a>
+            </div>
+            {% endif %}
+          </nav>
+        </footer>
+
+        {% if page.show_about_box %}
+        <div id="authorbox" class="eightcol last clearfix">
+          <div class="authortext">
+            <h4 class="meta">About {{ site.author }}<?php the_author(); ?></h4>
+            <div class="authorimg fl"><img src="{{ site.author_gravatar_url }}?s=120" class="avatar avatar-120 photo" height="120" width="120" /></div>
+            <p>{{ site.author_description }}</p>
+          </div>
+        </div>
+
+        <div class="clearfix"></div>
+        {% endif %}
+
+        <div class="eightcol last clearfix">
+          {% if site.disqus_short_name and page.comments == true %}
+            <section>
+              <h3>Comments</h3>
+              <div id="disqus_thread" aria-live="polite"></div>
+            </section>
+          {% endif %}
+        </div>
+      </article> <!-- end article -->
+    </div>
+  </div> <!-- end #inner-content -->
+</div> <!-- end #content -->

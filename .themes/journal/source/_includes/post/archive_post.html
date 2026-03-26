@@ -1,0 +1,17 @@
+<article class="clearfix post type-post" role="article">
+  <header class="article-header">
+    <span class="published">
+      <time datetime="{{ post.date | datetime | date_to_xmlschema }}" pubdate>{{ post.date | date: "<span class='month'>%b</span> <span class='day'>%d</span> <span class='year'>%Y</span>"}}</time>
+    </span>
+    <h1 class="search-title">
+      <a href="{{ root_url }}{{ post.url }}" rel="bookmark">{{ post.title }}</a>
+    </h1>
+  </header> <!-- end article header -->
+  <section class="entry-content clearfix">
+    {{ post.content | excerpt }}
+  </section> <!-- end article section -->
+  <footer class="article-footer">
+    <a rel="full-article" class="read-more" href="{{ root_url }}{{ post.url }}">{{ site.excerpt_link }}</a>
+  </footer>
+</article> <!-- end article -->
+

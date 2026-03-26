@@ -1,0 +1,43 @@
+  <footer class="footer" role="contentinfo">
+    <div id="inner-footer" class="wrap clearfix">
+      <nav role="navigation">
+        <ul id="menu-footer" class="nav footer-nav clearfix">
+          <li class="menu-item"><a href="/">Home</a></li>
+          <li class="menu-item"><a href="/about/">About</a></li>
+          <li class="menu-item"><a href="/blog/archives">Archives</a></li>
+          <li class="menu-item"><a href="mailto:harry@harry.me">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+</div>
+
+<a href="#" id="back-to-top"><i class="icon-angle-up"></i></a>
+<script type="text/javascript" src="/javascripts/jquery.fitvids.js"></script>
+<script type="text/javascript" src="/javascripts/scripts.js"></script>
+<script type="text/javascript" src="/javascripts/nav.js"></script>
+<script type="text/javascript" src="/javascripts/jquery.infinitescroll.min.js"></script>
+{% comment %} Load script if disquss comments are enabled and `page.comments` is either empty (index) or set to true {% endcomment %}
+{% if site.disqus_short_name and page.comments != false %}
+<script type="text/javascript">
+      var disqus_shortname = '{{ site.disqus_short_name }}';
+      {% if page.comments == true %}
+        {% comment %} `page.comments` can be only be set to true on pages/posts, so we embed the comments here. {% endcomment %}
+        // var disqus_developer = 1;
+        var disqus_identifier = '{{ site.url }}{{ page.url }}';
+        var disqus_url = '{{ site.url }}{{ page.url }}';
+        var disqus_script = 'embed.js';
+      {% else %}
+        {% comment %} As `page.comments` is empty, we must be on the index page. {% endcomment %}
+        var disqus_script = 'count.js';
+      {% endif %}
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+{% endif %}
+
+</body>
+</html>
